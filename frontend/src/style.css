@@ -185,3 +185,26 @@
 @media(prefers-reduced-motion:reduce) {
  .story-message { animation:none; }
 }
+
+
+/* Cinematic background: artwork remains behind crisp foreground content */
+.landing-cinematic { position:relative; isolation:isolate; overflow:hidden; background:#F8F6F1; }
+.landing-atmosphere { position:absolute; inset:0; overflow:hidden; z-index:-1; pointer-events:none; }
+.landing-sky { position:absolute; inset:-5%; background:url('/backgrounds/landing-clouds.png') center 52% / cover no-repeat; animation:cloudscape-drift 28s ease-in-out infinite alternate; }
+.landing-haze { position:absolute; inset:0; background:linear-gradient(180deg,rgba(248,246,241,.46),rgba(248,246,241,.56) 50%,rgba(248,246,241,.68)); }
+.landing-cinematic .landing-content { z-index:1; }
+.landing-cinematic h1 { text-shadow:0 2px 28px rgba(248,246,241,.75); }
+@keyframes cloudscape-drift { from { transform:scale(1.02) translate3d(-.6%,0,0); } to { transform:scale(1.10) translate3d(.6%,-.7%,0); } }
+
+/* Artwork preview on realm hover/focus: low contrast, slow magnification */
+.realms-page { position:relative; isolation:isolate; }
+.realms-page > .text-button, .realms-page > .section-intro, .realms-page > .realm-grid { position:relative; z-index:1; }
+.realm-preview-background { position:fixed; inset:0; z-index:-2; pointer-events:none; background-position:center 48%; background-size:cover; opacity:0; transform:scale(1.025); transition:opacity .8s ease,transform 5s ease; }
+.realm-preview-background.is-visible { opacity:.20; transform:scale(1.14); }
+.realm-preview-wash { position:fixed; inset:0; z-index:-1; pointer-events:none; background:rgba(248,246,241,.65); }
+.realms-page .realm-card { background:rgba(248,246,241,.89); }
+@media (prefers-reduced-motion:reduce) {
+ .landing-sky { animation:none; }
+ .realm-preview-background { transition:none; transform:none; }
+ .realm-preview-background.is-visible { transform:none; }
+}
