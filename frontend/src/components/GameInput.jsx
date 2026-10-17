@@ -2,11 +2,13 @@ import { useState } from 'react';
 
 export default function GameInput({ onSubmit, disabled }) {
   const [draft, setDraft] = useState('');
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
     const value = draft.trim();
     if (!value || disabled) return;
-    if (onSubmit(value)) setDraft('');
+    setDraft('');
+    const accepted = await onSubmit(value);
+    if (!accepted) setDraft(previous => previous || value);
   }
   return (
     <form className="game-composer" onSubmit={submit}>
