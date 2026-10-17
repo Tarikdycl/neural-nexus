@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import Inventory from '../components/Inventory.jsx';
+import JournalBook from '../components/JournalBook.jsx';
 import StoryChat from '../components/StoryChat.jsx';
 import GameInput from '../components/GameInput.jsx';
 
 export default function GamePage({ session, messages, busy, error, onAction, onBack, onSave }) {
   const [showDetails, setShowDetails] = useState(false);
+  const [showJournal, setShowJournal] = useState(false);
   const world = session.world;
   const exits = world.exits && typeof world.exits === 'object' ? Object.entries(world.exits) : [];
 
@@ -15,6 +17,7 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
         <span className="game-realm-name">The Odyssey</span>
         <div className="topbar-actions">
           <button className="text-button mobile-details" onClick={() => setShowDetails(value => !value)} aria-expanded={showDetails} aria-controls="game-details">Details</button>
+          <button className="journal-open-button" type="button" onClick={() => setShowJournal(true)} aria-label="Open traveler journal"><span aria-hidden="true">▤</span> Journal</button>
           <button className="save-button" onClick={onSave} title="Remember this session in your browser">Save</button>
         </div>
       </header>
@@ -47,6 +50,7 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
           <Inventory world={world} busy={busy} onTake={id => onAction('take', id)} />
         </div>
       </div>
+      <JournalBook open={showJournal} onClose={() => setShowJournal(false)} />
     </main>
   );
 }
