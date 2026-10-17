@@ -674,3 +674,23 @@
 @media(max-width:680px) {
   .journal-book-spread { overflow:auto; }
 }
+
+
+/* Journal typography and editable personal notes */
+.journal-dialog-top h2 {font-size:clamp(21px,2.4vw,27px);}
+.journal-page-ornament,.journal-empty-art {display:none;}
+.journal-page {padding:clamp(24px,3vw,42px);}
+.journal-page h3,.journal-page-empty h3 {font:500 clamp(20px,2vw,29px)/1.25 'Fraunces',Georgia,serif;margin:9px 0 16px;letter-spacing:-.015em;}
+.journal-page-body {font:400 clamp(15px,1.3vw,17px)/1.6 'DM Sans',sans-serif;color:#354663;margin:0;}
+.journal-page-subtitle,.journal-page-note {font:400 12px/1.65 'DM Sans',sans-serif;color:#7d776b;}
+.journal-page-eyebrow {font:700 9px/1.5 'DM Sans',sans-serif;letter-spacing:.15em;color:#987447;}
+.journal-page-number {font:500 11px 'DM Sans',sans-serif;padding-top:18px;}
+.journal-page-content {flex:1;}
+.journal-page-empty .journal-page-content {justify-content:center;}
+.journal-personal-note {margin-top:16px;}
+.journal-personal-note .journal-page-note {margin:0 0 9px;overflow-wrap:anywhere;}
+.journal-edit-note,.journal-note-actions button {border:0;background:none;padding:4px 0;color:#8c693d;font:600 11px 'DM Sans',sans-serif;}
+.journal-edit-note:hover,.journal-note-actions button:hover {text-decoration:underline;}
+.journal-note-label {display:block;font-size:11px;color:#785d37;margin-bottom:7px;}
+.journal-personal-note textarea {display:block;width:100%;resize:vertical;min-height:68px;padding:9px;border:1px solid #c9ad83;border-radius:6px;background:rgba(255,252,242,.75);color:#263b55;font:12px/1.5 'DM Sans',sans-serif;}
+.journal-note-actions {display:flex;gap:16px;margin-top:6px;}
