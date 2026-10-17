@@ -16,7 +16,7 @@ def start_game(request: StartRequest | None = None):
     session_id = str(uuid4())
     world = new_world()
     SESSIONS[session_id] = world
-    return {"session_id": session_id, "narration": "Welcome, young explorer! A curious island awaits.", "world": public_world(world)}
+    return {"session_id": session_id, "narration": "The island is quiet. For now.", "world": public_world(world)}
 
 @router.post("/action")
 def game_action(request: ActionRequest):
