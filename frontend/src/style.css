@@ -605,3 +605,45 @@
 @media(prefers-reduced-motion:reduce) {
  .journal-backdrop,.journal-page {animation:none;}
 }
+
+
+/* Aged journal parchment: subtle stains, fibers, weathered edges */
+.journal-book-spread {
+  border-color:#735437;
+  box-shadow:0 26px 60px rgba(11,21,41,.32),inset 0 0 0 2px rgba(188,146,90,.42);
+}
+.journal-page {
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse 42% 28% at 0% 2%, rgba(124,77,32,.20), transparent 95%),
+    radial-gradient(ellipse 38% 28% at 100% 100%, rgba(124,80,33,.16), transparent 95%),
+    radial-gradient(ellipse 30% 26% at 93% 6%, rgba(158,108,53,.12), transparent 95%),
+    radial-gradient(ellipse 48% 35% at 11% 91%, rgba(175,125,63,.11), transparent 95%),
+    radial-gradient(ellipse at 45% 28%,#fff8e7 4%,#f0dfbe 100%);
+  box-shadow:inset 0 0 23px rgba(99,57,22,.15), inset 0 0 3px rgba(89,57,26,.22);
+}
+.journal-page::before {
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    repeating-linear-gradient(18deg,transparent 0 3px,rgba(117,86,51,.018) 3.5px 4px,transparent 4px 8px),
+    repeating-linear-gradient(107deg,transparent 0 5px,rgba(103,78,49,.016) 5.5px 6px,transparent 6px 12px),
+    radial-gradient(circle at 9% 7%,rgba(138,87,44,.15) 0 2px,transparent 3px),
+    radial-gradient(circle at 94% 85%,rgba(134,86,43,.12) 0 4px,transparent 6px),
+    radial-gradient(circle at 12% 83%,rgba(130,89,48,.10) 0 3px,transparent 5px);
+  opacity:.76;
+  mix-blend-mode:multiply;
+}
+.journal-page::after {
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  border:1px solid rgba(112,72,31,.1);
+  box-shadow:inset 12px 0 20px -15px rgba(100,63,30,.24),
+             inset -12px 0 20px -15px rgba(100,63,30,.28),
+             inset 0 18px 28px -24px rgba(120,79,31,.40),
+             inset 0 -18px 26px -22px rgba(117,75,29,.34);
+}
+.journal-page-content,.journal-page-number,.journal-page-ornament {position:relative;z-index:1;}
+.journal-book-spread::before {
+  background:linear-gradient(to right,transparent 0%,rgba(80,49,23,.12) 18%,rgba(70,43,18,.33) 46%,rgba(255,249,229,.1) 56%,rgba(66,40,19,.16) 78%,transparent 100%);
+  width:43px;
+}
+@media(prefers-reduced-motion:reduce) {.journal-page{animation:none;}}
