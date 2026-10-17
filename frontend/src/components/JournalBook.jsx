@@ -12,10 +12,10 @@ function toPages(journal) {
     (Array.isArray(items) ? items : []).filter(item => item && typeof item.body === 'string' && item.body.trim())
       .map(item => ({ ...item, section }))
   );
-  if (!entries.length) return [{
-    section: 'THE JOURNEY', title: 'Yet to be written',
-    empty: true, note: 'Your discoveries, decisions, and lessons will be recorded as they happen.',
-  }];
+  if (!entries.length) return [
+    { section: 'CHAPTER I · THE ODYSSEY', title: 'The First Shore', subtitle: 'Moonlit Clearing', body: 'The island is quiet. For now.', note: 'The journey begins here.', opening: true },
+    { section: 'FIELD NOTES', title: 'Yet to be written', empty: true, note: 'Discoveries and lessons will find their place here.' },
+  ];
   return entries;
 }
 
