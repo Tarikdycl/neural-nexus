@@ -13,22 +13,28 @@ function toPages(journal) {
       .map(item => ({ ...item, section }))
   );
   if (!entries.length) return [
-    { section: 'CHAPTER I · THE ODYSSEY', title: 'The First Shore', subtitle: 'Moonlit Clearing', body: 'The island is quiet. For now.', note: 'The journey begins here.', opening: true },
-    { section: 'FIELD NOTES', title: 'Yet to be written', empty: true, note: 'Discoveries and lessons will find their place here.' },
+    { section: 'CHAPTER I · THE ODYSSEY', title: 'The First Shore', subtitle: 'Moonlit Clearing', body: 'The island is quiet. For now.', note: 'A quiet beginning.', opening: true },
+    { section: 'FIELD NOTES', title: 'Yet to be written', empty: true, note: 'Notes will gather here.' },
   ];
   return entries;
 }
 
-function JournalPage({ entry, number }) {
+function JournalPage({ entry, number, customNote, onNoteChange }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const hasCustomNote = typeof customNote === 'string';
+  const note = hasCustomNote ? customNote : (entry?.note || '');
+  function beginEdit() { setDraft(note); setEditing(true); }
+  function saveEdit() { onNoteChange(number, draft.slice(0, 500)); setEditing(false); }
   return (
     <section className={'journal-page' + (entry?.empty || !entry ? ' journal-page-empty' : '')}>
-      <div className="journal-page-ornament" aria-hidden="true">✦</div>
+
       {entry ? (
         <div className="journal-page-content">
           <span className="journal-page-eyebrow">{entry.section}</span>
           <h3>{entry.title || (entry.empty ? 'Yet to be written' : 'A new chapter')}</h3>
           {entry.empty ? (
-            <div className="journal-empty-art" aria-hidden="true">✧</div>
+
           ) : (
             <>
               {entry.subtitle && <p className="journal-page-subtitle">{entry.subtitle}</p>}
@@ -38,19 +44,48 @@ function JournalPage({ entry, number }) {
               )}
             </>
           )}
-          {entry.note && <p className="journal-page-note">{entry.note}</p>}
+
         </div>
       ) : (
-        <div className="journal-page-content journal-unwritten"><span className="journal-page-eyebrow">UNWRITTEN</span><h3>Yet to be written</h3><span aria-hidden="true">✧</span></div>
+        <div className="journal-page-content journal-unwritten"><span className="journal-page-eyebrow">UNWRITTEN</span><h3>Yet to be written</h3></div>
       )}
+      <div className="journal-personal-note">
+        {editing ? (
+          <>
+            <label className="journal-note-label" htmlFor={'journal-note-' + number}>Personal note</label>
+            <textarea id={'journal-note-' + number} value={draft} maxLength={500} rows={3} onChange={e => setDraft(e.target.value)} />
+            <div className="journal-note-actions"><button type="button" onClick={saveEdit}>Save</button><button type="button" onClick={() => setEditing(false)}>Cancel</button></div>
+          </>
+        ) : (
+          <>
+            {note && <p className="journal-page-note">{note}</p>}
+            <button className="journal-edit-note" type="button" onClick={beginEdit}>{hasCustomNote ? 'Edit note' : 'Add note'}</button>
+          </>
+        )}
+      </div>
       <span className="journal-page-number">{number}</span>
     </section>
   );
 }
 
-export default function JournalBook({ open, onClose, journal }) {
+export default function JournalBook({ open, onClose, journal, sessionId }) {
   const [spread, setSpread] = useState(0);
   const closeRef = useRef(null);
+  const storageKey = 'neural-nexus-journal-notes:' + (sessionId || 'preview');
+  const [notes, setNotes] = useState({});
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      setNotes(stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {});
+    } catch { setNotes({}); }
+  }, [storageKey]);
+  function changeNote(number, note) {
+    setNotes(previous => {
+      const next = { ...previous, [number]: note };
+      try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch { /* Storage might be disabled. */ }
+      return next;
+    });
+  }
   const entries = useMemo(() => toPages(journal), [journal]);
   const totalSpreads = Math.max(1, Math.ceil(entries.length / 2));
   useEffect(() => {
@@ -83,8 +118,8 @@ export default function JournalBook({ open, onClose, journal }) {
           <button ref={closeRef} type="button" className="journal-close" onClick={onClose} aria-label="Close journal">×</button>
         </header>
         <div className="journal-book-spread" key={spread}>
-          <JournalPage entry={entries[spread * 2]} number={spread * 2 + 1} />
-          <JournalPage entry={entries[spread * 2 + 1]} number={spread * 2 + 2} />
+          <JournalPage entry={entries[spread * 2]} number={spread * 2 + 1} customNote={notes[spread * 2 + 1]} onNoteChange={changeNote} />
+          <JournalPage entry={entries[spread * 2 + 1]} number={spread * 2 + 2} customNote={notes[spread * 2 + 2]} onNoteChange={changeNote} />
         </div>
         <footer className="journal-controls">
           <button type="button" onClick={() => setSpread(v => Math.max(0, v - 1))} disabled={spread === 0}>← Previous</button>
