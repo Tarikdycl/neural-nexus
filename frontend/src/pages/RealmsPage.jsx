@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const realms = [
   { id: 'odyssey_island', name: 'The Odyssey', description: 'Ancient Greek mythology.', image: '/realms/odyssey.png', available: true },
@@ -7,13 +7,16 @@ const realms = [
 ];
 
 export default function RealmsPage({ onBack, onEnter, busy }) {
+  const [preview, setPreview] = useState(null);
   return (
-    <main className="realms-page page-wrap">
+    <main className="realms-page page-wrap" onMouseLeave={() => setPreview(null)}>
+      <div className={'realm-preview-background' + (preview ? ' is-visible' : '')} aria-hidden="true" style={{ backgroundImage: preview ? `url(${preview})` : 'none' }} />
+      <div className="realm-preview-wash" aria-hidden="true" />
       <button className="text-button" onClick={onBack}>← Back</button>
       <div className="section-intro"><h1>Choose a realm.</h1></div>
       <div className="realm-grid">
         {realms.map(realm => (
-          <article className={'realm-card' + (realm.available ? ' realm-card-active' : ' realm-card-upcoming')} key={realm.id}>
+          <article className={'realm-card' + (realm.available ? ' realm-card-active' : ' realm-card-upcoming')} key={realm.id} onMouseEnter={() => setPreview(realm.image)} onFocusCapture={() => setPreview(realm.image)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setPreview(null); }}>
             {realm.available ? (
               <button className="realm-card-surface" disabled={busy} onClick={() => onEnter(realm.id)} aria-label={'Enter ' + realm.name}>
                 <img className="realm-cover" src={realm.image} alt="" />
