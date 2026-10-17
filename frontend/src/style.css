@@ -208,3 +208,51 @@
  .realm-preview-background { transition:none; transform:none; }
  .realm-preview-background.is-visible { transform:none; }
 }
+
+
+/* Full-viewport realm atmosphere, contained editorial content */
+.realms-page.page-wrap {
+  width:100%;
+  max-width:none;
+  min-height:100svh;
+  padding:34px clamp(20px,4vw,64px) 52px;
+  overflow:clip;
+}
+.realms-page > .text-button {
+  width:min(100%,1100px);
+  margin-inline:auto;
+  position:relative;
+  z-index:2;
+  text-align:left;
+}
+.realms-page .section-intro {
+  width:100%;
+  margin:clamp(85px,14vh,160px) auto 30px;
+}
+.realms-page .realm-grid {
+  width:min(100%,1100px);
+  margin:0 auto auto;
+  position:relative;
+  z-index:2;
+}
+.realms-page .realm-preview-background {
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  background-size:cover;
+  background-position:center;
+  will-change:transform,opacity;
+}
+.realms-page .realm-preview-wash {
+  position:fixed;
+  inset:0;
+  width:100vw;
+  height:100vh;
+  background:rgba(248,246,241,.60);
+}
+@media(max-width:680px) {
+  .realms-page.page-wrap {padding:22px 18px 40px;}
+  .realms-page .section-intro {margin:48px auto 26px;}
+  .realms-page .realm-grid {width:100%;}
+}
