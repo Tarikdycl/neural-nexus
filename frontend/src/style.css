@@ -81,3 +81,35 @@
   .realms-page .realm-card { transition: none; }
   .realms-page .realm-card:hover { transform: none; }
 }
+
+
+/* Realm cards: compact, restrained, accessible */
+.realms-page { max-width: 1150px; }
+.realms-page .section-intro { margin-bottom: 32px; }
+.realms-page .realm-grid { gap: 14px; }
+.realms-page .realm-card { border-color: #e4dfd7; border-radius: 12px; overflow: hidden; }
+.realms-page .realm-card-upcoming:hover { border-color: #e4dfd7; transform: none; }
+.realms-page .realm-card-active { border-color: #c9b99f; }
+.realms-page .realm-card-active:focus-within { outline: 2px solid #a98148; outline-offset: 3px; }
+.realms-page .realm-card-active:hover { border-color: #ab8e64; }
+.realms-page .realm-card-surface {
+  display: flex; flex-direction: column; align-items: stretch; text-align: left;
+  justify-content: space-between; width: 100%; min-height: 173px;
+  padding: 25px 24px; background: transparent; border: 0;
+  color: #172B4D; border-radius: inherit;
+}
+.realms-page button.realm-card-surface { cursor: pointer; }
+.realms-page button.realm-card-surface:focus-visible { outline: none; }
+.realms-page button.realm-card-surface:disabled { cursor: wait; }
+.realms-page .realm-card-copy { display: flex; flex-direction: column; gap: 13px; }
+.realms-page .realm-card-title {
+  font: 500 clamp(22px, 2.1vw, 27px)/1.18 'Fraunces', Georgia, serif;
+  letter-spacing: -.025em;
+}
+.realms-page .realm-card-description { color: #65718A; font-size: 12px; line-height: 1.5; }
+.realms-page .realm-card-action { font-size: 12px; font-weight: 700; color: #172B4D; margin-top: 22px; }
+.realms-page .realm-card-disabled { color: #a3a7ad; font-weight: 500; }
+@media(max-width:680px) {
+  .realms-page .section-intro { margin-bottom: 30px; }
+  .realms-page .realm-card-surface { min-height: 155px; padding: 22px; }
+}
