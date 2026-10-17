@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import Inventory from '../components/Inventory.jsx';
+import GuardianChoice from '../components/GuardianChoice.jsx';
 import JournalBook from '../components/JournalBook.jsx';
 import StoryChat from '../components/StoryChat.jsx';
 import GameInput from '../components/GameInput.jsx';
 
-export default function GamePage({ session, messages, busy, error, onAction, onBack, onSave }) {
+export default function GamePage({ session, messages, busy, error, onAction, onBack, onSave, onChoose, onChallenge }) {
   const [showDetails, setShowDetails] = useState(false);
   const [showJournal, setShowJournal] = useState(false);
   const world = session.world;
   const exits = world.exits && typeof world.exits === 'object' ? Object.entries(world.exits) : [];
+
+  if (!world.challenge_solved) return <main className="game-page guardian-game-page"><header className="game-topbar"><button className="text-button back-link" onClick={onBack}>← Realms</button><span className="game-realm-name">The Odyssey</span><div className="topbar-actions"><button className="journal-open-button" onClick={() => setShowJournal(true)}>Journal</button></div></header><GuardianChoice world={world} busy={busy} error={error} onChoose={onChoose} onChallenge={onChallenge} /><JournalBook open={showJournal} onClose={() => setShowJournal(false)} journal={world.journal} sessionId={session.session_id} /></main>;
 
   return (
     <main className="game-page">
