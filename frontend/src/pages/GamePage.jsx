@@ -11,8 +11,6 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
   const world = session.world;
   const exits = world.exits && typeof world.exits === 'object' ? Object.entries(world.exits) : [];
 
-  if (!world.challenge_solved) return <main className="game-page guardian-game-page"><header className="game-topbar"><button className="text-button back-link" onClick={onBack}>← Realms</button><span className="game-realm-name">The Odyssey</span><div className="topbar-actions"><button className="journal-open-button" onClick={() => setShowJournal(true)}>Journal</button></div></header><GuardianChoice world={world} busy={busy} error={error} onChoose={onChoose} onChallenge={onChallenge} /><JournalBook open={showJournal} onClose={() => setShowJournal(false)} journal={world.journal} sessionId={session.session_id} /></main>;
-
   return (
     <main className="game-page">
       <header className="game-topbar">
@@ -34,18 +32,19 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
           </div>
 
           <StoryChat messages={messages} busy={busy} />
+          {!world.challenge_solved && <GuardianChoice world={world} busy={busy} error={error} onChoose={onChoose} onChallenge={onChallenge} />}
 
           <div className="game-input-area">
-            {error && <div className="inline-error" role="alert">{error}</div>}
-            <div className="quick-actions" aria-label="Available actions">
+            {error && world.challenge_solved && <div className="inline-error" role="alert">{error}</div>}
+            {world.challenge_solved && <div className="quick-actions" aria-label="Available actions">
               <button disabled={busy} onClick={() => onAction('look')}>Look around</button>
               <button disabled={busy} onClick={() => onAction('search')}>Search</button>
               {exits.map(([direction, place]) =>
                 <button disabled={busy} key={direction} onClick={() => onAction('move', direction)}>Go to {place} →</button>
               )}
-            </div>
-            <GameInput disabled={busy} onSubmit={onAction} />
-            <p className="input-hint">Enter to send · Available commands: look, search, take, move</p>
+            </div>}
+            <GameInput disabled={busy || !world.challenge_solved} onSubmit={onAction} />
+            <p className="input-hint">{world.challenge_solved ? "Enter to send · Available commands: look, search, take, move" : "Choose a relic and solve the guardian’s challenge to begin exploring."}</p>
           </div>
         </section>
 
