@@ -14,7 +14,7 @@ function toPages(journal) {
   );
   if (!entries.length) return [
     { section: 'CHAPTER I · THE ODYSSEY', title: 'The First Shore', subtitle: 'Moonlit Clearing', body: 'The island is quiet. For now.', note: 'A quiet beginning.', opening: true },
-    { section: 'FIELD NOTES', title: '', empty: true, note: 'Notes will gather here.' },
+    { section: 'FIELD NOTES', title: '', empty: true, note: '' },
   ];
   return entries;
 }
