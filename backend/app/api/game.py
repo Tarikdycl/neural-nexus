@@ -12,10 +12,6 @@ class ChoiceRequest(BaseModel):
     session_id: str
     artifact: str
 
-class ChallengeRequest(BaseModel):
-    session_id: str
-    answer: str
-
 
 router = APIRouter(prefix="/game", tags=["game"])
 SESSIONS: dict[str, WorldState] = {}
@@ -48,26 +44,6 @@ def choose_artifact(request: ChoiceRequest):
         "tags": [world.character_class]
     })
     return {"session_id": request.session_id, "narration": f"The guardian studies the {artifact}, then steps aside. The path opens before you.", "world": public_world(world)}
-
-@router.post("/challenge")
-def solve_challenge(request: ChallengeRequest):
-    world = SESSIONS.get(request.session_id)
-    if world is None:
-        raise HTTPException(status_code=404, detail="Session not found")
-    if not world.chosen_artifact:
-        raise HTTPException(status_code=409, detail="Choose your artifact first.")
-    if world.challenge_solved:
-        return {"session_id": request.session_id, "narration": "The stone gate is already open.", "world": public_world(world)}
-    if request.answer.strip().lower() != "long":
-        return {"session_id": request.session_id, "narration": "The stone barely moves. Think about how far from the pivot you apply the force.", "world": public_world(world)}
-    world.challenge_solved = True
-    world.events.append("Opened the stone gate using a longer lever.")
-    world.journal["learningEntries"].append({
-        "id": "lever-advantage", "title": "The Stone Gate",
-        "body": "I learned that a longer effort arm can reduce the force needed to lift a load.",
-        "tags": ["Physics", "Mechanical advantage"]
-    })
-    return {"session_id": request.session_id, "narration": "The longest lever moves the stone. The gate opens. You've put mechanical advantage to work.", "world": public_world(world)}
 
 @router.post("/action")
 def game_action(request: ActionRequest):
