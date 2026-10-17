@@ -737,3 +737,23 @@
 .game-main .guardian-levers button {padding:11px 14px;font-size:12px;}
 .game-main .guardian-hint {margin:0;}
 @media(max-width:680px) {.game-main .guardian-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.game-main .guardian-artifact{min-height:100px;}}
+
+
+/* Realm-specific faded background, behind the existing game layout */
+.game-page--atmospheric {position:relative;isolation:isolate;background:#f8f6f1;}
+.game-realm-atmosphere {
+ position:absolute;inset:70px 0 0;z-index:-1;pointer-events:none;
+ background-image:
+   linear-gradient(90deg,rgba(248,246,241,.84),rgba(248,246,241,.76) 55%,rgba(248,246,241,.87)),
+   linear-gradient(0deg,rgba(248,246,241,.89),rgba(248,246,241,.35) 60%,rgba(248,246,241,.85)),
+   var(--realm-image);
+ background-position:center,center,center;
+ background-size:cover;
+ background-repeat:no-repeat;
+ opacity:.64;
+ animation:realm-atmosphere-in 1s ease-out both;
+}
+.game-page--atmospheric .game-layout {position:relative;z-index:1;min-height:0;}
+.game-page--atmospheric .game-topbar {position:relative;z-index:2;background:rgba(248,246,241,.95);}
+@keyframes realm-atmosphere-in {from{opacity:0}to{opacity:.64}}
+@media(prefers-reduced-motion:reduce){.game-realm-atmosphere{animation:none;opacity:.64}}
