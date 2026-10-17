@@ -694,3 +694,46 @@
 .journal-note-label {display:block;font-size:11px;color:#785d37;margin-bottom:7px;}
 .journal-personal-note textarea {display:block;width:100%;resize:vertical;min-height:68px;padding:9px;border:1px solid #c9ad83;border-radius:6px;background:rgba(255,252,242,.75);color:#263b55;font:12px/1.5 'DM Sans',sans-serif;}
 .journal-note-actions {display:flex;gap:16px;margin-top:6px;}
+
+
+/* Guardian opening: a choice before the story */
+.guardian-game-page {background:radial-gradient(ellipse at 50% 56%,#efe7d9,#f8f6f1 75%);}
+.guardian-screen {flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:35px 24px 55px;text-align:center;gap:23px;}
+.guardian-intro {max-width:640px;}
+.guardian-intro h1 {font-size:clamp(36px,5vw,63px);line-height:1.12;letter-spacing:-.035em;color:#172b4d;margin:17px 0;}
+.guardian-intro p {font-size:14px;color:#717d88;line-height:1.8;}
+.guardian-grid {width:min(900px,100%);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;}
+.guardian-artifact {min-width:0;border:1px solid #d9ccba;background:rgba(255,253,248,.77);border-radius:14px;min-height:210px;padding:23px 12px;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:9px;color:#243752;transition:transform .2s,box-shadow .2s,border-color .2s;}
+.guardian-artifact:hover,.guardian-artifact:focus-visible {transform:translateY(-5px);border-color:#ac8c56;box-shadow:0 14px 32px rgba(54,46,33,.1);}
+.guardian-artifact.is-selected {border-color:#ac8348;background:#fbf3e7;box-shadow:0 0 0 2px #ac834822;}
+.guardian-artifact strong {font:500 20px 'Fraunces',Georgia,serif;}
+.guardian-artifact small {font-size:11px;color:#818487;line-height:1.4;}
+.guardian-symbol {font-size:44px;color:#ab844b;}
+.guardian-role {font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#a27a41;font-weight:700;}
+.guardian-confirm {border:0;border-radius:9px;background:#172b4d;color:#fff;padding:13px 29px;font-size:13px;font-weight:600;}
+.guardian-levers {display:flex;flex-wrap:wrap;justify-content:center;gap:14px;}
+.guardian-levers button {background:#fffdf9;border:1px solid #cdbb9f;border-radius:12px;color:#213b58;font-size:14px;padding:18px 28px;}
+.guardian-levers button:hover {background:#f4e8d6;border-color:#ac8449;}
+.guardian-class {font:500 20px 'Fraunces',Georgia,serif;color:#a27a41;}
+.guardian-hint {font-size:12px;color:#8d8c86;}
+@media(max-width:680px) {.guardian-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.guardian-artifact{min-height:165px;padding:16px 10px}.guardian-symbol{font-size:32px}.guardian-screen{justify-content:flex-start;padding-top:35px}}
+@media(prefers-reduced-motion:reduce){.guardian-artifact{transition:none}.guardian-artifact:hover{transform:none}}
+
+
+/* Guardian moments live inside the original reading/chat column. */
+.game-main > .guardian-screen {flex:0 0 auto;width:100%;padding:16px 0 24px;gap:15px;overflow:visible;text-align:left;align-items:stretch;justify-content:flex-start;}
+.game-main .guardian-intro {max-width:100%;}
+.game-main .guardian-intro h1 {font-size:clamp(21px,2.4vw,29px);margin:9px 0 8px;}
+.game-main .guardian-intro p {font-size:12px;line-height:1.65;margin:0;}
+.game-main .guardian-grid {width:100%;gap:8px;}
+.game-main .guardian-artifact {min-height:126px;padding:12px 5px;gap:4px;border-radius:10px;}
+.game-main .guardian-symbol {font-size:24px;}
+.game-main .guardian-artifact strong {font-size:14px;}
+.game-main .guardian-role {font-size:9px;}
+.game-main .guardian-artifact small {font-size:10px;}
+.game-main .guardian-confirm {align-self:flex-start;padding:10px 18px;font-size:12px;}
+.game-main .guardian-class {font-size:16px;margin:0;}
+.game-main .guardian-levers {justify-content:flex-start;gap:8px;}
+.game-main .guardian-levers button {padding:11px 14px;font-size:12px;}
+.game-main .guardian-hint {margin:0;}
+@media(max-width:680px) {.game-main .guardian-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.game-main .guardian-artifact{min-height:100px;}}

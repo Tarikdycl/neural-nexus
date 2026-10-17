@@ -4,6 +4,14 @@ from app.models.schemas import ActionRequest, StartRequest, WorldState
 from app.engine.world import new_world, public_world
 from app.engine.actions import apply_action
 from app.ai.narrator import narrate
+from pydantic import BaseModel
+
+ARTIFACTS = {"sword": "Warrior", "staff": "Mage", "book": "Scholar", "compass": "Explorer"}
+
+class ChoiceRequest(BaseModel):
+    session_id: str
+    artifact: str
+
 
 router = APIRouter(prefix="/game", tags=["game"])
 SESSIONS: dict[str, WorldState] = {}
@@ -18,11 +26,32 @@ def start_game(request: StartRequest | None = None):
     SESSIONS[session_id] = world
     return {"session_id": session_id, "narration": "The island is quiet. For now.", "world": public_world(world)}
 
+@router.post("/choose-artifact")
+def choose_artifact(request: ChoiceRequest):
+    world = SESSIONS.get(request.session_id)
+    if world is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if world.chosen_artifact is not None:
+        raise HTTPException(status_code=409, detail="Your path is already chosen.")
+    artifact = request.artifact.strip().lower()
+    if artifact not in ARTIFACTS:
+        raise HTTPException(status_code=422, detail="Choose sword, staff, book, or compass.")
+    world.chosen_artifact = artifact
+    world.character_class = ARTIFACTS[artifact]
+    world.journal["decisionEntries"].append({
+        "id": "guardian-choice", "title": "The Path Chosen",
+        "body": f"I reached for the {artifact}. The guardian named me {world.character_class}.",
+        "tags": [world.character_class]
+    })
+    return {"session_id": request.session_id, "narration": f"The guardian studies the {artifact}, then steps aside. The path opens before you.", "world": public_world(world)}
+
 @router.post("/action")
 def game_action(request: ActionRequest):
     world = SESSIONS.get(request.session_id)
     if world is None:
         raise HTTPException(status_code=404, detail="Session not found")
+    if not world.chosen_artifact:
+        raise HTTPException(status_code=409, detail="Choose your path before exploring.")
     result = apply_action(world, request.action, request.target)
     return {"session_id": request.session_id, "narration": narrate(world, result), "world": public_world(world)}
 

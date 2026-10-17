@@ -28,6 +28,10 @@ class WorldState(BaseModel):
     objects: dict[str, GameObject] = Field(default_factory=dict)
     inventory: list[str] = Field(default_factory=list)
     events: list[str] = Field(default_factory=list)
+    character_class: str | None = None
+    chosen_artifact: str | None = None
+    challenge_solved: bool = False
+    journal: dict = Field(default_factory=lambda: {"storyEntries": [], "learningEntries": [], "decisionEntries": []})
 
 class ActionRequest(BaseModel):
     session_id: str

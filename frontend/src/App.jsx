@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import LandingPage from './pages/LandingPage.jsx';
 import RealmsPage from './pages/RealmsPage.jsx';
 import GamePage from './pages/GamePage.jsx';
-import { gameAction, loadGame, startGame } from './services/api.js';
+import { gameAction, loadGame, startGame, chooseArtifact } from './services/api.js';
 
 const STORAGE_KEY = 'neural-nexus-session';
 
@@ -45,6 +45,17 @@ export default function App() {
       setMessages([{ by: 'story', text: data.narration }]);
       localStorage.setItem(STORAGE_KEY, data.session_id);
       setPage('game');
+    } catch (err) { setError(err.message); }
+    finally { lock.current = false; setBusy(false); }
+  }
+
+  async function guardianRequest(kind, value) {
+    if (!session || lock.current) return;
+    lock.current = true; setBusy(true); setError('');
+    try {
+      const data = await chooseArtifact(session.session_id, value);
+      setSession(data);
+      setMessages(prev => [...prev, { by: 'story', text: data.narration }]);
     } catch (err) { setError(err.message); }
     finally { lock.current = false; setBusy(false); }
   }
@@ -97,5 +108,5 @@ export default function App() {
   </>;
   return <GamePage session={session} messages={messages} busy={busy} error={error}
     onAction={performAction} onBack={() => {setError('');setPage('realms');}}
-    onSave={saveGame} />;
+    onSave={saveGame} onChoose={artifact => guardianRequest('choose', artifact)} />;
 }
