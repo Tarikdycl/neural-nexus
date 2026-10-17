@@ -5,7 +5,7 @@ import JournalBook from '../components/JournalBook.jsx';
 import StoryChat from '../components/StoryChat.jsx';
 import GameInput from '../components/GameInput.jsx';
 
-export default function GamePage({ session, messages, busy, error, onAction, onBack, onSave, onChoose, onChallenge }) {
+export default function GamePage({ session, messages, busy, error, onAction, onBack, onSave, onChoose }) {
   const [showDetails, setShowDetails] = useState(false);
   const [showJournal, setShowJournal] = useState(false);
   const world = session.world;
@@ -32,19 +32,19 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
           </div>
 
           <StoryChat messages={messages} busy={busy} />
-          {!world.challenge_solved && <GuardianChoice world={world} busy={busy} error={error} onChoose={onChoose} onChallenge={onChallenge} />}
+          {!world.chosen_artifact && <GuardianChoice busy={busy} error={error} onChoose={onChoose} />}
 
           <div className="game-input-area">
-            {error && world.challenge_solved && <div className="inline-error" role="alert">{error}</div>}
-            {world.challenge_solved && <div className="quick-actions" aria-label="Available actions">
+            {error && Boolean(world.chosen_artifact) && <div className="inline-error" role="alert">{error}</div>}
+            {world.chosen_artifact && <div className="quick-actions" aria-label="Available actions">
               <button disabled={busy} onClick={() => onAction('look')}>Look around</button>
               <button disabled={busy} onClick={() => onAction('search')}>Search</button>
               {exits.map(([direction, place]) =>
                 <button disabled={busy} key={direction} onClick={() => onAction('move', direction)}>Go to {place} →</button>
               )}
             </div>}
-            <GameInput disabled={busy || !world.challenge_solved} onSubmit={onAction} />
-            <p className="input-hint">{world.challenge_solved ? "Enter to send · Available commands: look, search, take, move" : "Choose a relic and solve the guardian’s challenge to begin exploring."}</p>
+            <GameInput disabled={busy || !world.chosen_artifact} onSubmit={onAction} />
+            <p className="input-hint">{world.chosen_artifact ? "Enter to send · Available commands: look, search, take, move" : "Choose a relic to begin your journey."}</p>
           </div>
         </section>
 
