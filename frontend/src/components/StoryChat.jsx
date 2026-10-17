@@ -8,7 +8,7 @@ export default function StoryChat({ messages, busy }) {
       <div className="story-feed">
         {messages.map((message, i) => (
           <div className={'story-message ' + (message.by === 'player' ? 'player-message' : 'narrator-message')} key={i}>
-            {message.by === 'story' && <div className="narration-label">THE STORY</div>}
+            
             {message.text.split(/\n\s*\n/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
           </div>
         ))}
