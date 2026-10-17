@@ -1,3 +1,4 @@
+import React from 'react';
 export default function Inventory({ world, onTake, busy }) {
   const inventory = Array.isArray(world?.inventory) ? world.inventory : [];
   const visible = Array.isArray(world?.visible_objects) ? world.visible_objects : [];
