@@ -50,7 +50,7 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
           <Inventory world={world} busy={busy} onTake={id => onAction('take', id)} />
         </div>
       </div>
-      <JournalBook open={showJournal} onClose={() => setShowJournal(false)} />
+      <JournalBook open={showJournal} onClose={() => setShowJournal(false)} journal={world.journal} />
     </main>
   );
 }
