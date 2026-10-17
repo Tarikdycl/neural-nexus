@@ -545,25 +545,6 @@
 .journal-demo-note { margin:11px 0 0; text-align:center; font-size:11px; color:#dacdb8; }
 @keyframes journal-fade { from {opacity:0} to {opacity:1} }
 @keyframes journal-open { from {opacity:.8;transform:scale(.975)} to {opacity:1;transform:scale(1)} }
-@keyframes journal-cover-swing { 0% {opacity:1;transform:rotateY(0deg)} 72% {opacity:1} 100% {opacity:0;transform:rotateY(-108deg)} }
-@keyframes journal-page-turn { 0% {opacity:.65;transform:rotateY(18deg)} 100% {opacity:1;transform:rotateY(0deg)} }
-/* Decorative cover opens once whenever the journal is mounted. It never intercepts controls. */
-.journal-book-spread::after {
- content:"THE TRAVELER'S JOURNAL  ✦";
- position:absolute; inset:0; z-index:5; pointer-events:none;
- display:flex; justify-content:center; align-items:center;
- padding:30px; text-align:center;
- font:500 clamp(27px,4vw,52px)/1.3 'Fraunces',Georgia,serif;
- letter-spacing:.06em; color:#eed9b6; text-shadow:0 2px 10px #1e1b20;
- background:radial-gradient(ellipse at 60% 30%,#516077,#263c5b 67%,#152740);
- border:5px double #b69865; border-radius:7px;
- box-shadow:inset 0 0 0 13px #283c57,inset 0 0 0 16px #8c7550,0 9px 22px #172b4d38;
- transform-origin:left center; backface-visibility:hidden;
- animation:journal-cover-swing .78s cubic-bezier(.22,.6,.29,1) both;
-}
-.journal-book-spread .journal-page { animation:journal-page-turn .33s ease-out both; transform-origin:left center; backface-visibility:hidden; }
-.journal-book-spread .journal-page-right { animation-delay:.055s; }
-
 @media(max-width:680px) {
  .journal-backdrop { padding:12px; }
  .journal-dialog { max-height:95svh; }
@@ -578,4 +559,49 @@
  .journal-dialog-top { margin-bottom:9px; }
  .game-topbar .journal-open-button { font-size:11px; padding:7px; }
 }
-@media(prefers-reduced-motion:reduce) { .journal-backdrop,.journal-book-spread,.journal-book-spread .journal-page { animation:none; } .journal-book-spread::after { display:none; animation:none; } }
+
+
+/* Refined parchment journal; no hardcover-opening animation */
+.journal-book-spread {
+  animation:none;
+  perspective:none;
+  overflow:auto;
+  border:9px solid #815e3e;
+  box-shadow:0 24px 65px rgba(11,21,41,.29),inset 0 0 0 1px #c69d65;
+}
+.journal-book-spread::after { content:none; display:none; }
+.journal-book-spread::before {
+  content:""; position:absolute; z-index:3; pointer-events:none;
+  top:0; bottom:0; left:50%; width:32px; transform:translateX(-50%);
+  background:linear-gradient(90deg,transparent,rgba(86,58,31,.15) 30%,rgba(67,43,21,.20) 48%,rgba(255,251,238,.16) 55%,transparent);
+}
+.journal-page {
+  background:
+    repeating-linear-gradient(0deg,transparent 0,transparent 27px,rgba(119,83,38,.018) 28px),
+    radial-gradient(ellipse at 43% 24%,#fff9e9,#f0e1c6 97%);
+  box-shadow:inset 0 0 27px rgba(125,86,41,.09);
+  animation:journal-page-fade .25s ease-out both;
+}
+.journal-page:first-child { border-right:1px solid rgba(126,92,51,.28); }
+.journal-page-content { display:flex; flex-direction:column; min-height:0; gap:0; }
+.journal-page-note { margin-top:24px; }
+.journal-page-subtitle { font-size:12px; color:#8b806c; margin-bottom:12px; }
+.journal-page-empty .journal-page-content { flex:1; justify-content:center; text-align:center; align-items:center; }
+.journal-page-empty h3 { font-size:clamp(23px,2.6vw,34px); margin:12px 0; }
+.journal-page-empty .journal-page-note { max-width:280px; margin:0 auto; }
+.journal-empty-art,.journal-unwritten>span:last-child { font:48px 'Fraunces',Georgia,serif; color:#b9a17b; margin:15px auto; }
+.journal-page-ornament { margin-bottom:20px; }
+.journal-page-number { text-align:center; }
+.journal-tag-list { display:flex; flex-wrap:wrap; gap:7px; margin-top:20px; }
+.journal-tag { border:1px solid #d8c4a2; padding:5px 9px; border-radius:20px; color:#886b42; font-size:11px; }
+@keyframes journal-page-fade {
+ from {opacity:.65; transform:translateY(4px)}
+ to {opacity:1; transform:translateY(0)}
+}
+@media(max-width:680px) {
+ .journal-book-spread::before { display:none; }
+ .journal-page { min-height:250px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .journal-backdrop,.journal-page {animation:none;}
+}
