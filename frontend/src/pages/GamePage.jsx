@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Inventory from '../components/Inventory.jsx';
 import StoryChat from '../components/StoryChat.jsx';
 import GameInput from '../components/GameInput.jsx';
