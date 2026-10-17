@@ -5,17 +5,25 @@ import JournalBook from '../components/JournalBook.jsx';
 import StoryChat from '../components/StoryChat.jsx';
 import GameInput from '../components/GameInput.jsx';
 
+const REALM_THEMES = {
+  odyssey_island: { name: 'The Odyssey', image: '/realms/odyssey.png' },
+  monkey_king: { name: "The Monkey King's Realm", image: '/realms/monkey-king.png' },
+  demi_demon: { name: 'The Demi-Demon Mystery', image: '/realms/demi-demon.png' },
+};
+
 export default function GamePage({ session, messages, busy, error, onAction, onBack, onSave, onChoose }) {
   const [showDetails, setShowDetails] = useState(false);
   const [showJournal, setShowJournal] = useState(false);
   const world = session.world;
+  const realm = REALM_THEMES[world.scenario_id] || REALM_THEMES.odyssey_island;
   const exits = world.exits && typeof world.exits === 'object' ? Object.entries(world.exits) : [];
 
   return (
-    <main className="game-page">
+    <main className="game-page game-page--atmospheric" style={{ '--realm-image': `url("${realm.image}")` }}>
+      <div className="game-realm-atmosphere" aria-hidden="true" />
       <header className="game-topbar">
         <button className="text-button back-link" onClick={onBack}>← Realms</button>
-        <span className="game-realm-name">The Odyssey</span>
+        <span className="game-realm-name">{realm.name}</span>
         <div className="topbar-actions">
           <button className="text-button mobile-details" onClick={() => setShowDetails(value => !value)} aria-expanded={showDetails} aria-controls="game-details">Details</button>
           <button className="journal-open-button" type="button" onClick={() => setShowJournal(true)} aria-label="Open traveler journal"><span aria-hidden="true">▤</span> Journal</button>
@@ -26,7 +34,7 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
       <div className={'game-layout' + (showDetails ? ' details-open' : '')}>
         <section className="game-main" aria-label="Interactive story">
           <div className="chapter-header">
-            <span className="eyebrow">THE ODYSSEY <span aria-hidden="true">·</span> TURN {world.turn}</span>
+            <span className="eyebrow">{realm.name.toUpperCase()} <span aria-hidden="true">·</span> TURN {world.turn}</span>
             <h1>{world.location}</h1>
             {world.description && <p>{world.description}</p>}
           </div>

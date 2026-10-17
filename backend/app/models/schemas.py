@@ -48,6 +48,7 @@ class PublicItem(BaseModel):
     description: str | None = None
 
 class PublicWorld(BaseModel):
+    scenario_id: str = "odyssey_island"
     location_id: str
     location: str
     description: str
