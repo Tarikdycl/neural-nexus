@@ -761,3 +761,15 @@
 /* Empty field notes are laid out like a blank journal page. */
 .journal-page-empty .journal-page-content{align-items:flex-start;text-align:left;justify-content:flex-start;}
 .journal-page-empty .journal-page-note{max-width:none;margin:0;}
+
+
+/* Field notes: editable directly below the page heading */
+.journal-page-empty .journal-personal-note--inline { margin-top:14px; }
+.journal-personal-note .journal-inline-editor {
+  display:block;width:100%;min-height:180px;resize:vertical;
+  border:0;outline:none;box-shadow:none;
+  padding:6px 0;background:transparent;
+  font:400 14px/1.95 'DM Sans',sans-serif;color:#354663;
+}
+.journal-inline-editor::placeholder {color:#a99b86;opacity:1;}
+.journal-inline-editor:focus-visible {outline:1px dashed #c6a878;outline-offset:6px;border-radius:2px;}
