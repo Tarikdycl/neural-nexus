@@ -47,7 +47,7 @@ def choose_artifact(request: ChoiceRequest):
         "body": f"I reached for the {artifact}. The guardian named me {world.character_class}.",
         "tags": [world.character_class]
     })
-    return {"session_id": request.session_id, "narration": f"The guardian nods. You are the {world.character_class}. Beyond the gate, a stone blocks your path.", "world": public_world(world)}
+    return {"session_id": request.session_id, "narration": f"The guardian studies the {artifact}, then steps aside. The path opens before you.", "world": public_world(world)}
 
 @router.post("/challenge")
 def solve_challenge(request: ChallengeRequest):
