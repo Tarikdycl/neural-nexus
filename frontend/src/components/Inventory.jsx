@@ -22,17 +22,6 @@ function BagIcon() {
   );
 }
 
-function JournalIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M6 4.5A2.5 2.5 0 0 1 8.5 2H19v18H8.5A2.5 2.5 0 0 0 6 22V4.5zm2.5-.5A.5.5 0 0 0 8 4.5v13.05c.5-.35 1.1-.55 1.75-.55H17V4H8.5zM6 18.75c.46-.48 1.03-.75 1.75-.75H17v2H7.75A.75.75 0 0 0 7 20.75c0 .14.04.27.1.39l-1.1.86A2.73 2.73 0 0 1 5 20.75c0-.76.31-1.44 1-2z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 export default function Inventory({ world, onTake, busy }) {
   const [activeTab, setActiveTab] = useState('status');
 
@@ -78,16 +67,7 @@ export default function Inventory({ world, onTake, busy }) {
           <span>Inventory</span>
         </button>
 
-        <button
-          className={`sidebar-tab ${activeTab === 'journal' ? 'active' : ''}`}
-          onClick={() => setActiveTab('journal')}
-          role="tab"
-          aria-selected={activeTab === 'journal'}
-        >
-          <span className="sidebar-tab-icon"><JournalIcon /></span>
-          <span>Journal</span>
-        </button>
-      </div>
+</div>
 
       {activeTab === 'status' && (
         <section className="sidebar-panel">
@@ -165,34 +145,6 @@ export default function Inventory({ world, onTake, busy }) {
         </section>
       )}
 
-      {activeTab === 'journal' && (
-        <section className="sidebar-panel">
-          <div className="sidebar-heading">ADVENTURE JOURNAL</div>
-
-          <div className="journal-book">
-            <div className="journal-book-cover">
-              <div className="journal-book-badge">DAY 1</div>
-              <div className="journal-book-title">Traveler’s Journal</div>
-              <div className="journal-book-subtitle">The beginning of a story.</div>
-            </div>
-          </div>
-
-          <div className="journal-entry">
-            <div className="journal-entry-title">The First Steps</div>
-            <p>
-              I arrived in an unfamiliar clearing, with only the breeze through the olive trees
-              to welcome me.
-            </p>
-          </div>
-
-          <div className="journal-entry">
-            <div className="journal-entry-title">More entries soon</div>
-            <p>
-              Important discoveries, milestones, and turning points will be recorded here.
-            </p>
-          </div>
-        </section>
-      )}
     </aside>
   );
 }
