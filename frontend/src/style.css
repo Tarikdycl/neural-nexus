@@ -513,3 +513,50 @@
  .game-sidebar .sidebar-tab { font-size:12px; }
 }
 
+
+
+/* Sprint 1 — book-style journal overlay */
+.game-topbar .topbar-actions { min-width:0; gap:10px; }
+.journal-open-button { display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border:1px solid #dcd5c8; border-radius:8px; background:rgba(255,253,249,.65); color:#233858; font-size:12px; }
+.journal-open-button:hover { background:#efe8da; border-color:#c6ab7b; }
+.journal-open-button span { font-size:18px; color:#a17e47; line-height:1; }
+.game-sidebar .sidebar-tabs { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.journal-backdrop { position:fixed; inset:0; z-index:100; display:flex; justify-content:center; align-items:center; padding:24px; background:rgba(16,27,45,.58); backdrop-filter:blur(7px); animation:journal-fade .22s ease-out; }
+.journal-dialog { width:min(970px,100%); max-height:min(90svh,820px); display:flex; flex-direction:column; min-height:0; color:#24334c; }
+.journal-dialog-top { display:flex; justify-content:space-between; align-items:center; gap:20px; margin:0 4px 16px; color:#faf1df; }
+.journal-dialog-eyebrow { font-size:10px; letter-spacing:.19em; color:#e6c78d; font-weight:700; }
+.journal-dialog-top h2 { font-family:'Fraunces',Georgia,serif; font-size:clamp(21px,3vw,31px); margin:5px 0 0; color:#fff8ed; }
+.journal-close { border:1px solid rgba(255,255,255,.4); width:37px; height:37px; flex:0 0 auto; border-radius:50%; background:rgba(255,255,255,.1); color:white; font-size:25px; line-height:1; }
+.journal-close:hover { background:rgba(255,255,255,.22); }
+.journal-book-spread { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); flex:1; min-height:0; overflow:auto; border:9px solid #77583b; border-radius:13px 17px 17px 13px; box-shadow:0 21px 60px #0b152963, inset 0 0 0 1px #c69d65; background:#f4e7cd; animation:journal-open .3s ease-out; }
+.journal-page { position:relative; display:flex; flex-direction:column; min-height:410px; padding:clamp(24px,4vw,55px); background:radial-gradient(ellipse at 50% 20%,#fffaeb 0%,#f2e5cd 95%); }
+.journal-page-left { border-right:1px solid #b9a17d; box-shadow:inset -18px 0 25px -24px #66492d9c; }
+.journal-page-right { box-shadow:inset 18px 0 25px -24px #66492d9c; }
+.journal-page-ornament { text-align:center; font-size:24px; color:#b59a71; margin-bottom:24px; }
+.journal-page-eyebrow { letter-spacing:.18em; font-size:10px; font-weight:700; color:#9c7847; }
+.journal-page h3 { margin:12px 0 24px; font:500 clamp(25px,3vw,39px)/1.18 'Fraunces',Georgia,serif; color:#283e59; }
+.journal-page-body { font:italic 500 clamp(17px,1.9vw,22px)/1.7 'Fraunces',Georgia,serif; color:#354663; }
+.journal-page-rule { width:60px; height:1px; margin:24px 0; background:#bb9966; }
+.journal-page-note { font:400 13px/1.85 'DM Sans',sans-serif; color:#776f60; }
+.journal-page-number { margin-top:auto; padding-top:28px; font:14px 'Fraunces',Georgia,serif; text-align:center; color:#9c855e; }
+.journal-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 2px 0; color:#fff3e3; }
+.journal-controls button { background:rgba(255,248,235,.12); border:1px solid rgba(255,248,235,.35); border-radius:9px; color:#fff8ed; padding:10px 14px; font-size:12px; }
+.journal-controls button:disabled { opacity:.35; }
+.journal-demo-note { margin:11px 0 0; text-align:center; font-size:11px; color:#dacdb8; }
+@keyframes journal-fade { from {opacity:0} to {opacity:1} }
+@keyframes journal-open { from {opacity:.7;transform:scale(.97)} to {opacity:1;transform:scale(1)} }
+@media(max-width:680px) {
+ .journal-backdrop { padding:12px; }
+ .journal-dialog { max-height:95svh; }
+ .journal-book-spread { grid-template-columns:1fr; border-width:6px; }
+ .journal-page { min-height:250px; padding:23px 24px; }
+ .journal-page-left { border-right:0; border-bottom:1px solid #c8b493; }
+ .journal-page-ornament { margin-bottom:8px; font-size:17px; }
+ .journal-page h3 { margin:8px 0 13px; font-size:25px; }
+ .journal-page-body { font-size:17px; }
+ .journal-page-rule { margin:10px 0; }
+ .journal-page-number { padding-top:10px; }
+ .journal-dialog-top { margin-bottom:9px; }
+ .game-topbar .journal-open-button { font-size:11px; padding:7px; }
+}
+@media(prefers-reduced-motion:reduce) { .journal-backdrop,.journal-book-spread { animation:none; } }
