@@ -1,57 +1,79 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-const pages = [
-  {
-    left: { eyebrow: 'CHAPTER I · THE ODYSSEY', title: 'The First Shore', body: 'The island is quiet. For now.', note: 'A journey begins not with certainty, but with a step.' },
-    right: { eyebrow: 'FIELD NOTES', title: 'A Blank Map', body: 'The pages ahead have yet to be written.', note: 'Significant discoveries and lessons will find their place here.' },
-  },
-  {
-    left: { eyebrow: 'REFLECTIONS', title: 'What I Have Learned', body: 'Every choice leaves a trace.', note: 'Concepts practiced during your journey will appear here once the learning system is connected.' },
-    right: { eyebrow: 'MILESTONES', title: 'Still Unwritten', body: 'Some stories take time.', note: 'Verified story milestones will be preserved here in future updates.' },
-  },
-];
+// Presentation contract: journal.storyEntries / learningEntries / decisionEntries.
+// These are populated only from actual saved game data; no achievements are fabricated.
+function toPages(journal) {
+  const groups = [
+    ['STORY', journal?.storyEntries],
+    ['LEARNING', journal?.learningEntries],
+    ['DECISIONS', journal?.decisionEntries],
+  ];
+  const entries = groups.flatMap(([section, items]) =>
+    (Array.isArray(items) ? items : []).filter(item => item && typeof item.body === 'string' && item.body.trim())
+      .map(item => ({ ...item, section }))
+  );
+  if (!entries.length) return [{
+    section: 'THE JOURNEY', title: 'Yet to be written',
+    empty: true, note: 'Your discoveries, decisions, and lessons will be recorded as they happen.',
+  }];
+  return entries;
+}
 
-function Page({ entry, side }) {
+function JournalPage({ entry, number }) {
   return (
-    <section className={'journal-page journal-page-' + side}>
+    <section className={'journal-page' + (entry?.empty || !entry ? ' journal-page-empty' : '')}>
       <div className="journal-page-ornament" aria-hidden="true">✦</div>
-      <span className="journal-page-eyebrow">{entry.eyebrow}</span>
-      <h3>{entry.title}</h3>
-      <p className="journal-page-body">{entry.body}</p>
-      <div className="journal-page-rule" />
-      <p className="journal-page-note">{entry.note}</p>
-      <span className="journal-page-number">{side === 'left' ? 'I' : 'II'}</span>
+      {entry ? (
+        <div className="journal-page-content">
+          <span className="journal-page-eyebrow">{entry.section}</span>
+          <h3>{entry.title || (entry.empty ? 'Yet to be written' : 'A new chapter')}</h3>
+          {entry.empty ? (
+            <div className="journal-empty-art" aria-hidden="true">✧</div>
+          ) : (
+            <>
+              {entry.subtitle && <p className="journal-page-subtitle">{entry.subtitle}</p>}
+              <p className="journal-page-body">{entry.body}</p>
+              {Array.isArray(entry.tags) && entry.tags.length > 0 && (
+                <div className="journal-tag-list">{entry.tags.map(tag => <span className="journal-tag" key={tag}>{tag}</span>)}</div>
+              )}
+            </>
+          )}
+          {entry.note && <p className="journal-page-note">{entry.note}</p>}
+        </div>
+      ) : (
+        <div className="journal-page-content journal-unwritten"><span className="journal-page-eyebrow">UNWRITTEN</span><h3>Yet to be written</h3><span aria-hidden="true">✧</span></div>
+      )}
+      <span className="journal-page-number">{number}</span>
     </section>
   );
 }
 
-export default function JournalBook({ open, onClose }) {
+export default function JournalBook({ open, onClose, journal }) {
   const [spread, setSpread] = useState(0);
   const closeRef = useRef(null);
+  const entries = useMemo(() => toPages(journal), [journal]);
+  const totalSpreads = Math.max(1, Math.ceil(entries.length / 2));
   useEffect(() => {
-    if (!open) return;
-    const previouslyFocused = document.activeElement;
+    if (!open) { setSpread(0); return; }
+    const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus();
     function onKey(event) {
       if (event.key === 'Escape') onClose();
-      if (event.key === 'ArrowRight') setSpread(s => Math.min(s + 1, pages.length - 1));
-      if (event.key === 'ArrowLeft') setSpread(s => Math.max(0, s - 1));
+      if (event.key === 'ArrowRight') setSpread(v => Math.min(v + 1, totalSpreads - 1));
+      if (event.key === 'ArrowLeft') setSpread(v => Math.max(0, v - 1));
       if (event.key === 'Tab') {
-        const focusables = Array.from(document.querySelectorAll('.journal-dialog button:not(:disabled)'));
-        const index = focusables.indexOf(document.activeElement);
-        if (event.shiftKey && index === 0) { event.preventDefault(); focusables[focusables.length - 1]?.focus(); }
-        else if (!event.shiftKey && index === focusables.length - 1) { event.preventDefault(); focusables[0]?.focus(); }
+        const buttons = [...document.querySelectorAll('.journal-dialog button:not(:disabled)')];
+        if (!buttons.length) return;
+        const i = buttons.indexOf(document.activeElement);
+        if (event.shiftKey && i === 0) { event.preventDefault(); buttons[buttons.length - 1].focus(); }
+        if (!event.shiftKey && i === buttons.length - 1) { event.preventDefault(); buttons[0].focus(); }
       }
     }
     document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = previousOverflow;
-      previouslyFocused?.focus?.();
-    };
-  }, [open, onClose]);
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = previousOverflow; previousFocus?.focus?.(); };
+  }, [open, onClose, totalSpreads]);
   if (!open) return null;
   return (
     <div className="journal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
@@ -61,15 +83,14 @@ export default function JournalBook({ open, onClose }) {
           <button ref={closeRef} type="button" className="journal-close" onClick={onClose} aria-label="Close journal">×</button>
         </header>
         <div className="journal-book-spread" key={spread}>
-          <Page entry={pages[spread].left} side="left" />
-          <Page entry={pages[spread].right} side="right" />
+          <JournalPage entry={entries[spread * 2]} number={spread * 2 + 1} />
+          <JournalPage entry={entries[spread * 2 + 1]} number={spread * 2 + 2} />
         </div>
         <footer className="journal-controls">
-          <button type="button" onClick={() => setSpread(s => Math.max(0, s - 1))} disabled={spread === 0}>← Previous</button>
-          <span>{spread + 1} / {pages.length}</span>
-          <button type="button" onClick={() => setSpread(s => Math.min(pages.length - 1, s + 1))} disabled={spread === pages.length - 1}>Next →</button>
+          <button type="button" onClick={() => setSpread(v => Math.max(0, v - 1))} disabled={spread === 0}>← Previous</button>
+          <span>{spread + 1} / {totalSpreads}</span>
+          <button type="button" onClick={() => setSpread(v => Math.min(totalSpreads - 1, v + 1))} disabled={spread >= totalSpreads - 1}>Next →</button>
         </footer>
-        <p className="journal-demo-note">A preview of your journal. AI milestone entries and learning records are not connected yet.</p>
       </div>
     </div>
   );
