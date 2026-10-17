@@ -1,6 +1,6 @@
 from uuid import uuid4
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import ActionRequest, WorldState
+from app.models.schemas import ActionRequest, StartRequest, WorldState
 from app.engine.world import new_world, public_world
 from app.engine.actions import apply_action
 from app.ai.narrator import narrate
@@ -9,7 +9,10 @@ router = APIRouter(prefix="/game", tags=["game"])
 SESSIONS: dict[str, WorldState] = {}
 
 @router.post("/start")
-def start_game():
+def start_game(request: StartRequest | None = None):
+    request = request or StartRequest()
+    if request.realm_id != "odyssey_island":
+        raise HTTPException(status_code=422, detail="Realm not implemented yet")
     session_id = str(uuid4())
     world = new_world()
     SESSIONS[session_id] = world
