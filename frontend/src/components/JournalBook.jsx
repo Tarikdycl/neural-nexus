@@ -47,8 +47,18 @@ function JournalPage({ entry, number, customNote, onNoteChange }) {
       ) : (
         <div className="journal-page-content journal-unwritten"><span className="journal-page-eyebrow">FIELD NOTES</span></div>
       )}
-      <div className="journal-personal-note">
-        {editing ? (
+      <div className={'journal-personal-note' + (entry?.empty ? ' journal-personal-note--inline' : '')}>
+        {entry?.empty ? (
+          <textarea
+            className="journal-inline-editor"
+            aria-label="Field notes"
+            placeholder="Write a note…"
+            value={hasCustomNote ? customNote : ''}
+            maxLength={500}
+            rows={7}
+            onChange={event => onNoteChange(number, event.target.value)}
+          />
+        ) : editing ? (
           <>
             <label className="journal-note-label" htmlFor={'journal-note-' + number}>Personal note</label>
             <textarea id={'journal-note-' + number} value={draft} maxLength={500} rows={3} onChange={e => setDraft(e.target.value)} />
@@ -57,7 +67,7 @@ function JournalPage({ entry, number, customNote, onNoteChange }) {
         ) : (
           <>
             {note && <p className="journal-page-note">{note}</p>}
-            <button className="journal-edit-note" type="button" onClick={beginEdit}>{hasCustomNote ? 'Edit note' : 'Add note'}</button>
+            <button className="journal-edit-note" type="button" onClick={beginEdit}>{hasCustomNote ? 'Edit note' : 'Write a note…'}</button>
           </>
         )}
       </div>
