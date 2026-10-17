@@ -113,3 +113,22 @@
   .realms-page .section-intro { margin-bottom: 30px; }
   .realms-page .realm-card-surface { min-height: 155px; padding: 22px; }
 }
+
+
+/* Realm covers: supplied original artwork, quiet editorial framing */
+.realms-page .realm-grid { gap: 18px; }
+.realms-page .realm-card { border-radius: 12px; }
+.realms-page .realm-card-surface { padding: 0 0 22px; min-height: 365px; }
+.realms-page .realm-cover {
+  display: block; width: 100%; height: 235px;
+  object-fit: cover; object-position: center 56%;
+  border-bottom: 1px solid #e4dfd7;
+}
+.realms-page .realm-card-copy { padding: 20px 22px 0; gap: 8px; }
+.realms-page .realm-card-title { font-size: clamp(20px, 2vw, 25px); }
+.realms-page .realm-card-action { margin: 17px 22px 0; }
+.realms-page .realm-card-upcoming .realm-cover { filter: saturate(.78); }
+@media (max-width: 680px) {
+  .realms-page .realm-card-surface { min-height: 0; padding-bottom: 20px; }
+  .realms-page .realm-cover { height: 190px; }
+}
