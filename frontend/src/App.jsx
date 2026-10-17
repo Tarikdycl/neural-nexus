@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import LandingPage from './pages/LandingPage.jsx';
 import RealmsPage from './pages/RealmsPage.jsx';
 import GamePage from './pages/GamePage.jsx';
