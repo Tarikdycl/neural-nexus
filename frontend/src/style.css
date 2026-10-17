@@ -57,3 +57,27 @@
   .landing-content > p { font-size: 14px; }
   .landing-footnote { bottom: 27px; }
 }
+
+
+/* Realm selection: minimal editorial layout */
+.realms-page { min-height: 100svh; max-width: 1050px; display: flex; flex-direction: column; }
+.realms-page > .text-button { align-self: flex-start; }
+.realms-page .section-intro { margin: auto auto 44px; }
+.realms-page .section-intro h1 { margin: 0; }
+.realms-page .realm-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: auto; }
+.realms-page .realm-card { background: transparent; border: 1px solid #ddd8cf; box-shadow: none; transition: border-color 180ms ease, transform 180ms ease; }
+.realms-page .realm-card:hover { border-color: #b5a591; transform: translateY(-2px); }
+.realms-page .realm-card-body { min-height: 216px; display: flex; flex-direction: column; padding: 27px 25px; }
+.realms-page .realm-card h2 { font-size: clamp(22px, 2.3vw, 29px); line-height: 1.22; min-height: 0; margin: 0 0 14px; }
+.realms-page .realm-card p { font-size: 13px; min-height: 0; margin: 0 0 18px; }
+.realms-page .card-link { margin-top: auto; align-self: flex-start; padding-bottom: 0; }
+@media (max-width: 680px) {
+  .realms-page { min-height: 100svh; }
+  .realms-page .section-intro { margin: 50px auto 35px; }
+  .realms-page .realm-grid { grid-template-columns: 1fr; margin-bottom: auto; }
+  .realms-page .realm-card-body { min-height: 165px; padding: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .realms-page .realm-card { transition: none; }
+  .realms-page .realm-card:hover { transform: none; }
+}
