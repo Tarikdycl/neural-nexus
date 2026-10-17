@@ -6,7 +6,11 @@ from app.engine.actions import apply_action
 from app.ai.narrator import narrate
 from pydantic import BaseModel
 
-ARTIFACTS = {"sword": "Warrior", "staff": "Mage", "book": "Scholar", "compass": "Explorer"}
+REALM_ROLES = {
+    "odyssey_island": {"helm": "Ship Captain", "sword": "Warrior", "banner": "General", "bow": "Archer"},
+    "monkey_king": {"staff": "Staff Adept", "scroll": "Sage", "cloud": "Cloud Wanderer", "seal": "Guardian"},
+    "demi_demon": {"blade": "Hunter", "grimoire": "Occultist", "mask": "Infiltrator", "lantern": "Seeker"},
+}
 
 class ChoiceRequest(BaseModel):
     session_id: str
@@ -34,10 +38,11 @@ def choose_artifact(request: ChoiceRequest):
     if world.chosen_artifact is not None:
         raise HTTPException(status_code=409, detail="Your path is already chosen.")
     artifact = request.artifact.strip().lower()
-    if artifact not in ARTIFACTS:
-        raise HTTPException(status_code=422, detail="Choose sword, staff, book, or compass.")
+    available = REALM_ROLES.get(world.scenario_id, {})
+    if artifact not in available:
+        raise HTTPException(status_code=422, detail="Invalid role for this realm.")
     world.chosen_artifact = artifact
-    world.character_class = ARTIFACTS[artifact]
+    world.character_class = available[artifact]
     world.journal["decisionEntries"].append({
         "id": "guardian-choice", "title": "The Path Chosen",
         "body": f"I reached for the {artifact}. The guardian named me {world.character_class}.",

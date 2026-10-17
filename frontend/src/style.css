@@ -757,3 +757,7 @@
 .game-page--atmospheric .game-topbar {position:relative;z-index:2;background:rgba(248,246,241,.95);}
 @keyframes realm-atmosphere-in {from{opacity:0}to{opacity:.64}}
 @media(prefers-reduced-motion:reduce){.game-realm-atmosphere{animation:none;opacity:.64}}
+
+/* Empty field notes are laid out like a blank journal page. */
+.journal-page-empty .journal-page-content{align-items:flex-start;text-align:left;justify-content:flex-start;}
+.journal-page-empty .journal-page-note{max-width:none;margin:0;}

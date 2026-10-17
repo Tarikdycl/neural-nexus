@@ -40,7 +40,7 @@ export default function GamePage({ session, messages, busy, error, onAction, onB
           </div>
 
           <StoryChat messages={messages} busy={busy} />
-          {!world.chosen_artifact && <GuardianChoice busy={busy} error={error} onChoose={onChoose} />}
+          {!world.chosen_artifact && <GuardianChoice realmId={world.scenario_id} busy={busy} error={error} onChoose={onChoose} />}
 
           <div className="game-input-area">
             {error && Boolean(world.chosen_artifact) && <div className="inline-error" role="alert">{error}</div>}

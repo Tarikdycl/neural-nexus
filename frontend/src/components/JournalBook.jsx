@@ -14,7 +14,7 @@ function toPages(journal) {
   );
   if (!entries.length) return [
     { section: 'CHAPTER I · THE ODYSSEY', title: 'The First Shore', subtitle: 'Moonlit Clearing', body: 'The island is quiet. For now.', note: 'A quiet beginning.', opening: true },
-    { section: 'FIELD NOTES', title: 'Yet to be written', empty: true, note: 'Notes will gather here.' },
+    { section: 'FIELD NOTES', title: '', empty: true, note: '' },
   ];
   return entries;
 }
@@ -32,7 +32,7 @@ function JournalPage({ entry, number, customNote, onNoteChange }) {
       {entry ? (
         <div className="journal-page-content">
           <span className="journal-page-eyebrow">{entry.section}</span>
-          <h3>{entry.title || (entry.empty ? 'Yet to be written' : 'A new chapter')}</h3>
+          {!entry.empty && <h3>{entry.title || 'A new chapter'}</h3>}
           {!entry.empty && (
             <>
               {entry.subtitle && <p className="journal-page-subtitle">{entry.subtitle}</p>}
@@ -45,7 +45,7 @@ function JournalPage({ entry, number, customNote, onNoteChange }) {
 
         </div>
       ) : (
-        <div className="journal-page-content journal-unwritten"><span className="journal-page-eyebrow">UNWRITTEN</span><h3>Yet to be written</h3></div>
+        <div className="journal-page-content journal-unwritten"><span className="journal-page-eyebrow">FIELD NOTES</span></div>
       )}
       <div className="journal-personal-note">
         {editing ? (

@@ -10,13 +10,16 @@ def apply_action(world: WorldState, action: str, target: str | None = None) -> s
         outcome = LOCATIONS[world.location_id]["description"]
         class_observations = {
             "Warrior": "You notice the safest footing and possible hazards along the path.",
+            "Ship Captain": "You assess the wind and shoreline for a safe route.",
+            "General": "You survey the terrain, judging where a group could move safely.",
+            "Archer": "You notice distant movement and places with clear sightlines.",
             "Mage": "You study the shifting wind and how the environment responds to it.",
             "Scholar": "You inspect the old stonework for signs of its history.",
             "Explorer": "You scan the terrain, searching for tracks and overlooked landmarks.",
         }
         outcome += " " + class_observations.get(world.character_class, "")
         # An Explorer can spot the hidden compass without repeating a search action.
-        if world.character_class == "Explorer" and world.location_id == "clearing":
+        if world.character_class == "Ship Captain" and world.location_id == "clearing":
             compass = world.objects.get("compass")
             if compass and compass.hidden and not compass.discovered and not compass.carried:
                 compass.discovered = True
