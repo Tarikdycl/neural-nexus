@@ -33,13 +33,15 @@ function JournalPage({ entry, number, customNote, onNoteChange }) {
         <div className="journal-page-content">
           <span className="journal-page-eyebrow">{entry.section}</span>
           <h3>{entry.title || (entry.empty ? 'Yet to be written' : 'A new chapter')}</h3>
-          {!entry.empty && (\n            <>
+          {!entry.empty && (
+            <>
               {entry.subtitle && <p className="journal-page-subtitle">{entry.subtitle}</p>}
               <p className="journal-page-body">{entry.body}</p>
               {Array.isArray(entry.tags) && entry.tags.length > 0 && (
                 <div className="journal-tag-list">{entry.tags.map(tag => <span className="journal-tag" key={tag}>{tag}</span>)}</div>
               )}
-            </>\n          )}
+            </>
+          )}
 
         </div>
       ) : (
