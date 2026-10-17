@@ -1,3 +1,4 @@
+import React from 'react';
 export default function LandingPage({ onBegin }) {
   return (
     <main className="landing">
