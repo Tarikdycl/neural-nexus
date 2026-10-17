@@ -28,3 +28,9 @@ export const loadGame = (sessionId) =>
   apiRequest('/game/' + encodeURIComponent(sessionId));
 
 export const healthCheck = () => apiRequest('/health');
+
+export const chooseArtifact = (sessionId, artifact) =>
+  apiRequest('/game/choose-artifact', { method: 'POST', body: JSON.stringify({ session_id: sessionId, artifact }) });
+
+export const solveChallenge = (sessionId, answer) =>
+  apiRequest('/game/challenge', { method: 'POST', body: JSON.stringify({ session_id: sessionId, answer }) });
