@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Stone stairs climbing to the Moon Palace">
+  <defs><radialGradient id="glow"><stop offset="0" stop-color="#F7E7B4"/><stop offset="1" stop-color="#F7E7B4" stop-opacity="0"/></radialGradient></defs>
+  <rect width="800" height="500" fill="#2B2A33"/>
+  <circle cx="610" cy="130" r="120" fill="url(#glow)"/>
+  <circle cx="610" cy="130" r="70" fill="#F4EDE0"/>
+  <g fill="#F4EDE0" opacity="0.7"><circle cx="90" cy="70" r="2"/><circle cx="200" cy="40" r="1.5"/><circle cx="330" cy="90" r="2"/><circle cx="450" cy="50" r="1.5"/><circle cx="740" cy="300" r="1.5"/></g>
+  <g fill="#1C1B19" stroke="#8E8A80" stroke-width="1.5">
+    <path d="M60 500 L60 470 L160 470 L160 440 L250 440 L250 410 L330 410 L330 380 L400 380 L400 350 L460 350 L460 320 L510 320 L510 500Z"/>
+  </g>
+  <g transform="translate(460 230)" fill="#1C1B19" stroke="#8E8A80" stroke-width="1.5">
+    <rect x="-10" y="40" width="120" height="50"/><path d="M-30 42 Q50 0 130 42Z"/><rect x="40" y="58" width="20" height="32" fill="#B23A2B"/>
+  </g>
+</svg>

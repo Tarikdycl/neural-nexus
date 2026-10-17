@@ -1,0 +1,20 @@
+# secrets - never commit these
+.env
+*.pem
+.oci/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# test output
+screenshots/
+
+# editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

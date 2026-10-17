@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Misty Five Elements Mountain">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F4EDE0"/><stop offset="1" stop-color="#E6DCC8"/></linearGradient>
+    <linearGradient id="far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8E8A80"/><stop offset="1" stop-color="#8E8A80" stop-opacity="0"/></linearGradient>
+    <linearGradient id="near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1C1B19"/><stop offset="1" stop-color="#1C1B19" stop-opacity="0.15"/></linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky)"/>
+  <circle cx="610" cy="120" r="46" fill="#B23A2B" opacity="0.85"/>
+  <path d="M0 330 L120 210 L190 260 L300 140 L380 230 L460 170 L560 260 L640 200 L800 300 L800 500 L0 500Z" fill="url(#far)" opacity="0.55"/>
+  <path d="M0 380 L90 300 L170 340 L260 210 L330 120 L370 160 L420 110 L500 240 L580 300 L680 260 L800 360 L800 500 L0 500Z" fill="url(#near)" opacity="0.85"/>
+  <path d="M330 120 L350 175 L338 230 M420 110 L410 170 L430 230" stroke="#F4EDE0" stroke-width="3" fill="none" opacity="0.5"/>
+  <ellipse cx="400" cy="400" rx="460" ry="40" fill="#F4EDE0" opacity="0.8" filter="url(#soft)"/>
+  <ellipse cx="200" cy="300" rx="180" ry="18" fill="#F4EDE0" opacity="0.7" filter="url(#soft)"/>
+  <ellipse cx="620" cy="330" rx="200" ry="20" fill="#F4EDE0" opacity="0.7" filter="url(#soft)"/>
+  <g transform="translate(716 336)"><rect width="56" height="56" fill="#B23A2B"/><text x="28" y="38" font-size="30" text-anchor="middle" fill="#F4EDE0" font-family="serif">山</text></g>
+</svg>

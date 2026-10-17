@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Rocky East Sea shore">
+  <rect width="800" height="500" fill="#F4EDE0"/>
+  <rect y="230" width="800" height="120" fill="#C9D3CC"/>
+  <g stroke="#1C1B19" stroke-width="2" fill="none" opacity="0.45">
+    <path d="M0 255 q40 -10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/>
+    <path d="M0 290 q40 -10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/>
+    <path d="M0 325 q40 -10 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0"/>
+  </g>
+  <path d="M0 350 Q400 320 800 350 L800 500 L0 500Z" fill="#E3D8C2"/>
+  <g fill="#1C1B19">
+    <path d="M520 360 Q560 250 640 270 Q700 230 760 300 Q790 350 780 380 L520 380Z"/>
+    <path d="M60 380 Q80 320 130 330 Q170 300 200 350 L210 385 L60 385Z" opacity="0.85"/>
+  </g>
+  <path d="M548 330 Q640 300 770 330" stroke="#3E7C6B" stroke-width="7" fill="none" opacity="0.9"/>
+  <g fill="#E2B44C"><circle cx="470" cy="392" r="3"/><circle cx="488" cy="398" r="2"/><circle cx="455" cy="402" r="2.5"/><circle cx="500" cy="388" r="2"/></g>
+  <g stroke="#1C1B19" stroke-width="2" fill="none"><path d="M300 420 q8 -10 16 0"/><path d="M360 440 q6 -8 12 0"/><path d="M240 445 q7 -9 14 0"/></g>
+</svg>

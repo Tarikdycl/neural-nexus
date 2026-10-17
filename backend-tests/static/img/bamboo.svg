@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Bamboo forest with a small shrine">
+  <rect width="800" height="500" fill="#F4EDE0"/>
+  <rect y="380" width="800" height="120" fill="#E3D8C2"/>
+  <g fill="#1C1B19" opacity="0.18">
+    <polygon points="110,392 126,392 470,470 430,470"/><polygon points="250,392 264,392 610,470 572,470"/><polygon points="640,392 652,392 800,440 800,455"/>
+  </g>
+  <g stroke="#1C1B19" stroke-linecap="round">
+    <g stroke-width="16"><line x1="118" y1="0" x2="118" y2="392"/><line x1="257" y1="0" x2="257" y2="392"/><line x1="646" y1="0" x2="646" y2="392"/></g>
+    <g stroke-width="10" opacity="0.55"><line x1="40" y1="0" x2="40" y2="388"/><line x1="190" y1="0" x2="190" y2="386"/><line x1="560" y1="0" x2="560" y2="386"/><line x1="730" y1="0" x2="730" y2="388"/></g>
+    <g stroke="#F4EDE0" stroke-width="4"><line x1="108" y1="90" x2="128" y2="90"/><line x1="108" y1="220" x2="128" y2="220"/><line x1="247" y1="140" x2="267" y2="140"/><line x1="247" y1="280" x2="267" y2="280"/><line x1="636" y1="60" x2="656" y2="60"/><line x1="636" y1="200" x2="656" y2="200"/></g>
+  </g>
+  <g fill="#3E7C6B" opacity="0.8">
+    <path d="M128 90 q50 -30 90 -10 q-50 10 -90 10z"/><path d="M118 220 q-55 -20 -90 0 q50 10 90 0z"/><path d="M267 140 q60 -20 95 5 q-55 5 -95 -5z"/><path d="M656 60 q-60 -25 -100 0 q55 10 100 0z"/><path d="M656 200 q55 -25 95 0 q-50 10 -95 0z"/>
+  </g>
+  <g transform="translate(380 285)">
+    <rect x="-70" y="78" width="140" height="22" fill="#1C1B19"/>
+    <rect x="-55" y="20" width="10" height="60" fill="#B23A2B"/><rect x="45" y="20" width="10" height="60" fill="#B23A2B"/>
+    <path d="M-80 22 Q0 -8 80 22 L70 30 Q0 4 -70 30Z" fill="#1C1B19"/>
+    <path d="M-12 40 h24 l-10 16 l10 16 h-24 l10 -16z" fill="#E2B44C" stroke="#1C1B19" stroke-width="2"/>
+  </g>
+</svg>

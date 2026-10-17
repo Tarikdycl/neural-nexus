@@ -1,0 +1,530 @@
+{
+  "_about": "Single source of truth for all story text (design doc sections 2 and 4, plus the review fixes). Edit words here, then run: python scripts/build_seed.py  (it rewrites sql/seed.sql). Never put story text in the engine code.",
+  "prologue": [
+    "Five hundred years ago, a stone monkey learned 72 magic changes. He called himself Sun Wukong, the Monkey King. Modesty was never his strong point.",
+    "Wukong picked a fight with all of Heaven. Heaven won, eventually, and tucked him under Five Elements Mountain. He has been sulking there ever since.",
+    "Today the mountain is shaking. Morning arrives before night is finished, and fruit rots before it grows. The village has noticed.",
+    "Someone broke the Hourglass of Seasons. Its six Memory Pearls rolled away and hid. Hours do that when nobody is watching.",
+    "That is where you come in, Seeker. Find the pearls and put the day back in order. Somebody will tell fibs along the way, so keep your eyes open."
+  ],
+  "grandmother_line": "Take this Torn Scroll, little Seeker. Many of its pages are torn, so it only knows what you find. Look, listen, and think for yourself.",
+  "suspects": [
+    "Sun Wukong",
+    "Jade Rabbit",
+    "Dragon King"
+  ],
+  "variants": [
+    {
+      "variant_id": "V1",
+      "culprit": "Sun Wukong",
+      "culprit_words": [
+        "wukong",
+        "monkey king"
+      ],
+      "ending_text": "Wukong laughs and bows low. \"You caught me, little Seeker! I only wanted one more peach festival.\"\nHe gives back the hours, and the hourglass is whole again. As a thank-you, he teaches the Seeker one of his 72 changes. He insists it was his idea all along."
+    },
+    {
+      "variant_id": "V2",
+      "culprit": "Jade Rabbit",
+      "culprit_words": [
+        "jade rabbit",
+        "rabbit"
+      ],
+      "ending_text": "The Jade Rabbit steps out, ears down. \"I only wanted the Moon Festival to last.\"\nWukong grins. \"I hid her tracks to test you, and you did not blame the obvious monkey!\"\nThe Rabbit returns the hours. The village plans a festival together, a sensible length this time."
+    },
+    {
+      "variant_id": "V3",
+      "culprit": "Dragon King",
+      "culprit_words": [
+        "dragon king",
+        "dragon"
+      ],
+      "ending_text": "The Dragon King rises from the sea, dripping. \"My sea was thirsty.\" It is not much of an excuse, and he knows it.\nWukong shrugs. \"I shook my own mountain to warn the village, and everyone blamed me. You looked at the evidence.\"\nThe Dragon returns the hours. The rain falls only in its season again."
+    }
+  ],
+  "realms": [
+    {
+      "realm_id": "bamboo",
+      "name": "Bamboo Forest",
+      "display_order": 1,
+      "image_url": "/static/img/bamboo.svg",
+      "look_text": "The bamboo shadows are very long. They stretch across the path as if they have somewhere to be.",
+      "listen_text": "Wind chimes ring at the shrine. Somebody hung them there, and the wind does the rest."
+    },
+    {
+      "realm_id": "sea",
+      "name": "East Sea Shore",
+      "display_order": 2,
+      "image_url": "/static/img/sea.svg",
+      "look_text": "A dark wet line marks the big stones. That is how high the water can climb, when it puts its mind to it.",
+      "listen_text": "Waves whisper far away, then crash closer and closer. The sea is patient about these things."
+    },
+    {
+      "realm_id": "moon",
+      "name": "Moon Palace Stairs",
+      "display_order": 3,
+      "image_url": "/static/img/moon.svg",
+      "look_text": "Silver light falls on a long stone staircase. It climbs into the sky, as if the sky were expecting visitors.",
+      "listen_text": "Soft bells ring from the palace at the top of the stairs. Someone up there is fond of bells."
+    }
+  ],
+  "pearls": [
+    {
+      "pearl_id": "P1",
+      "realm_id": "bamboo",
+      "true_order": 1,
+      "time_label": "Dawn",
+      "title": "Pearl of Long Shadows",
+      "shared_text": "The sun is just rising. Long bamboo shadows stretch across the path. The Hourglass of Seasons glows on the shrine, whole and bright.",
+      "predict_q": "The forest has long shadows. What time is it?",
+      "predict_ok": "Early morning",
+      "predict_no1": "Midday",
+      "predict_no2": "Midnight",
+      "visual": {
+        "kind": "sun",
+        "sun": "low-east"
+      }
+    },
+    {
+      "pearl_id": "P2",
+      "realm_id": "bamboo",
+      "true_order": 2,
+      "time_label": "Midday",
+      "title": "Pearl of the Cracked Glass",
+      "shared_text": "The sun is at its highest, and the bamboo shadows are at their shortest. A thin crack runs across the hourglass. [variant sign]",
+      "predict_q": "The shadows are at their shortest. What time is it?",
+      "predict_ok": "Midday",
+      "predict_no1": "Dawn",
+      "predict_no2": "Sunset",
+      "visual": {
+        "kind": "sun",
+        "sun": "high"
+      }
+    },
+    {
+      "pearl_id": "P3",
+      "realm_id": "sea",
+      "true_order": 3,
+      "time_label": "Afternoon",
+      "title": "Pearl of the Far Sea",
+      "shared_text": "The afternoon sun is sinking toward the western hills. The sea is far out, leaving wet sand and stranded shells behind. Sharp, glowing glass sand sparkles by the rocks.",
+      "predict_q": "The sea is far out. What do you expect on the sand?",
+      "predict_ok": "Wet sand and shells",
+      "predict_no1": "Dry sand",
+      "predict_no2": "Deep water",
+      "visual": {
+        "kind": "tide",
+        "water": "low",
+        "sun": "mid-west"
+      }
+    },
+    {
+      "pearl_id": "P4",
+      "realm_id": "sea",
+      "true_order": 4,
+      "time_label": "Sunset",
+      "title": "Pearl of the High Tide",
+      "shared_text": "The water has climbed back up to the high stone line. The setting sun glows red as it sinks behind the western hills. A trail of glowing glass sand leads up toward the sky stairs.",
+      "predict_q": "All afternoon the waves have crashed closer and closer. Where is the water now?",
+      "predict_ok": "Up at the stone line",
+      "predict_no1": "Far out",
+      "predict_no2": "No water at all",
+      "visual": {
+        "kind": "tide",
+        "water": "high",
+        "sun": "setting-west"
+      }
+    },
+    {
+      "pearl_id": "P5",
+      "realm_id": "moon",
+      "true_order": 5,
+      "time_label": "Moonrise",
+      "title": "Pearl of the Low Moon",
+      "shared_text": "The sun has gone down. A huge full moon is rising in the east, just above the sea. [variant sign]",
+      "predict_q": "A full moon is rising in the east. What just happened?",
+      "predict_ok": "The sun just set",
+      "predict_no1": "It is noon",
+      "predict_no2": "It is dawn",
+      "visual": {
+        "kind": "moon",
+        "moon": "low-east"
+      }
+    },
+    {
+      "pearl_id": "P6",
+      "realm_id": "moon",
+      "true_order": 6,
+      "time_label": "Midnight",
+      "title": "Pearl of the Empty Hourglass",
+      "shared_text": "The full moon is at its highest point in the sky. The last grain of glowing time falls. The broken hourglass is empty.",
+      "predict_q": "The full moon is at its highest point. What time is it?",
+      "predict_ok": "About midnight",
+      "predict_no1": "Sunset",
+      "predict_no2": "Morning",
+      "visual": {
+        "kind": "moon",
+        "moon": "high"
+      }
+    }
+  ],
+  "pearl_signs": [
+    {
+      "pearl_id": "P2",
+      "variant_id": "V1",
+      "sign_text": "A single golden hair lies by the shrine."
+    },
+    {
+      "pearl_id": "P5",
+      "variant_id": "V1",
+      "sign_text": "Cloud tracks curl in a somersault shape on the stairs."
+    },
+    {
+      "pearl_id": "P2",
+      "variant_id": "V2",
+      "sign_text": "Small white paw prints circle the shrine."
+    },
+    {
+      "pearl_id": "P5",
+      "variant_id": "V2",
+      "sign_text": "Rice-cake crumbs lie on every step."
+    },
+    {
+      "pearl_id": "P2",
+      "variant_id": "V3",
+      "sign_text": "A puddle sits by the shrine, but no rain fell today."
+    },
+    {
+      "pearl_id": "P5",
+      "variant_id": "V3",
+      "sign_text": "The frost on the stairs has melted into rain drops."
+    }
+  ],
+  "duel_rounds": [
+    {
+      "round_no": 1,
+      "variant_id": "V1",
+      "form_name": "Sun Wukong",
+      "claim_text": "I stayed under my mountain all day.",
+      "is_lie": 1,
+      "proof_pearls": "P2",
+      "proof_mode": "any",
+      "reason_ok": "A pearl shows their sign at the shrine at midday",
+      "reason_no1": "Every pearl agrees with the claim",
+      "reason_no2": "The shrine is too far away to visit"
+    },
+    {
+      "round_no": 1,
+      "variant_id": "V2",
+      "form_name": "Jade Rabbit",
+      "claim_text": "I never left the moon all day.",
+      "is_lie": 1,
+      "proof_pearls": "P2",
+      "proof_mode": "any",
+      "reason_ok": "A pearl shows their sign at the shrine at midday",
+      "reason_no1": "Every pearl agrees with the claim",
+      "reason_no2": "The shrine is too far away to visit"
+    },
+    {
+      "round_no": 1,
+      "variant_id": "V3",
+      "form_name": "Dragon King",
+      "claim_text": "I stayed under the sea. It was a dry day.",
+      "is_lie": 1,
+      "proof_pearls": "P2",
+      "proof_mode": "any",
+      "reason_ok": "A pearl shows their sign at the shrine at midday",
+      "reason_no1": "Every pearl agrees with the claim",
+      "reason_no2": "The shrine is too far away to visit"
+    },
+    {
+      "round_no": 2,
+      "variant_id": "V1",
+      "form_name": "Jade Rabbit",
+      "claim_text": "The full moon rose right after the sun set.",
+      "is_lie": 0,
+      "proof_pearls": "P4,P5",
+      "proof_mode": "all",
+      "reason_ok": "The sun set, and then the full moon rose in the east",
+      "reason_no1": "The full moon was highest at midday",
+      "reason_no2": "There was no moon that night"
+    },
+    {
+      "round_no": 2,
+      "variant_id": "V2",
+      "form_name": "Dragon King",
+      "claim_text": "The full moon rose right after the sun set.",
+      "is_lie": 0,
+      "proof_pearls": "P4,P5",
+      "proof_mode": "all",
+      "reason_ok": "The sun set, and then the full moon rose in the east",
+      "reason_no1": "The full moon was highest at midday",
+      "reason_no2": "There was no moon that night"
+    },
+    {
+      "round_no": 2,
+      "variant_id": "V3",
+      "form_name": "Jade Rabbit",
+      "claim_text": "The full moon rose right after the sun set.",
+      "is_lie": 0,
+      "proof_pearls": "P4,P5",
+      "proof_mode": "all",
+      "reason_ok": "The sun set, and then the full moon rose in the east",
+      "reason_no1": "The full moon was highest at midday",
+      "reason_no2": "There was no moon that night"
+    },
+    {
+      "round_no": 3,
+      "variant_id": "ALL",
+      "form_name": "Sun Wukong",
+      "claim_text": "The sea broke the hourglass. The glass sand on the beach came first, and the crack came later.",
+      "is_lie": 1,
+      "proof_pearls": "P2,P3",
+      "proof_mode": "all",
+      "reason_ok": "The crack came first, and the glass sand came later",
+      "reason_no1": "The glass sand came first, and the crack came later",
+      "reason_no2": "The crack and the sand happened at the same moment"
+    }
+  ],
+  "hints": [
+    {
+      "puzzle_key": "P1",
+      "level_no": 1,
+      "hint_text": "The sun keeps a routine, like most of us. What does it do first thing in the morning?"
+    },
+    {
+      "puzzle_key": "P1",
+      "level_no": 2,
+      "hint_text": "Shadows tell you where the sun is sitting. At dawn, is the sun low near the hills, or high above you?"
+    },
+    {
+      "puzzle_key": "P1",
+      "level_no": 3,
+      "hint_text": "A low sun makes long shadows, and these shadows are very long. When in the day is the sun low and just rising?"
+    },
+    {
+      "puzzle_key": "P2",
+      "level_no": 1,
+      "hint_text": "The sun moves across the sky all day, slowly and without fuss. Where does it go during the day?"
+    },
+    {
+      "puzzle_key": "P2",
+      "level_no": 2,
+      "hint_text": "Short shadows mean the sun is high overhead. When is the sun highest: at dawn, at midday, or at sunset?"
+    },
+    {
+      "puzzle_key": "P2",
+      "level_no": 3,
+      "hint_text": "When the sun is at its highest, shadows are at their shortest. These shadows are about as short as they get. When is the sun highest?"
+    },
+    {
+      "puzzle_key": "P3",
+      "level_no": 1,
+      "hint_text": "The sea comes and goes, and it is never in a hurry. What happens to a beach when the sea moves away?"
+    },
+    {
+      "puzzle_key": "P3",
+      "level_no": 2,
+      "hint_text": "Water leaves things wet when it goes. If the sea just left, would the sand be wet or dry?"
+    },
+    {
+      "puzzle_key": "P3",
+      "level_no": 3,
+      "hint_text": "When the tide goes out, it leaves things behind on the wet sand. Shells are not very good at keeping up. What might be lying there?"
+    },
+    {
+      "puzzle_key": "P4",
+      "level_no": 1,
+      "hint_text": "Listen to the waves for a moment. Are they moving away from you, or coming closer?"
+    },
+    {
+      "puzzle_key": "P4",
+      "level_no": 2,
+      "hint_text": "In the afternoon, the sea was far out. If the waves keep coming closer, where will the water be later?"
+    },
+    {
+      "puzzle_key": "P4",
+      "level_no": 3,
+      "hint_text": "Waves that crash closer and closer for hours climb up the beach. The dark line on the stones shows how high they get. Which answer shows the water up high?"
+    },
+    {
+      "puzzle_key": "P5",
+      "level_no": 1,
+      "hint_text": "The moon has its habits too. Where does a full moon come up: in the east or in the west?"
+    },
+    {
+      "puzzle_key": "P5",
+      "level_no": 2,
+      "hint_text": "A full moon sits across the sky from the sun. When the moon rises in the east, where is the sun?"
+    },
+    {
+      "puzzle_key": "P5",
+      "level_no": 3,
+      "hint_text": "A full moon rises in the east just as the sun sets in the west. They take turns, very politely. What just happened to the sun?"
+    },
+    {
+      "puzzle_key": "P6",
+      "level_no": 1,
+      "hint_text": "The full moon climbs across the sky all night, taking its time. Where does it go after it rises?"
+    },
+    {
+      "puzzle_key": "P6",
+      "level_no": 2,
+      "hint_text": "The moon climbs and then sinks, much like the sun does. Is the full moon highest at sunset, at midnight, or in the morning?"
+    },
+    {
+      "puzzle_key": "P6",
+      "level_no": 3,
+      "hint_text": "A full moon rises at sunset and sets at sunrise. Halfway between, it is at its highest. What time is that?"
+    },
+    {
+      "puzzle_key": "TIMELINE",
+      "level_no": 1,
+      "hint_text": "Think about one whole day, from sunrise to midnight. Which pearl feels like the very start?"
+    },
+    {
+      "puzzle_key": "TIMELINE",
+      "level_no": 2,
+      "hint_text": "Shadows, tides and the moon each keep time in their own way. Which clues come early in the day, and which come late?"
+    },
+    {
+      "puzzle_key": "TIMELINE",
+      "level_no": 3,
+      "hint_text": "Morning shadows are the longest of the day. Start with the longest shadows, and let the sun walk across the sky. Which pearl comes next?"
+    },
+    {
+      "puzzle_key": "R1",
+      "level_no": 1,
+      "hint_text": "This form says it was somewhere else all day. Do any of your pearls show otherwise?"
+    },
+    {
+      "puzzle_key": "R1",
+      "level_no": 2,
+      "hint_text": "Some of your pearls hold strange signs. Which one was at the shrine in the Bamboo Forest?"
+    },
+    {
+      "puzzle_key": "R1",
+      "level_no": 3,
+      "hint_text": "Your midday pearl shows a strange sign right by the shrine. Does that match what was just said, and which reason fits?"
+    },
+    {
+      "puzzle_key": "R2",
+      "level_no": 1,
+      "hint_text": "Not every claim is a trick. What do your pearls really show?"
+    },
+    {
+      "puzzle_key": "R2",
+      "level_no": 2,
+      "hint_text": "Look for the sun going down and the moon coming up. Which two pearls show that?"
+    },
+    {
+      "puzzle_key": "R2",
+      "level_no": 3,
+      "hint_text": "One pearl shows the setting sun, and another shows a full moon rising in the east. Do they agree with the claim?"
+    },
+    {
+      "puzzle_key": "R3",
+      "level_no": 1,
+      "hint_text": "Think about your timeline for a moment. What happened earlier in the day?"
+    },
+    {
+      "puzzle_key": "R3",
+      "level_no": 2,
+      "hint_text": "One pearl shows the crack, and another shows the glass sand. Which two are they?"
+    },
+    {
+      "puzzle_key": "R3",
+      "level_no": 3,
+      "hint_text": "Midday comes before afternoon, every single day. Was the crack already there before the sand?"
+    },
+    {
+      "puzzle_key": "VERDICT",
+      "level_no": 1,
+      "hint_text": "Somebody left signs behind, at the shrine and on the stairs. Who could leave signs like those?"
+    },
+    {
+      "puzzle_key": "VERDICT",
+      "level_no": 2,
+      "hint_text": "Two of your pearls hold strange signs. Which two are they, and what do the signs look like?"
+    },
+    {
+      "puzzle_key": "VERDICT",
+      "level_no": 3,
+      "hint_text": "Hair, paw prints, or puddles: each sign belongs to someone. Match the signs in your two sign pearls to a suspect. Who fits?"
+    }
+  ],
+  "assessment": {
+    "pre_intro": "Before the adventure, answer two quick questions. This helps your teacher see what you learn. You will not get a score.",
+    "post_intro": "Before you write the next legend, answer two last questions. You will not get a score.",
+    "items": [
+      {
+        "item_id": "PRE1",
+        "phase": "pre",
+        "skill": "time_from_evidence",
+        "question": "In a park, a flagpole's shadow is very long and the sun is low in the east. What time is it most likely?",
+        "choice_ok": "Morning",
+        "choice_no1": "Noon",
+        "choice_no2": "Evening"
+      },
+      {
+        "item_id": "PRE2",
+        "phase": "pre",
+        "skill": "trust_evidence",
+        "question": "Kai says, \"The tide was high this morning.\" Wet seaweed lies on the top rocks of the beach, where the water only reaches at high tide. What should you think?",
+        "choice_ok": "The evidence supports what Kai says",
+        "choice_no1": "Kai is probably not telling the truth",
+        "choice_no2": "There is no way to tell anything"
+      },
+      {
+        "item_id": "POST1",
+        "phase": "post",
+        "skill": "time_from_evidence",
+        "question": "At the lake, the sun is low in the west and the tree shadows are getting long. What time is it most likely?",
+        "choice_ok": "Evening",
+        "choice_no1": "Morning",
+        "choice_no2": "Noon"
+      },
+      {
+        "item_id": "POST2",
+        "phase": "post",
+        "skill": "trust_evidence",
+        "question": "Sam says, \"It rained last night.\" This morning the streets are wet and there are puddles everywhere, even though the sky is clear now. What should you think?",
+        "choice_ok": "The evidence supports what Sam says",
+        "choice_no1": "Sam is probably not telling the truth",
+        "choice_no2": "There is no way to tell anything"
+      }
+    ]
+  },
+  "legend": {
+    "opening": "Every legend needs a writer, and this one has picked you. What does Wukong do next?",
+    "questions": [
+      "Wukong never stays in one place for long. Where does he go?",
+      "Nobody travels alone in a good legend. Who does he meet?",
+      "Trouble usually finds him before lunch. What problem must he solve?"
+    ],
+    "closing": "Your legend is written in the Scroll now, for good. Not bad for one day's work, Seeker."
+  },
+  "fallbacks": {
+    "scroll_no_hint": "My pages rustle, but this one is torn. What could we look at to find out?",
+    "scroll_kind_words": "Kind words work better on old scrolls. What do you notice in this place?",
+    "wukong_correct": "Sharp eyes, little Seeker! There goes another hair!",
+    "wukong_wrong": "Ha! One more of me! Look again at your pearls.",
+    "scroll_redirect": "I am only an old torn scroll, and I like my rules. Let's look for clues together. What do you notice here?"
+  },
+  "scroll_info": "The Scroll only knows the pages you found. It is an AI narrator: it can chat with you, but it never knows the answers and never decides anything. Its hints are written by people, not by the AI. You make every choice.",
+  "narration": {
+    "_about": "Storyteller lines (the Scroll narrating). Every one is 2 or 3 short sentences: calm, relaxed, quietly amused. tests/test_content.py checks this.",
+    "realm_enter": {
+      "bamboo": "The Bamboo Forest has gone quiet. Someone has misplaced an hour here. Let's see where it went.",
+      "sea": "The East Sea Shore breathes in and out, the way it always has. The sea keeps very good time, if you watch it.",
+      "moon": "The Moon Palace Stairs climb higher than anyone really needs. The moon is up there, keeping its own quiet hours."
+    },
+    "predict_match": "Just as you guessed. The world tends to keep its habits, if you know where to look.",
+    "predict_differ": "Not quite what you expected. Read the memory again; it is in no hurry, and neither are you.",
+    "all_found": "That is all six pearls. They are sitting in a heap, out of order, which is how lost hours like it. Time to line them up.",
+    "timeline_solved": "There it is, one whole day, in order. The board looks rather pleased with itself. Somewhere, a monkey has stopped laughing.",
+    "duel_intro": "Wukong has wriggled out from under his mountain. He wants a contest, and he will not tell the truth every time. Check what he says against your pearls.",
+    "verdict_intro": "Wukong is out of magic hairs, and briefly out of jokes. Now it is your turn to name who took the hours. Bring two pearls, so nobody can argue.",
+    "timeline_pair": "The {a} and the {b} seem to disagree about the time. Which one shows an earlier hour, and what clue tells you?"
+  }
+}

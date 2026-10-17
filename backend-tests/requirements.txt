@@ -1,0 +1,7 @@
+# Versions this project was tested with (pytest: 199 passed on MySQL 8 and in memory).
+fastapi==0.143.3
+uvicorn==0.53.0
+pydantic==2.13.5
+mysql-connector-python==26.7.0
+oci==2.188.0
+python-dotenv==1.2.3

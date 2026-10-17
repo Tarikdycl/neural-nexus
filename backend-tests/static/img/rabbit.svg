@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 320" role="img" aria-label="The Jade Rabbit">
+  <ellipse cx="110" cy="70" rx="18" ry="62" fill="#F4EDE0" stroke="#1C1B19" stroke-width="4" transform="rotate(-12 110 70)"/>
+  <ellipse cx="190" cy="70" rx="18" ry="62" fill="#F4EDE0" stroke="#1C1B19" stroke-width="4" transform="rotate(12 190 70)"/>
+  <ellipse cx="110" cy="75" rx="7" ry="42" fill="#E8B9B0" transform="rotate(-12 110 75)"/>
+  <ellipse cx="190" cy="75" rx="7" ry="42" fill="#E8B9B0" transform="rotate(12 190 75)"/>
+  <ellipse cx="150" cy="255" rx="85" ry="60" fill="#F4EDE0" stroke="#1C1B19" stroke-width="4"/>
+  <circle cx="150" cy="165" r="62" fill="#F4EDE0" stroke="#1C1B19" stroke-width="4"/>
+  <circle cx="127" cy="160" r="7" fill="#B23A2B"/><circle cx="173" cy="160" r="7" fill="#B23A2B"/>
+  <path d="M143 182 l7 6 l7 -6" stroke="#1C1B19" stroke-width="3" fill="#E8B9B0" stroke-linejoin="round"/>
+  <path d="M150 188 v8" stroke="#1C1B19" stroke-width="3"/>
+  <circle cx="150" cy="268" r="26" fill="#E2B44C" stroke="#1C1B19" stroke-width="3"/>
+  <circle cx="150" cy="268" r="14" fill="none" stroke="#1C1B19" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M110 120 Q150 105 190 120" stroke="#3E7C6B" stroke-width="6" fill="none" stroke-linecap="round"/>
+</svg>

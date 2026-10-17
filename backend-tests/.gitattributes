@@ -1,0 +1,5 @@
+# Keep Linux line endings for everything, so files work on the Oracle Linux server
+# even when edited on Windows (fixes the "LF will be replaced by CRLF" warning).
+* text=auto eol=lf
+*.png binary
+*.pdf binary
