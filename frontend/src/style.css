@@ -256,3 +256,43 @@
   .realms-page .section-intro {margin:48px auto 26px;}
   .realms-page .realm-grid {width:100%;}
 }
+
+
+/* Gameplay sidebar layout — supports Status / Inventory / Journal */
+.game-layout { grid-template-columns: minmax(0,1fr) 330px; }
+.game-details-panel { min-width:0; overflow-x:hidden; }
+.game-details-panel .game-sidebar { box-sizing:border-box; width:100%; min-width:0; padding:24px 18px; overflow-x:hidden; }
+.game-sidebar * { box-sizing:border-box; }
+.game-sidebar .journey-card,
+.game-sidebar .sidebar-panel { width:100%; max-width:100%; min-width:0; }
+.game-sidebar .sidebar-tabs {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px; width:100%; min-width:0; max-width:100%;
+}
+.game-sidebar .sidebar-tab {
+  min-width:0; width:100%; padding:10px 3px; gap:5px;
+  font-size:11px; white-space:nowrap; border-radius:8px;
+}
+.game-sidebar .sidebar-tab-icon,
+.game-sidebar .sidebar-tab-icon svg { width:13px; height:13px; flex:0 0 13px; }
+.game-sidebar .journal-book-cover { min-height:158px; }
+.game-sidebar .journal-book-title { font-size:21px; overflow-wrap:anywhere; }
+.game-sidebar .journal-entry p { overflow-wrap:anywhere; }
+.game-sidebar .status-bar { width:100%; }
+.game-sidebar .exit-row { min-width:0; }
+.game-main { max-width:920px; }
+@media (min-width: 1100px) {
+ .game-main { padding-left:clamp(34px,5vw,80px); padding-right:clamp(34px,5vw,80px); }
+}
+@media (max-width: 1000px) and (min-width: 681px) {
+ .game-layout { grid-template-columns:minmax(0,1fr) 295px; }
+ .game-details-panel .game-sidebar { padding:20px 12px; }
+ .game-sidebar .sidebar-tab { font-size:10px; gap:3px; }
+}
+@media (max-width:680px) {
+ .game-layout { display:flex; flex-direction:column; }
+ .game-details-panel { display:none; width:100%; max-height:45vh; }
+ .details-open .game-details-panel { display:block; }
+ .game-details-panel .game-sidebar { display:block; padding:16px; }
+ .game-sidebar .sidebar-tab { font-size:12px; }
+}
