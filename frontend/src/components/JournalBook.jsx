@@ -47,7 +47,7 @@ function JournalPage({ entry, number, customNote, onNoteChange }) {
       ) : (
         <div className="journal-page-content journal-unwritten"><span className="journal-page-eyebrow">FIELD NOTES</span></div>
       )}
-      <div className={'journal-personal-note' + (entry?.empty ? ' journal-personal-note--inline' : '')}>
+      {number % 2 === 0 && <div className={'journal-personal-note' + (entry?.empty ? ' journal-personal-note--inline' : '')}>
         {entry?.empty ? (
           <textarea
             className="journal-inline-editor"
@@ -70,7 +70,7 @@ function JournalPage({ entry, number, customNote, onNoteChange }) {
             <button className="journal-edit-note" type="button" onClick={beginEdit}>{hasCustomNote ? 'Edit note' : 'Write a note…'}</button>
           </>
         )}
-      </div>
+      </div>}
       <span className="journal-page-number">{number}</span>
     </section>
   );
