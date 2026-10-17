@@ -647,3 +647,30 @@
   width:43px;
 }
 @media(prefers-reduced-motion:reduce) {.journal-page{animation:none;}}
+
+
+/* Subtle stacked page edges around the well-worn journal */
+.journal-book-spread {
+  overflow:visible;
+  border-radius:12px 15px 15px 12px;
+}
+.journal-book-spread .journal-page:first-child {
+  border-radius:3px 0 0 3px;
+}
+.journal-book-spread .journal-page:last-child {
+  border-radius:0 3px 3px 0;
+}
+.journal-book-spread {
+  box-shadow:
+    0 3px 0 -1px #e7d2aa,
+    0 6px 0 -2px #c9aa7c,
+    0 9px 0 -4px #8a623e,
+    0 22px 48px rgba(11,21,41,.30),
+    inset 0 0 0 1px rgba(198,157,101,.65);
+}
+.journal-book-spread .journal-page {
+  background-clip:padding-box;
+}
+@media(max-width:680px) {
+  .journal-book-spread { overflow:auto; }
+}
