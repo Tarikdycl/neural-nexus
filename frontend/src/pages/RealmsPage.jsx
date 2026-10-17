@@ -1,3 +1,4 @@
+import React from 'react';
 const realms = [
   { id: 'odyssey_island', number: '01', name: 'The Odyssey', category: 'ANCIENT MYTHOLOGY', description: 'Sail into ancient Greek mythology, where distant shores hold forgotten secrets.', available: true, art: 'odyssey' },
   { id: 'monkey_king', number: '02', name: "The Monkey King's Realm", category: 'LEGEND & WONDER', description: 'Journey through a magical land inspired by the legendary monkey heroes.', available: false, art: 'monkey' },
