@@ -75,7 +75,7 @@ BERLIN = {
 # The Court asks accessible, open-ended questions rather than obscure fact recall.
 COURT_QUESTION_TYPES = (
     ("CAUSE_AND_EFFECT", "What pressures led to this event, and how did people's actions change what happened?"),
-    ("PERSPECTIVES", "Why might the people involved have seen this event differently? Use what you learned during your visit."),
+    ("PERSPECTIVES", "Using what you learned during your visit, why might the people involved have seen this event differently?"),
     ("EVIDENCE_AND_MEANING", "Which discovery best helped you understand this moment, and why does it matter?"),
     ("CHOICES_AND_CONSEQUENCES", "What choices did people face in this moment, and what were the consequences?"),
 )
