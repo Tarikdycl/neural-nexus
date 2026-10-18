@@ -101,7 +101,7 @@ export default function App() {
     }
   }
 
-  if (page === 'landing') return <LandingPage onBegin={() => { setError(''); setPage('realms'); }} onArchive={() => {setError('');setPage('archive');}} />;
+  if (page === 'landing') return <LandingPage onArchive={() => { setError(''); setPage('archive'); }} />;
   if (page === 'archive') return <LastArchive onExit={() => setPage('landing')} />;
   if (page === 'realms') return <>
     <RealmsPage onBack={() => setPage('landing')} onEnter={enterRealm} busy={busy} />
