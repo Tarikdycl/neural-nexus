@@ -57,23 +57,56 @@ def narrate(approved_facts: list[str], player_text: str, fallback: str, court: b
     return {"text":fallback,"source":"fallback"}
 
 def resolve(text: str, already: set[str], last_npc: str | None = None):
-    value=text.lower().strip()
-    if len(value)>1000:
-        return {"ok":False,"reply":"Please describe a shorter action.","discovered":None,"facts":[SCENE]}
-    followup = bool(re.search(r"\\b(why|how|what do you mean|tell me more|then what|who|really|explain|go on|continue)\\b", value))
-    if last_npc == "merchant" and followup:
+    """Resolve allowed actions, with conversational follow-ups for the current NPC."""
+    value = text.lower().strip()
+    base = {"discovered": None, "facts": [SCENE], "npc": None}
+    if len(value) > 1000:
+        return {**base, "ok": False, "reply": "Please describe a shorter action."}
+
+    # Explicit inspection takes priority over ongoing dialogue.
+    if re.search(r"\b(inspect|examine|read|search|check|look at)\b", value) and re.search(
+        r"\b(cargo|document|manifest|crate|shipping|paper|ship)\b", value
+    ):
+        key = "shipping_manifest"
+        return {**base, "ok": True,
+                "reply": CLUES[key] if key not in already else "You have already checked these cargo records.",
+                "discovered": key if key not in already else None, "facts": [SCENE, CLUES[key]]}
+
+    if re.search(r"\b(inspect|examine|ask|read|study|investigate)\b", value) and re.search(
+        r"\b(tea act|tax law|legislation)\b", value
+    ):
+        key = "tea_act"
+        return {**base, "ok": True, "reply": CLUES[key],
+                "discovered": key if key not in already else None, "facts": [SCENE, CLUES[key]]}
+
+    speaking = re.search(r"\b(ask|talk|speak|question|interview)\b", value)
+    person = re.search(r"\b(merchant|dockworker|protest|tax|colonist|someone|person|people|anyone|man|woman|crowd)\b", value)
+    if speaking and person:
         key = "taxation_dispute"
-        return {"ok": True, "reply": "The merchant leans closer. 'It is not just the price. Parliament taxes us without our consent. We have no representatives there, and the tea ships have become a symbol of that dispute.'", "discovered": key if key not in already else None, "facts": [SCENE, CLUES[key]], "npc": "merchant"}
-    # Deliberate, narrow intent recognition. No LLM is permitted to grant evidence.
-    if re.search(r"\b(inspect|examine|read|search|check|look at)\b",value) and re.search(r"\b(cargo|document|manifest|crate|shipping|paper|ship)\b",value):
-        key="shipping_manifest"
-        return {"ok":True,"reply":CLUES[key] if key not in already else "You have already examined these records.","discovered":key if key not in already else None,"facts":[SCENE, CLUES[key]]}
-    if re.search(r"\b(ask|talk|speak|question|interview)\b",value) and re.search(r"\b(merchant|dockworker|protest|tax|colonist|someone|person|people|anyone|man|woman|crowd)\b",value):
-        key="taxation_dispute"
-        return {"ok":True,"reply":"A dockworker describes a dispute over taxation and representation.","discovered":key if key not in already else None,"facts":[SCENE, CLUES[key]]}
-    if re.search(r"\b(inspect|examine|ask|read|study|investigate)\b",value) and re.search(r"\b(tea act|tax law|legislation)\b",value):
-        key="tea_act"
-        return {"ok":True,"reply":CLUES[key],"discovered":key if key not in already else None,"facts":[SCENE, CLUES[key]]}
-    if re.search(r"\b(look|observe|listen|wait|describe|surroundings|around|where am i)\b",value):
-        return {"ok":True,"reply":"Lanterns flicker across the harbor. The ships remain anchored as the crowd grows.","discovered":None,"facts":[SCENE]}
-    return {"ok":False,"reply":"You can look around, ask a dockworker, or inspect the ships' cargo records. Describe what you want to do.","discovered":None,"facts":[SCENE]}
+        return {**base, "ok": True, "npc": "merchant",
+                "reply": "The merchant looks toward the ships. 'That tea belongs to the East India Company. Folks are angry because Parliament makes rules and taxes us without any representatives from the colonies.'",
+                "discovered": key if key not in already else None,
+                "facts": [SCENE, CLUES[key]]}
+
+    # Continue the established conversation rather than requiring 'ask a merchant' again.
+    followup = re.search(
+        r"\b(why|how|what|who|when|where|really|explain|more|then|continue|go on|mean|tea|tax)\b",
+        value
+    )
+    if last_npc == "merchant" and (followup or value.endswith("?")):
+        key = "taxation_dispute"
+        return {**base, "ok": True, "npc": "merchant",
+                "reply": "The merchant continues, 'It is not just the cost of tea. The Tea Act favored the East India Company, and Parliament claims the right to tax us though we elect no representatives there.'",
+                "discovered": key if key not in already else None,
+                "facts": [SCENE, CLUES[key], CLUES["tea_act"]]}
+
+    if re.search(r"\b(look|observe|listen|wait|describe|surroundings|around|where am i|what do i see)\b", value):
+        return {**base, "ok": True,
+                "reply": "Lanterns tremble in the harbor wind. Three tea ships are anchored nearby, and a tense crowd murmurs on the docks."}
+
+    if re.search(r"\b(hey|hello|hi|what.s happening|what.s going on|what is happening)\b", value):
+        return {**base, "ok": True,
+                "reply": "Boston Harbor, late evening. A crowd gathers beside three tea ships. A nearby merchant seems willing to talk."}
+
+    return {**base, "ok": False,
+            "reply": "The harbor is busy tonight. You could question a merchant, look around, or examine the ships' cargo."}
