@@ -1,0 +1,20 @@
+/* Standalone historical landing — isolates visuals from the legacy fantasy stylesheet. */
+.history-landing {position:relative;isolation:isolate;min-height:100svh;display:flex;flex-direction:column;overflow:hidden;background:#0b1423;color:#f5eee1;font-family:'DM Sans',sans-serif}
+.history-landing-art {position:absolute;inset:0;z-index:-2;background-image:url('/images/backgrounds/celestial-arbiter.png');background-position:center 45%;background-size:cover}
+.history-landing-shade {position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(7,14,27,.9),rgba(8,16,30,.55) 62%,rgba(6,13,25,.33)),linear-gradient(0deg,rgba(7,14,27,.88),transparent 40%,rgba(7,14,27,.4))}
+.history-landing-header,.history-landing-footer {display:flex;align-items:center;justify-content:space-between;gap:18px;padding:28px clamp(24px,6vw,90px)}
+.history-landing-header {border-bottom:1px solid rgba(224,197,147,.2)}
+.history-brand {font-size:13px;font-weight:700;letter-spacing:.16em;color:#f5e7c9}
+.history-brand-symbol {color:#d7b77d;font-size:21px;vertical-align:middle;margin-right:9px}
+.history-header-note,.history-landing-footer {font-size:10px;letter-spacing:.16em;color:#bfaf95}
+.history-landing-hero {flex:1;display:flex;align-items:flex-start;justify-content:center;flex-direction:column;padding:75px clamp(24px,9vw,145px);max-width:950px}
+.history-hero-kicker {font-size:11px;font-weight:700;letter-spacing:.19em;color:#d8bc89;margin-bottom:23px}
+.history-landing-hero h1 {font:500 clamp(48px,6.5vw,98px)/1.09 'Fraunces',Georgia,serif;letter-spacing:-.04em;margin:0;text-wrap:balance;color:#f5efe6;text-shadow:0 6px 40px #0007}
+.history-landing-hero h1 em {font-style:normal;color:#e0bf86}
+.history-landing-hero p {color:#d3d8df;font-size:clamp(14px,1.4vw,18px);margin:22px 0 27px}
+.history-hero-cta {display:inline-flex;align-items:center;justify-content:space-between;gap:35px;border:1px solid #ebc991;background:#d9b77d;color:#162238;border-radius:7px;padding:16px 23px;font-size:14px;font-weight:700;cursor:pointer;transition:transform .2s,background .2s}
+.history-hero-cta:hover{transform:translateY(-3px);background:#eacb96}
+.history-hero-cta:focus-visible{outline:2px solid #f0deaf;outline-offset:4px}
+.history-landing-footer {border-top:1px solid rgba(224,197,147,.17);padding-top:20px;padding-bottom:20px}
+@media(max-width:650px){.history-landing-art{background-position:57% center}.history-landing-shade{background:linear-gradient(90deg,rgba(7,14,27,.86),rgba(7,14,27,.5)),linear-gradient(0deg,#091525,transparent 70%)}.history-landing-header,.history-landing-footer{padding:18px 20px}.history-header-note,.history-landing-footer span:last-child{display:none}.history-landing-hero{padding:70px 25px}.history-landing-hero h1{font-size:clamp(44px,10vw,65px)}}
+@media(prefers-reduced-motion:reduce){.history-hero-cta{transition:none}}
