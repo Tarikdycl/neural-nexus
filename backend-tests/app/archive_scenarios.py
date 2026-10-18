@@ -116,3 +116,29 @@ def resolve_case(case, text, already, last_npc=None):
     if re.search(r"\b(hey|hello|hi|running|crowd|happening)\b",value):
         return scene(case["intro"])
     return {**base,"ok":False,"reply":"Describe what you want to investigate, or ask someone nearby what is happening."}
+
+
+# The narrated historical information, not merely the user's wording, determines discoveries.
+# Require distinctive combinations, avoiding awards for generic greetings or invented claims.
+EVIDENCE_SIGNALS = {
+ "boston_tea_party_1773": {
+  "taxation_dispute": (("tax","taxation","parliament"),("represent","no say","without a voice")),
+  "shipping_manifest": (("tea","cargo","ship","manifest"),("east india company",)),
+  "tea_act": (("tea act",),("parliament","company","trade","tax")),
+ },
+ "storming_bastille_1789": {
+  "royal_authority": (("bastille","fortress","prison"),("royal","king","monarch","symbol","imprison")),
+  "gunpowder_search": (("bastille","fortress","crowd","people"),("gunpowder","ammunition","powder","weapons")),
+  "political_crisis": (("bread","hunger","economic","political","estates-general","unrest","troops"),
+                       ("royal","monarch","king","crisis","shortage","distrust","fear","political")),
+  "necker_dismissal": (("necker",),("dismiss","removed","fired","ousted")),
+ }
+}
+
+def detect_discoveries(case, reply, already=()):
+    """Match a narrated fact to curated, scenario-specific evidence; unique ids only."""
+    t=reply.lower()
+    signals=EVIDENCE_SIGNALS[case["id"]]
+    return [key for key in case["evidence"]
+            if key not in already and
+            key in signals and all(any(term in t for term in group) for group in signals[key])]
