@@ -1,5 +1,5 @@
 """No database or OCI credentials required for these Archive contract tests."""
-from app.archive_scenarios import BOSTON, PARIS, SCENARIOS, evaluate, resolve_case, score_case
+from app.archive_scenarios import BOSTON, PARIS, SCENARIOS, evaluate, resolve_case, score_case, detect_discoveries
 
 
 def test_cases_have_unique_ids_and_evidence():
@@ -63,3 +63,23 @@ def test_paris_necker_discovery_only_once():
     assert "Necker" in first["reply"]
     repeat=resolve_case(PARIS,"What was the last drop?",{"political_crisis","necker_dismissal"},"citizen")
     assert repeat["discovered"] is None
+
+
+def test_evidence_is_based_on_npc_statement_not_player_greeting():
+    assert detect_discoveries(BOSTON,"Not much, just looking at the ships.")==[]
+    text="Parliament is taxing us, though we have no elected representatives there."
+    assert detect_discoveries(BOSTON,text)==["taxation_dispute"]
+    assert detect_discoveries(BOSTON,text,{"taxation_dispute"})==[]
+
+
+def test_paris_necker_claim_recognized_from_npc_reply():
+    reply="The king dismissed Jacques Necker, the finance minister, worsening unrest."
+    assert detect_discoveries(PARIS,reply)==["necker_dismissal"]
+    assert detect_discoveries(PARIS,"Someone mentioned Jacques Necker yesterday.")==[]
+
+
+def test_npc_casual_followup_is_accepted():
+    first=resolve_case(BOSTON,"yo what's up?",set())
+    follow=resolve_case(BOSTON,"hmm that's very interesting",{"taxation_dispute"},"merchant")
+    assert first["npc"]=="merchant"
+    assert follow["ok"] and follow["npc"]=="merchant"
