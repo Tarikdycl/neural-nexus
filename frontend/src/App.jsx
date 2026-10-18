@@ -31,6 +31,7 @@ function parseAction(input, world) {
 
 export default function App() {
   const [page, setPage] = useState('landing');
+  const [archiveView, setArchiveView] = useState('brief');
   const [session, setSession] = useState(null);
   const [messages, setMessages] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -101,8 +102,8 @@ export default function App() {
     }
   }
 
-  if (page === 'landing') return <LandingPage onArchive={() => { setError(''); setPage('archive'); }} />;
-  if (page === 'archive') return <LastArchive onExit={() => setPage('landing')} />;
+  if (page === 'landing') return <LandingPage onArchive={() => { setError(''); setArchiveView('brief'); setPage('archive'); }} onSavedVisits={() => { setError(''); setArchiveView('saved'); setPage('archive'); }} />;
+  if (page === 'archive') return <LastArchive initialView={archiveView} onExit={() => setPage('landing')} />;
   if (page === 'realms') return <>
     <RealmsPage onBack={() => setPage('landing')} onEnter={enterRealm} busy={busy} />
     {error && <p className="page-error" role="alert">{error}</p>}
