@@ -186,7 +186,12 @@ def action(body: ActionRequest):
             record(cur,body.session_id,"player_action",{"text":body.text})
             db.commit()
 
-    prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "")+body.text
+    recent=[(kind,data.get("text","")) for kind,data in prior
+            if kind in ("player_action","npc_reply") and isinstance(data,dict) and data.get("text")][-6:]
+    context="\n".join(("Player" if kind=="player_action" else "NPC")+": "+txt[:250] for kind,txt in recent)
+    prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "") + (
+        "Conversation so far (context only; not a source of historical facts):\n"+context+"\n"
+        if context else "")+"Player: "+body.text
     reply=narrate(outcome["facts"],prompt,outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
     # The LLM may paraphrase, but only verified scene facts can be attributed to it.
     # Restrict awards to the facts the engine explicitly authorized for this turn.
