@@ -168,7 +168,7 @@ def action(body: ActionRequest):
                     record(cur, body.session_id, "evidence_discovered", {"key": outcome["discovered"], "fact": CLUES[outcome["discovered"]], "points": 25})
                 db.commit()
         # Never allow an AI failure to erase a committed player action.
-        reply = narrate(outcome["facts"], body.text, outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
+        reply = narrate(outcome["facts"], ("Continue speaking AS THE SAME MERCHANT, responding to: " if outcome.get("npc") == "merchant" else "") + body.text, outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
         return {"saved": True, "session_id": body.session_id, "accepted":outcome["ok"],
                 "discovered":outcome["discovered"], "score_awarded":25 if outcome["discovered"] else 0, "total_score":25 * (len(already) + (1 if outcome["discovered"] else 0)), "reply":reply["text"], "source":reply["source"]}
     except oracledb.DatabaseError as exc:
