@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './LastArchive.css';
 
-const INTRO = 'December 16, 1773. Boston Harbor. Three tea ships sit at anchor, and a restless crowd gathers along the docks. You have sixty seconds to recover what history forgot.';
+const INTRO = 'Boston Harbor, December 16, 1773. Lanterns flicker on the docks. Three tea ships are anchored. A crowd gathers by the water, and merchants argue over the cargo. Ask someone what is happening, examine the ships, or look around.';
 const EVIDENCE = {
   taxation_dispute: { title: 'Taxation dispute', description: 'Protesters object to taxation without elected representation in Parliament.' },
   shipping_manifest: { title: 'Shipping manifest', description: 'Cargo records tie the tea to the East India Company.' },
@@ -32,6 +32,7 @@ export default function LastArchive({ onExit }) {
   const [question, setQuestion] = useState('');
   const [courtAnswer, setCourtAnswer] = useState('');
   const [report, setReport] = useState(null);
+  const [showRecords, setShowRecords] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [source, setSource] = useState('');
@@ -123,7 +124,7 @@ export default function LastArchive({ onExit }) {
       extractionLock.current = false;
       setSessionId(result.session_id);
       setRemaining(result.duration_seconds || 60); setCourtRemaining(90);
-      setEvidence([]); setMessages(initialMessages); setInput(''); setTestimony(''); setCourtAnswer(''); setReport(null); setQuestion(''); setSource('');
+      setEvidence([]); setMessages(initialMessages); setInput(''); setTestimony(''); setCourtAnswer(''); setReport(null); setShowRecords(false); setQuestion(''); setSource('');
       currentPhase.current = 'crisis'; setPhase('crisis');
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
@@ -210,21 +211,30 @@ export default function LastArchive({ onExit }) {
       <div className="archive-court-timer"><span>THE COURT OF TIME</span><span className={'archive-count archive-digital-clock '+(courtRemaining <= 10 ? 'urgent' : '')} role="timer">{String(Math.floor(courtRemaining/60)).padStart(2,'0')}:{String(courtRemaining%60).padStart(2,'0')}</span></div>
       <div className="archive-court-hero"><div className="archive-kicker">CASE 001 · BOSTON 1773</div><h1>{phase === 'question' ? 'One final question.' : 'Present your testimony.'}</h1></div>
       <div className="archive-court-minimal">
-        <div className="archive-court-intro"><span className="archive-kicker">THE ARCHIVIST</span><p>{phase === 'question' ? question.replace(/^\\*\\*Question:\\*\\*\\s*/,'') : 'Why did the Boston Tea Party happen? What did you discover?'}</p></div>
-        <div className="archive-court-notes"><span className="archive-kicker">RECOVERED · {evidence.length}</span><div>{evidence.length ? evidence.map(id=><span className="archive-note-pill" key={id}>{titleFor(id)}</span>) : <span className="archive-no-evidence">No evidence found</span>}</div></div>
+        <div className="archive-court-intro"><span className="archive-kicker">THE ARCHIVIST</span><p>{phase === 'question' ? question.replace(/^\*\*Question:\*\*\s*/,'') : 'Why did the Boston Tea Party happen? What did you discover?'}</p></div>
+        <div className="archive-court-notes">
+          <button className="archive-evidence-toggle" type="button" onClick={()=>setShowRecords(v=>!v)} aria-expanded={showRecords}>
+            <span>◈ DIGITAL EVIDENCE ARCHIVE · {evidence.length}</span><span>{showRecords ? 'Hide records −' : 'View records +'}</span>
+          </button>
+          {showRecords && <div className="archive-digital-records">{evidence.length
+            ? evidence.map(id=><div className="archive-digital-record" key={id}><strong>{titleFor(id)}</strong><p>{EVIDENCE[id]?.description || id}</p></div>)
+            : <p className="archive-no-evidence">No evidence recovered. Your testimony will be evaluated without field observations.</p>}
+          </div>}
+        </div>
         {phase === 'court' ? <form onSubmit={submitTestimony}><textarea aria-label="Your testimony" rows={4} value={testimony} onChange={e=>setTestimony(e.target.value)} maxLength={2500} placeholder="What happened, and why?"/><button className="archive-primary" disabled={busy || testimony.trim().length < 5}>{busy ? 'Consulting Archivist…' : 'Present testimony →'}</button></form> : <form onSubmit={submitCourtAnswer}><textarea aria-label="Answer the Archivist" rows={4} value={courtAnswer} onChange={e=>setCourtAnswer(e.target.value)} maxLength={2500} placeholder="Your answer to the Archivist…"/><button className="archive-primary" disabled={busy}>{busy ? 'Sealing the record…' : 'Receive verdict →'}</button></form>}
       </div>
     </section>}
     {phase === 'verdict' && report && <section className="archive-container archive-verdict-page archive-fade">
       <div className="archive-kicker">THE LAST ARCHIVE · CASE 001</div>
-      <h1>Record restored.</h1>
+      <h1>{report.decision === 'APPROVED' ? 'Testimony approved.' : 'Testimony needs revision.'}</h1>
+      <p className={'archive-decision archive-decision-'+report.decision}>{report.decision === 'APPROVED' ? '◈ ARCHIVIST APPROVED' : '◇ ARCHIVIST REQUESTS REVISION'}</p>
       <p className="archive-verdict-subtitle">Your discovery review</p>
       <div className="archive-verdict-score"><strong>{report.evidence_count} <span>/ {report.evidence_total}</span></strong><span>HISTORICAL THREADS RECOVERED</span></div>
       <div className="archive-verdict-grid">
         <section className="archive-verdict-panel"><div className="archive-kicker">YOUR TESTIMONY</div><p>{report.testimony}</p>{report.court_answer && <><div className="archive-kicker">FINAL ANSWER</div><p>{report.court_answer}</p></>}</section>
         <section className="archive-verdict-panel"><div className="archive-kicker">HISTORICAL REVIEW</div>{report.historical_review.map(item=><div className="archive-verdict-topic" key={item.topic}><strong>{item.discovered ? '✓' : '○'} {item.topic}</strong><p>{item.fact}</p></div>)}</section>
       </div>
-      <p className="archive-verdict-disclaimer">Evidence coverage only · Historical accuracy scoring is not yet implemented.</p>
+      <p className="archive-verdict-disclaimer">{report.decision_basis || "Provisional evidence review; historical accuracy scoring is not yet implemented."}</p>
       <button className="archive-primary" onClick={begin}>Try another run ↻</button>
     </section>}
     {phase === 'expired' && <section className="archive-center archive-fade"><div className="archive-kicker">COURT OF TIME</div><h1>Time is up.</h1><p>Your testimony window has closed.</p><button className="archive-primary" onClick={begin}>Try again ↻</button></section>}
