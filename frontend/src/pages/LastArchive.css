@@ -418,3 +418,59 @@
 .archive-app.archive-live.archive-question .archive-court-timer .archive-digital-clock.urgent {color:#ff5252;text-shadow:0 0 20px rgba(255,60,60,.65)}
 @keyframes archive-red-alert {from{opacity:1;transform:scale(1)}to{opacity:.38;transform:scale(1.045)}}
 @media(prefers-reduced-motion:reduce){.archive-app .archive-digital-clock.urgent{animation:none!important}}
+
+/* TEMPORAL EXTRACTION */
+.archive-app.archive-live.archive-fracture {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(8, 17, 29, .35),
+      rgba(8, 17, 29, .55)
+    ),
+    url('/images/backgrounds/temporal-extraction.png')
+    center / cover no-repeat;
+}
+
+.archive-app.archive-fracture .archive-break h1 {
+  color: #e9f0e5;
+  text-shadow: 0 4px 30px rgba(0,0,0,.75);
+}
+
+/* COURT OF TIME */
+.archive-app.archive-live.archive-court,
+.archive-app.archive-live.archive-question {
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(8, 17, 29, .72),
+      rgba(8, 17, 29, .3),
+      rgba(8, 17, 29, .58)
+    ),
+    url('/images/backgrounds/court-of-time.png');
+
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.archive-app.archive-court .archive-panel,
+.archive-app.archive-question .archive-panel {
+  background: rgba(12, 25, 37, .76);
+  border: 1px solid rgba(175, 205, 166, .32);
+  backdrop-filter: blur(12px);
+}
+
+.archive-app.archive-court .archive-primary,
+.archive-app.archive-question .archive-primary {
+  background: #b4cdae;
+  color: #102137;
+}
+
+@media (max-width: 760px) {
+  .archive-app.archive-court,
+  .archive-app.archive-question {
+    background-attachment: scroll;
+  }
+}
+
