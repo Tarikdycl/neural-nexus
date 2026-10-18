@@ -265,8 +265,20 @@ def verdict(body: VerdictRequest):
             found = evidence(history)
             if body.response.strip() and phase == "COURT":
                 record(cur, body.session_id, "court_answer", {"text": body.response.strip()})
+            # Provisional archive acceptance: evidence, a causal testimony, and an answer.
+            # This is NOT a verified historical accuracy judgment.
+            has_cause = any(word in testimony.lower() for word in
+                            ("because", "due to", "caused", "led to", "resulted", "because of"))
+            answered = bool(body.response.strip()) if phase == "COURT" else any(
+                kind == "court_answer" for kind, _ in history)
+            approved = bool(found) and has_cause and answered
+            decision = "APPROVED" if approved else "NEEDS_REVISION"
             # Mechanical evidence coverage, intentionally NOT an arbitrary historical grade.
             report = {
+                "decision": decision,
+                "decision_basis": "Provisional archive review: evidence found, causal explanation, and Archivist answer. Not a factual accuracy certification.",
+                "checks": {"evidence_recovered": bool(found), "causal_explanation": has_cause,
+                           "archivist_answered": answered},
                 "evidence_ids": list(found),
                 "evidence_count": len(found),
                 "evidence_total": len(CLUES),
