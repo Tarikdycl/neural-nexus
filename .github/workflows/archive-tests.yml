@@ -1,0 +1,88 @@
+name: Last Archive QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend-tests/app/archive_*.py'
+      - 'backend-tests/tests/test_archive_*.py'
+      - 'backend-tests/requirements*.txt'
+      - '.github/workflows/archive-tests.yml'
+  pull_request:
+    paths:
+      - 'backend-tests/app/archive_*.py'
+      - 'backend-tests/tests/test_archive_*.py'
+      - 'backend-tests/requirements*.txt'
+      - '.github/workflows/archive-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archive-qa:
+    name: Archive unit tests and report
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: Run Archive unit tests
+        id: tests
+        continue-on-error: true
+        run: |
+          mkdir -p test-reports
+          python -m pytest tests/test_archive_scenarios.py -v --junitxml=test-reports/archive-junit.xml > test-reports/pytest-output.txt 2>&1
+          result=$?
+          cat test-reports/pytest-output.txt
+          echo "exit_code=$result" >> "$GITHUB_OUTPUT"
+      - name: Build readable QA summary
+        if: always()
+        env:
+          RESULT: ${{ steps.tests.outputs.exit_code }}
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+          import os
+          report = Path("test-reports/archive-junit.xml")
+          lines = ["# Neural Nexus · The Last Archive — Automated QA", ""]
+          if report.exists():
+              root = ET.parse(report).getroot()
+              suites = [root] if root.tag == "testsuite" else list(root.iter("testsuite"))
+              tests = sum(int(s.get("tests", 0)) for s in suites)
+              failed = sum(int(s.get("failures", 0)) + int(s.get("errors", 0)) for s in suites)
+              skipped = sum(int(s.get("skipped", 0)) for s in suites)
+              lines += [f"**Result:** {'PASS' if failed == 0 and os.getenv('RESULT') == '0' else 'FAIL'}",
+                        f"**Tests:** {tests} · **Failed/errors:** {failed} · **Skipped:** {skipped}", ""]
+              lines += ["| Test | Status |", "|---|---|"]
+              for case in root.iter("testcase"):
+                  status = "❌ FAIL" if case.find("failure") is not None or case.find("error") is not None else ("⏭ SKIPPED" if case.find("skipped") is not None else "✅ PASS")
+                  lines.append(f"| `{case.get('name', 'unknown')}` | {status} |")
+          else:
+              lines += ["**Result:** ERROR — no XML output produced. Inspect raw pytest log."]
+          lines += ["", "Scope: isolated historical rules and evidence scoring. Oracle/OCI integration and browser E2E are **not** tested by this job.",
+                    "", "See the downloadable `archive-test-report` artifact for the XML and full pytest output."]
+          text = "\n".join(lines) + "\n"
+          Path("test-reports/QA_REPORT.md").write_text(text, encoding="utf-8")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write(text)
+          PY
+      - name: Upload QA report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive-test-report
+          path: backend-tests/test-reports/
+          retention-days: 30
+      - name: Fail build if tests failed
+        if: steps.tests.outputs.exit_code != '0'
+        run: exit 1
