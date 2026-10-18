@@ -5,3 +5,6 @@ pydantic==2.13.5
 mysql-connector-python==26.7.0
 oci==2.188.0
 python-dotenv==1.2.3
+
+# Oracle Autonomous Database backing The Last Archive
+oracledb>=2.0
