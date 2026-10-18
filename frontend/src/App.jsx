@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import LandingPage from './pages/LandingPage.jsx';
+import LastArchive from './pages/LastArchive.jsx';
 import RealmsPage from './pages/RealmsPage.jsx';
 import GamePage from './pages/GamePage.jsx';
 import { gameAction, loadGame, startGame, chooseArtifact } from './services/api.js';
@@ -100,7 +101,8 @@ export default function App() {
     }
   }
 
-  if (page === 'landing') return <LandingPage onBegin={() => { setError(''); setPage('realms'); }} />;
+  if (page === 'landing') return <LandingPage onBegin={() => { setError(''); setPage('realms'); }} onArchive={() => {setError('');setPage('archive');}} />;
+  if (page === 'archive') return <LastArchive onExit={() => setPage('landing')} />;
   if (page === 'realms') return <>
     <RealmsPage onBack={() => setPage('landing')} onEnter={enterRealm} busy={busy} />
     {error && <p className="page-error" role="alert">{error}</p>}
