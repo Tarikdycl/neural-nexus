@@ -542,3 +542,25 @@
 .archive-app .archive-messages {overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable}
 .archive-score-counter {margin:7px 0 14px;display:inline-block;border-radius:6px;border:1px solid rgba(166,209,167,.38);background:rgba(25,57,44,.4);color:#b9d8ad;padding:8px 12px;font:700 12px/1.3 Consolas,monospace;letter-spacing:.06em}
 .archive-app .archive-evidence-toggle {gap:10px}
+
+
+/* Final Judgment artwork: keep archival analysis readable over the scene. */
+.archive-app.archive-live.archive-verdict {
+  background-image:
+    linear-gradient(180deg, rgba(7,15,27,.65), rgba(8,17,29,.83)),
+    url('/images/backgrounds/celestial-final-judgment.png');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+.archive-app.archive-verdict .archive-verdict-panel {
+  background: rgba(10, 22, 35, .88);
+  backdrop-filter: blur(12px);
+}
+.archive-app.archive-verdict .archive-verdict-page h1 {
+  text-shadow: 0 4px 26px rgba(0,0,0,.65);
+}
+@media(max-width:760px) {
+  .archive-app.archive-live.archive-verdict { background-attachment: scroll; }
+}
