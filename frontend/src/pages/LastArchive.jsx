@@ -128,16 +128,34 @@ export default function LastArchive({ onExit }) {
       <span className="archive-mark">◈ THE LAST ARCHIVE</span>
       <span className="archive-tag">CHRONO BUREAU · CASE 001</span>
     </header>
-    {phase === 'brief' && <section className="archive-center archive-selection archive-fade">
+    {phase === 'brief' && <section className="archive-selection archive-fade">
       <div className="archive-kicker">CHOOSE YOUR MOMENT</div>
       <h1>Jump into history.</h1>
-      <button type="button" className="archive-mission-card" disabled={busy} onClick={begin} aria-label="Jump into The Tea in the Harbor">
-        <img className="archive-mission-art" src="/images/missions/boston-tea-party.png" alt="Boston Harbor under moonlight" />
-        <span className="archive-mission-details">
-          <strong>The Tea in the Harbor</strong>
-          <span className="archive-mission-meta">BOSTON · 1773 <span className="archive-mission-action">{busy ? 'Opening…' : 'Jump in →'}</span></span>
-        </span>
-      </button>
+      <div className="archive-mission-gallery">
+        <button type="button" className="archive-mission-card" disabled={busy} onClick={begin} aria-label="Jump into The Tea in the Harbor">
+          <img className="archive-mission-art" src="/images/missions/boston-tea-party.png" alt="Moonlit Boston Harbor" />
+          <span className="archive-mission-details">
+            <strong>The Tea in the Harbor</strong>
+            <span className="archive-mission-meta">BOSTON · 1773 <span className="archive-mission-action">{busy ? 'Opening…' : 'Jump in →'}</span></span>
+          </span>
+        </button>
+        {[
+          { id:'london', title:'The Great Fire', place:'LONDON · 1666', year:'1666', symbol:'✦' },
+          { id:'pompeii', title:'The Last Day of Pompeii', place:'POMPEII · 79 CE', year:'79 CE', symbol:'◈' },
+          { id:'endurance', title:'The Endurance', place:'ANTARCTICA · 1915', year:'1915', symbol:'❄' },
+          { id:'constantinople', title:'The Fall of Constantinople', place:'CONSTANTINOPLE · 1453', year:'1453', symbol:'◇' }
+        ].map(mission => (
+          <article className="archive-mission-card archive-mission-upcoming" key={mission.id} aria-label={mission.title + ' coming soon'}>
+            <div className={'archive-mission-art archive-art-'+mission.id} aria-hidden="true">
+              <span className="archive-art-symbol">{mission.symbol}</span><span className="archive-art-year">{mission.year}</span>
+            </div>
+            <div className="archive-mission-details">
+              <strong>{mission.title}</strong>
+              <span className="archive-mission-meta">{mission.place}<span className="archive-mission-soon">COMING SOON</span></span>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>}
     {phase === 'crisis' && <section className="archive-container archive-fade">
       <div className="archive-status"><span>BOSTON HARBOR · DEC 16, 1773</span><span className={'archive-count '+(remaining <= 10 ? 'urgent' : '')}>00:{String(remaining).padStart(2, '0')}</span></div>
