@@ -15,6 +15,7 @@ import oracledb
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
+from app.archive_logic import SCENE, CLUES, resolve, narrate
 
 BASE = Path(__file__).resolve().parent.parent
 load_dotenv(BASE / ".env")
@@ -98,9 +99,21 @@ def action(body: ActionRequest):
             with db.cursor() as cur:
                 if active_session(cur, body.session_id) != "CRISIS":
                     raise HTTPException(409, "Session is not in crisis phase")
+                cur.execute(
+                    f"SELECT EVENT_TYPE, EVENT_DATA FROM {DB_OWNER}.NN_EVENTS WHERE SESSION_ID=:sid ORDER BY EVENT_ID",
+                    sid=body.session_id
+                )
+                prior = [(r[0], decode_event_data(r[1])) for r in cur]
+                already = {p["key"] for kind, p in prior if kind == "evidence_discovered" and isinstance(p, dict) and "key" in p}
+                outcome = resolve(body.text, already)
                 record(cur, body.session_id, "player_action", {"text": body.text})
+                if outcome["discovered"]:
+                    record(cur, body.session_id, "evidence_discovered", {"key": outcome["discovered"], "fact": CLUES[outcome["discovered"]]})
                 db.commit()
-        return {"saved": True, "session_id": body.session_id, "note": "Recorded, not yet interpreted by AI"}
+        # Never allow an AI failure to erase a committed player action.
+        reply = narrate(outcome["facts"], body.text, outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
+        return {"saved": True, "session_id": body.session_id, "accepted":outcome["ok"],
+                "discovered":outcome["discovered"], "reply":reply["text"], "source":reply["source"]}
     except oracledb.DatabaseError as exc:
         raise HTTPException(503, "Oracle action save failed") from exc
 
@@ -118,7 +131,14 @@ def court(body: CourtRequest):
                     sid=body.session_id
                 )
                 db.commit()
-        return {"saved": True, "phase": "COURT", "note": "Testimony stored; AI evaluation not connected"}
+        # Initial courtroom probe, not a verdict or score. Historical grading comes later.
+        probe = narrate(
+            [SCENE, *CLUES.values()], body.testimony,
+            "Which piece of evidence supports your explanation, and why?",
+            court=True
+        )
+        return {"saved": True, "phase": "COURT", "archivist_question": probe["text"],
+                "source":probe["source"], "evaluated":False}
     except oracledb.DatabaseError as exc:
         raise HTTPException(503, "Oracle testimony save failed") from exc
 
