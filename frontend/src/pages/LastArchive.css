@@ -710,3 +710,44 @@
 .archive-app.archive-live.archive-crisis .archive-evidence-entry b{font-size:15px}
 .archive-app.archive-live.archive-crisis .archive-chat-foot span{font-size:12px}
 .archive-app.archive-live.archive-crisis .archive-kicker{font-size:11px}
+
+/* Desktop gameplay fits the viewport; only the conversation scrolls. */
+@media (min-width: 831px) and (min-height: 690px) {
+  .archive-app.archive-live.archive-crisis {
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .archive-app.archive-live.archive-crisis .archive-header {
+    flex: 0 0 70px;
+  }
+  .archive-app.archive-live.archive-crisis .archive-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-top: 18px;
+    padding-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+  }
+  .archive-app.archive-live.archive-crisis .archive-status {
+    flex: 0 0 auto;
+    margin-bottom: 12px;
+  }
+  .archive-app.archive-live.archive-crisis .archive-live-layout {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .archive-app.archive-live.archive-crisis .archive-story {
+    height: 100%;
+    min-height: 0;
+  }
+  .archive-app.archive-live.archive-crisis .archive-messages {
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .archive-app.archive-live.archive-crisis .archive-live-scene {
+    height: clamp(150px, 24vh, 245px);
+  }
+}
