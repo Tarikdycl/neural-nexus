@@ -140,7 +140,7 @@ def resolve_case(case, text, already, last_npc=None):
         # Berlin 1989: allow natural questions and follow-up with the current character.
         if re.search(r"\b(schabowski|announcement|press conference|travel rule|travel regulation|effective immediately)\b",value):
             return clue("travel_announcement","A nearby resident says an official named Schabowski announced travel regulations at a press conference, apparently effective immediately.","resident")
-        if re.search(r"\b(demonstrat|protest|freedom|reform|why.*people.*angry|why.*change)\b",value):
+        if re.search(r"\b(demonstration|demonstrations|protest|freedom|reform|why.*people.*angry|why.*change)\b",value):
             return clue("peaceful_protests","A resident says weeks of peaceful demonstrations demanded freedom of movement and political reform in East Germany.","resident")
         if re.search(r"\b(open|let.*through|let.*cross|allowed.*cross|cross.*now)\b",value):
             return clue("border_opening","A border guard says the Bornholmer Strasse crossing has opened and crowds are now passing into West Berlin.","border_guard")
