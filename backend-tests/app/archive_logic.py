@@ -56,10 +56,14 @@ def narrate(approved_facts: list[str], player_text: str, fallback: str, court: b
         pass
     return {"text":fallback,"source":"fallback"}
 
-def resolve(text: str, already: set[str]):
+def resolve(text: str, already: set[str], last_npc: str | None = None):
     value=text.lower().strip()
     if len(value)>1000:
         return {"ok":False,"reply":"Please describe a shorter action.","discovered":None,"facts":[SCENE]}
+    followup = bool(re.search(r"\\b(why|how|what do you mean|tell me more|then what|who|really|explain|go on|continue)\\b", value))
+    if last_npc == "merchant" and followup:
+        key = "taxation_dispute"
+        return {"ok": True, "reply": "The merchant leans closer. 'It is not just the price. Parliament taxes us without our consent. We have no representatives there, and the tea ships have become a symbol of that dispute.'", "discovered": key if key not in already else None, "facts": [SCENE, CLUES[key]], "npc": "merchant"}
     # Deliberate, narrow intent recognition. No LLM is permitted to grant evidence.
     if re.search(r"\b(inspect|examine|read|search|check|look at)\b",value) and re.search(r"\b(cargo|document|manifest|crate|shipping|paper|ship)\b",value):
         key="shipping_manifest"
