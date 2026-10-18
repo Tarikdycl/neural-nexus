@@ -83,9 +83,24 @@ def deadline(events):
 def expire_if_needed(cur, sid, phase, events):
     limit = deadline(events)
     if phase == "CRISIS" and limit and datetime.now(timezone.utc) >= limit:
-        record(cur, sid, "temporal_extraction", {"reason": "deadline"})
+        record(cur, sid, "temporal_extraction", {"reason": "deadline", "at": datetime.now(timezone.utc).isoformat()})
         cur.execute(f"UPDATE {DB_OWNER}.NN_SESSIONS SET CURRENT_PHASE='COURT' WHERE SESSION_ID=:sid", sid=sid)
         return "COURT"
+    return phase
+
+def court_deadline(events):
+    extraction = next((data.get("at") for kind, data in events
+                       if kind == "temporal_extraction" and isinstance(data, dict) and data.get("at")), None)
+    if extraction:
+        return datetime.fromisoformat(extraction.replace("Z", "+00:00")) + timedelta(seconds=90)
+    return None  # Legacy court sessions did not store their start time.
+
+def court_expire(cur, sid, phase, events):
+    limit = court_deadline(events)
+    if phase == "COURT" and limit and datetime.now(timezone.utc) >= limit:
+        cur.execute(f"UPDATE {DB_OWNER}.NN_SESSIONS SET CURRENT_PHASE='REVIEW' WHERE SESSION_ID=:sid AND CURRENT_PHASE='COURT'", sid=sid)
+        record(cur, sid, "court_time_expired", {"at": datetime.now(timezone.utc).isoformat()})
+        return "REVIEW"
     return phase
 
 def active_session(cursor, sid):
@@ -155,7 +170,7 @@ def extract(body: ExtractRequest):
         with db.cursor() as cur:
             phase = active_session(cur, body.session_id)
             if phase == "CRISIS":
-                record(cur, body.session_id, "temporal_extraction", {"reason": "player"})
+                record(cur, body.session_id, "temporal_extraction", {"reason": "player", "at": datetime.now(timezone.utc).isoformat()})
                 cur.execute(
                     f"UPDATE {DB_OWNER}.NN_SESSIONS SET CURRENT_PHASE='COURT' WHERE SESSION_ID=:sid",
                     sid=body.session_id
@@ -172,10 +187,16 @@ def state(session_id: str):
             history = session_events(cur, session_id)
             phase = expire_if_needed(cur, session_id, phase, history)
             db.commit()
-    limit = deadline(history)
+    if phase == "COURT":
+        with connect() as db:
+            with db.cursor() as cur:
+                phase = court_expire(cur, session_id, phase, history)
+                db.commit()
+    limit = deadline(history) if phase == "CRISIS" else court_deadline(history)
     remaining = max(0, int((limit - datetime.now(timezone.utc)).total_seconds())) if limit else None
     return {"session_id": session_id, "phase": phase, "remaining_seconds": remaining,
-            "evidence": list(evidence(history)), "deadline": limit.isoformat() if limit else None}
+            "evidence": list(evidence(history)), "deadline": limit.isoformat() if limit else None,
+            "duration_seconds": 60 if phase == "CRISIS" else 90}
 
 
 @app.post("/archive/court")
@@ -187,11 +208,16 @@ def court(body: CourtRequest):
             history = session_events(cur, body.session_id)
             phase = expire_if_needed(cur, body.session_id, phase, history)
             if phase == "CRISIS":
-                record(cur, body.session_id, "temporal_extraction", {"reason": "court_requested"})
+                record(cur, body.session_id, "temporal_extraction", {"reason": "court_requested", "at": datetime.now(timezone.utc).isoformat()})
                 cur.execute(
                     f"UPDATE {DB_OWNER}.NN_SESSIONS SET CURRENT_PHASE='COURT' WHERE SESSION_ID=:sid",
                     sid=body.session_id
                 )
+            else:
+                phase = court_expire(cur, body.session_id, phase, history)
+            if phase != "COURT":
+                db.commit()
+                raise HTTPException(409, "Court time expired")
             found = evidence(history)
             record(cur, body.session_id, "court_testimony",
                    {"text": body.testimony, "available_evidence": list(found)})
