@@ -125,3 +125,11 @@ def test_court_questions_are_broad_and_repeatable():
 def test_court_question_styles_include_causation_perspective_and_evidence():
     kinds={kind for kind,_ in COURT_QUESTION_TYPES}
     assert {"CAUSE_AND_EFFECT","PERSPECTIVES","EVIDENCE_AND_MEANING"} <= kinds
+
+
+def test_irrelevant_court_answer_does_not_earn_points():
+    assert score_case(BOSTON, {}, "nothing", "i asked to marry a guy")["score"] == 0
+    assert score_case(BOSTON, {}, "", "this answer has no historical relevance whatsoever")["score"] == 0
+    valid = score_case(BOSTON, {}, "Colonists opposed taxation without representation.",
+                       "They protested Parliament imposing taxes without elected representation.")
+    assert valid["court_score"] > 0
