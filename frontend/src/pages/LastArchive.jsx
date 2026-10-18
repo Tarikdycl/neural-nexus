@@ -229,7 +229,7 @@ export default function LastArchive({ onExit }) {
           <div className="archive-scenery archive-live-scene" style={{backgroundImage:`linear-gradient(180deg,transparent,rgba(8,16,27,.65)),url("${mission.scene}")`}}><span>{mission.place}</span></div>
           <div className="archive-chat-head"><div className="archive-kicker">LIVE HISTORICAL SIMULATION</div><h1>{mission.title}</h1><p>Ask. Investigate. Remember.</p></div>
           <div className="archive-messages" aria-live="polite">{messages.map((m,i)=><div key={i} className={'archive-message archive-msg-'+m.by}><span>{m.by === 'player' ? 'YOU' : 'THE ARCHIVE'}{m.source === 'fallback' ? ' · BACKUP' : ''}</span><p>{m.text}</p></div>)}<div ref={logEnd}/></div>
-          <form className="archive-chat-form" onSubmit={sendAction}><input aria-label="Describe your action" placeholder="I ask a merchant why the colonists are protesting…" value={input} onChange={e=>setInput(e.target.value)} disabled={busy} maxLength={1000}/><button type="submit" disabled={busy || !input.trim()}>Send ↗</button></form>
+          <form className="archive-chat-form" onSubmit={sendAction}><input aria-label="Describe your action" placeholder={scenarioId === PARIS ? "I ask a citizen why the crowd is here…" : "I ask a merchant why the colonists are protesting…"} value={input} onChange={e=>setInput(e.target.value)} disabled={busy} maxLength={1000}/><button type="submit" disabled={busy || !input.trim()}>Send ↗</button></form>
           <div className="archive-chat-foot"><span>{busy ? 'Chrono Bureau processing…' : 'Natural-language actions · OCI AI'}</span><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></div>
         </section>
         <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2><div className="archive-score-counter">✦ {score} POINTS</div>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {mission.evidence[id]?.title || titleFor(id)}</b><p>{mission.evidence[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
@@ -246,7 +246,7 @@ export default function LastArchive({ onExit }) {
             <span>📖 DIGITAL EVIDENCE ARCHIVE · {evidence.length}</span><span>{showRecords ? 'Hide records −' : 'View records +'}</span>
           </button>
           {showRecords && <div className="archive-digital-records">{evidence.length
-            ? evidence.map(id=><div className="archive-digital-record" key={id}><strong>{titleFor(id)}</strong><p>{mission.evidence[id]?.description || id}</p></div>)
+            ? evidence.map(id=><div className="archive-digital-record" key={id}><strong>{mission.evidence[id]?.title || titleFor(id)}</strong><p>{mission.evidence[id]?.description || id}</p></div>)
             : <p className="archive-no-evidence">No evidence recovered. Your testimony will be evaluated without field observations.</p>}
           </div>}
         </div>
