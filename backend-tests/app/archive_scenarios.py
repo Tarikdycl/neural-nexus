@@ -32,12 +32,14 @@ PARIS = {
  "evidence":{
   "royal_authority":"The Bastille was widely seen as a symbol of royal power and arbitrary imprisonment.",
   "gunpowder_search":"People seeking weapons and ammunition approached the Bastille for its gunpowder stores.",
-  "political_crisis":"Economic hardship, distrust of royal authority and the political crisis surrounding the Estates-General fueled unrest."
+  "political_crisis":"Economic hardship, distrust of royal authority and the political crisis surrounding the Estates-General fueled unrest.",
+  "necker_dismissal":"King Louis XVI dismissed finance minister Jacques Necker on July 11, 1789; news of his dismissal intensified unrest in Paris."
  },
  "topics":[
   ("Royal authority","royal_authority"),
   ("The search for gunpowder","gunpowder_search"),
-  ("Political and economic crisis","political_crisis")
+  ("Political and economic crisis","political_crisis"),
+  ("Dismissal of Jacques Necker","necker_dismissal")
  ],
  "rubric":[
   ("Royal authority",["bastille","king","royal","monarchy","prison"],["power","symbol","authority","fear"]),
@@ -103,6 +105,8 @@ def resolve_case(case, text, already, last_npc=None):
         if ask or question:
             return clue("taxation_dispute","The merchant explains that Parliament taxes the colonies without elected colonial representatives, and the tea cargo has become a focus of protest.","merchant")
     else:
+        if re.search(r"\b(necker|finance minister|minister dismiss|king.s dismissal|last straw|last drop|final straw|triggered the unrest)\b",value):
+            return clue("necker_dismissal","King Louis XVI dismissed the popular finance minister Jacques Necker on July 11. News of this decision inflamed anger in Paris.","citizen")
         if inspect and re.search(r"\b(gate|fortress|prison|bastille|wall)\b",value):
             return clue("royal_authority","The Bastille is a prison-fortress associated with royal authority.")
         if re.search(r"\b(gunpowder|powder|ammunition|weapons|arms|arsenal|why.*running|what.*running|run|rush|crowd.*going)\b",value):
