@@ -112,3 +112,86 @@
 .archive-live.archive-brief .archive-selection .archive-mission-meta {display:flex;justify-content:space-between;align-items:center;gap:12px}
 .archive-live.archive-brief .archive-selection .archive-mission-action {display:inline;font-size:12px;margin:0;padding:0;border:0;text-transform:none;white-space:nowrap}
 @media(max-width:550px){.archive-live.archive-brief .archive-selection .archive-mission-art{height:180px}.archive-live.archive-brief .archive-selection .archive-mission-details strong{font-size:22px}}
+
+
+/* Mission card — same image-first proportions and editorial typography as Realm cards.
+   Scoped tightly to Archive selection so global button styling cannot turn it white. */
+.archive-app.archive-live.archive-brief .archive-selection .archive-mission-card {
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  width:min(100%,392px);
+  margin:0 auto;
+  padding:0;
+  text-align:left;
+  text-shadow:none;
+  color:#1a3152;
+  background:#f7f5f0;
+  border:1px solid #c7b293;
+  border-radius:13px;
+  overflow:hidden;
+  cursor:pointer;
+  appearance:none;
+  box-shadow:0 13px 42px rgba(5,11,23,.38);
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease;
+}
+.archive-app.archive-live.archive-brief .archive-mission-card:hover:not(:disabled) {
+  transform:translateY(-4px);
+  border-color:#e2c38f;
+  box-shadow:0 21px 52px rgba(5,11,23,.5);
+}
+.archive-app.archive-live.archive-brief .archive-mission-card:focus-visible {
+  outline:2px solid #efce8e;
+  outline-offset:4px;
+}
+.archive-app.archive-live.archive-brief .archive-mission-card:disabled {cursor:wait;opacity:.8}
+.archive-app.archive-live.archive-brief .archive-selection .archive-mission-art {
+  display:block;
+  width:100%;
+  height:272px;
+  object-fit:cover;
+  object-position:center 52%;
+  border:0;
+  background:#24364b;
+}
+.archive-app.archive-live.archive-brief .archive-selection .archive-mission-details {
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  padding:20px 24px 22px;
+  gap:11px;
+  background:#f7f5f0;
+  color:#162b4a;
+}
+.archive-app.archive-live.archive-brief .archive-selection .archive-mission-details strong {
+  font:500 clamp(22px,2.5vw,27px)/1.2 'Fraunces',Georgia,serif;
+  text-align:left;
+  color:#182e50;
+}
+.archive-app.archive-live.archive-brief .archive-selection .archive-mission-meta {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  font:400 12px/1.5 'DM Sans',sans-serif;
+  letter-spacing:.015em;
+  color:#63748a;
+}
+.archive-app.archive-live.archive-brief .archive-selection .archive-mission-action {
+  display:inline;
+  margin:0;
+  padding:0;
+  border:0;
+  font:700 12px/1.5 'DM Sans',sans-serif;
+  color:#263c60;
+  white-space:nowrap;
+}
+@media(max-width:550px) {
+  .archive-app.archive-live.archive-brief .archive-selection .archive-mission-card {width:min(100%,360px)}
+  .archive-app.archive-live.archive-brief .archive-selection .archive-mission-art {height:235px}
+  .archive-app.archive-live.archive-brief .archive-selection .archive-mission-details {padding:17px 18px 20px}
+}
+@media(prefers-reduced-motion:reduce) {
+  .archive-app.archive-live.archive-brief .archive-selection .archive-mission-card {transition:none}
+}
