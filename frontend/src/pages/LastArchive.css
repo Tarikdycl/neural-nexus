@@ -593,3 +593,103 @@
  .archive-app.archive-live.archive-crisis .archive-story{height:850px;max-height:none}
  .archive-app.archive-live.archive-crisis .archive-messages{min-height:310px}
 }
+
+
+/* Atmospheric gameplay: quiet environmental depth, not a competing fullscreen poster. */
+.archive-app.archive-live.archive-crisis.archive-world-boston {
+  --archive-world-art:url('/images/scenes/boston-harbor.png');
+  --archive-world-light:rgba(204,166,108,.17);
+  --archive-world-haze:rgba(105,151,170,.13);
+}
+.archive-app.archive-live.archive-crisis.archive-world-paris {
+  --archive-world-art:url('/images/missions/storming-bastille.png');
+  --archive-world-light:rgba(220,134,82,.19);
+  --archive-world-haze:rgba(177,143,119,.13);
+}
+.archive-app.archive-live.archive-crisis.archive-world-berlin {
+  --archive-world-art:url('/images/missions/berlin-wall.png');
+  --archive-world-light:rgba(143,191,163,.16);
+  --archive-world-haze:rgba(105,152,184,.14);
+}
+.archive-app.archive-live.archive-crisis {
+  position:relative;
+  isolation:isolate;
+  background:#0b1625;
+}
+.archive-app.archive-live.archive-crisis::before {
+  content:'';
+  position:fixed;
+  inset:70px 0 0;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    linear-gradient(90deg,rgba(9,20,32,.9),rgba(10,21,34,.73) 44%,rgba(9,20,32,.87)),
+    linear-gradient(180deg,rgba(9,20,32,.55),rgba(9,20,32,.91)),
+    var(--archive-world-art) center / cover no-repeat;
+  opacity:.62;
+}
+.archive-atmosphere-stage {position:relative;isolation:isolate}
+.archive-atmosphere-stage > :not(.archive-atmosphere-mist):not(.archive-atmosphere-dust):not(.archive-atmosphere-discovery) {
+  position:relative;
+  z-index:1;
+}
+.archive-atmosphere-mist,.archive-atmosphere-dust,.archive-atmosphere-discovery {
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+}
+.archive-atmosphere-mist {
+  background:
+    radial-gradient(ellipse at 9% 23%,var(--archive-world-light),transparent 37%),
+    radial-gradient(ellipse at 91% 78%,var(--archive-world-haze),transparent 40%);
+  filter:blur(23px);
+  opacity:.76;
+  animation:archive-atmosphere-drift 19s ease-in-out infinite alternate;
+}
+.archive-atmosphere-dust {
+  background-image:radial-gradient(circle,rgba(188,222,198,.26) 1px,transparent 1.6px);
+  background-size:151px 139px;
+  opacity:.28;
+  animation:archive-atmosphere-float 24s linear infinite;
+}
+.archive-app.archive-live.archive-crisis .archive-story,
+.archive-app.archive-live.archive-crisis .archive-casefile {
+  background-color:rgba(16,30,47,.91);
+  border-color:rgba(145,183,155,.35);
+  box-shadow:0 18px 60px rgba(3,10,20,.34);
+  backdrop-filter:blur(8px);
+}
+.archive-app.archive-live.archive-crisis .archive-messages {
+  background:linear-gradient(180deg,rgba(12,25,40,.23),rgba(12,25,40,.42));
+}
+.archive-app.archive-live.archive-crisis .archive-casefile {
+  background:rgba(18,34,48,.86);
+}
+.archive-atmosphere-discovery {
+  z-index:2;
+  background:radial-gradient(ellipse at 64% 36%,rgba(155,214,168,.26),transparent 62%);
+  animation:archive-atmosphere-found .85s ease-out forwards;
+}
+@keyframes archive-atmosphere-drift {
+  from {transform:translate3d(-1%,.5%,0) scale(1.01)}
+  to {transform:translate3d(1%,-1%,0) scale(1.04)}
+}
+@keyframes archive-atmosphere-float {
+  from {background-position:0 0}
+  to {background-position:0 -139px}
+}
+@keyframes archive-atmosphere-found {
+  0% {opacity:0}
+  22% {opacity:1}
+  100% {opacity:0}
+}
+@media(max-width:830px) {
+  .archive-app.archive-live.archive-crisis::before {position:absolute;background-position:center top}
+  .archive-atmosphere-mist {opacity:.55}
+}
+@media(prefers-reduced-motion:reduce) {
+  .archive-atmosphere-mist,.archive-atmosphere-dust,.archive-atmosphere-discovery {animation:none}
+  .archive-atmosphere-discovery {opacity:0}
+}
