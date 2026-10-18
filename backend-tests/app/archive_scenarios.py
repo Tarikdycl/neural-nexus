@@ -72,6 +72,24 @@ BERLIN = {
  "question":"Why did crowds gather at the checkpoints on November 9, 1989, and what made border crossings possible?",
  "npcs":["resident","border_guard"]
 }
+# The Court asks accessible, open-ended questions rather than obscure fact recall.
+COURT_QUESTION_TYPES = (
+    ("CAUSE_AND_EFFECT", "What pressures led to this event, and how did people's actions change what happened?"),
+    ("PERSPECTIVES", "Why might the people involved have seen this event differently? Use what you learned during your visit."),
+    ("EVIDENCE_AND_MEANING", "Which discovery best helped you understand this moment, and why does it matter?"),
+    ("CHOICES_AND_CONSEQUENCES", "What choices did people face in this moment, and what were the consequences?"),
+)
+
+def court_question(case, testimony, found):
+    """Choose one broad question; stable across calls with the same testimony."""
+    import hashlib
+    # Account for the student's testimony and uncovered evidence without introducing trivia.
+    seed = (case["id"] + "|" + testimony.strip().lower()
+            + "|" + ",".join(sorted(found))).encode("utf-8")
+    index = int.from_bytes(hashlib.sha256(seed).digest()[:4], "big") % len(COURT_QUESTION_TYPES)
+    kind, question = COURT_QUESTION_TYPES[index]
+    return {"type": kind, "text": question}
+
 SCENARIOS={item["id"]:item for item in (BOSTON,PARIS,BERLIN)}
 
 def get_scenario(sid):
