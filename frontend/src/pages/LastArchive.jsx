@@ -57,6 +57,7 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [source, setSource] = useState('');
+  const [evidencePulse, setEvidencePulse] = useState(0);
   const mission = MISSIONS[scenarioId] || MISSIONS.boston_tea_party_1773;
   const logEnd = useRef(null);
   const clockLock = useRef(false);
@@ -180,7 +181,7 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
       extractionLock.current = false;
       setSessionId(result.session_id);
       setRemaining(result.duration_seconds || 60); setCourtRemaining(90);
-      setEvidence([]); setScore(0); setMessages([{by:'archive',text:MISSIONS[selected]?.intro || INTRO}]); setInput(''); setTestimony(''); setCourtAnswer(''); setReport(null); setShowRecords(false); setQuestion(''); setSource('');
+      setEvidence([]); setScore(0); setEvidencePulse(0); setMessages([{by:'archive',text:MISSIONS[selected]?.intro || INTRO}]); setInput(''); setTestimony(''); setCourtAnswer(''); setReport(null); setShowRecords(false); setQuestion(''); setSource('');
       currentPhase.current = 'crisis'; setPhase('crisis');
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
@@ -195,7 +196,10 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
     try {
       const response = await api('/action', { session_id: sessionId, text });
       setMessages(prev => [...prev, { by: 'archive', text: response.reply, source: response.source }]);
-      if (response.discoveries?.length || response.discovered) setEvidence(prev => [...new Set([...prev, ...(response.discoveries || [response.discovered])])]);
+      if (response.discoveries?.length || response.discovered) {
+        setEvidence(prev => [...new Set([...prev, ...(response.discoveries || [response.discovered])].filter(Boolean))]);
+        setEvidencePulse(n => n + 1);
+      }
       if (typeof response.total_score === 'number') setScore(response.total_score);
     } catch (err) {
       setError(err.message);
@@ -217,7 +221,7 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
     finally { setBusy(false); }
   }
 
-  return <main className={'archive-app archive-live archive-'+phase}>
+  return <main className={'archive-app archive-live archive-'+phase + (phase === 'crisis' ? ' archive-world-'+(scenarioId === PARIS ? 'paris' : scenarioId === BERLIN ? 'berlin' : 'boston') : '')}>
     <header className="archive-header">
       <button className="archive-link" onClick={onExit}>← Neural Nexus</button>
       <span className="archive-mark">◈ THE LAST ARCHIVE</span>
@@ -251,7 +255,10 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
         ))}
       </div>
     </section>}
-    {phase === 'crisis' && <section className="archive-container archive-fade">
+    {phase === 'crisis' && <section className="archive-container archive-fade archive-atmosphere-stage">
+      <div className="archive-atmosphere-mist" aria-hidden="true" />
+      <div className="archive-atmosphere-dust" aria-hidden="true" />
+      {evidencePulse > 0 && <div key={evidencePulse} className="archive-atmosphere-discovery" aria-hidden="true" />}
       <div className="archive-status"><span>{mission.place}</span><span className={'archive-count archive-digital-clock '+(remaining <= 10 ? 'urgent' : '')} role="timer" aria-label={remaining + ' seconds remaining'}><span className="archive-clock-dot">●</span>00:{String(remaining).padStart(2, '0')}</span></div>
       <div className="archive-live-layout">
         <section className="archive-story">
