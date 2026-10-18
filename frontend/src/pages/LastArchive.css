@@ -77,3 +77,26 @@
     background: rgba(13, 23, 40, .91);
   }
 }
+
+
+/* The pre-mission era/location introduction shares the Celestial Arbiter artwork. */
+.archive-live.archive-brief {
+  background-image:
+    linear-gradient(90deg, rgba(8, 15, 27, .83) 0%, rgba(10, 18, 32, .57) 45%, rgba(9, 16, 28, .72) 100%),
+    url('/images/backgrounds/celestial-arbiter.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.archive-live.archive-brief .archive-header {
+  background: rgba(9, 17, 31, .72);
+  backdrop-filter: blur(12px);
+}
+.archive-live.archive-brief .archive-center {
+  text-shadow: 0 2px 22px rgba(0,0,0,.66);
+}
+.archive-live.archive-brief .archive-briefbox {
+  background: rgba(13, 23, 40, .79);
+  backdrop-filter: blur(12px);
+  border-color: rgba(222, 190, 128, .4);
+}
