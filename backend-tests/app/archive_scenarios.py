@@ -100,7 +100,7 @@ def score_case(case, found, testimony="", answer=""):
     review = evaluate(case, testimony, answer, found)
     evidence_score = round(60 * len(found) / len(case["evidence"]))
     concept_score = round(30 * sum(review["checks"].values()) / len(case["rubric"]))
-    response_score = 10 if answer.strip() and len(answer.strip().split()) >= 5 else 0
+    response_score = 10 if answer.strip() and len(answer.strip().split()) >= 5 and any(review["checks"].values()) else 0
     return {"score": min(100, evidence_score + concept_score + response_score),
             "evidence_score": evidence_score, "court_score": concept_score + response_score,
             "score_max": 100}
