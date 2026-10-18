@@ -52,6 +52,17 @@ SCENARIOS={item["id"]:item for item in (BOSTON,PARIS)}
 def get_scenario(sid):
     return SCENARIOS.get(sid)
 
+def score_case(case, found, testimony="", answer=""):
+    """100-point provisional rubric: 60 discovery + 40 historical concept coverage."""
+    review = evaluate(case, testimony, answer, found)
+    evidence_score = round(60 * len(found) / len(case["evidence"]))
+    concept_score = round(30 * sum(review["checks"].values()) / len(case["rubric"]))
+    response_score = 10 if answer.strip() and len(answer.strip().split()) >= 5 else 0
+    return {"score": min(100, evidence_score + concept_score + response_score),
+            "evidence_score": evidence_score, "court_score": concept_score + response_score,
+            "score_max": 100}
+
+
 def evaluate(case, testimony, answer, found):
     combined=(testimony+" "+answer).lower()
     checks={}
@@ -65,30 +76,39 @@ def evaluate(case, testimony, answer, found):
     return {"decision":"APPROVED" if approved else "NEEDS_REVISION",
             "checks":checks,"strengths":strengths,"improvements":improvements,
             "feedback":"You connected several historically relevant ideas." if approved else "The Archivist needs more specific historical connections.",
-            "decision_basis":"Provisional concept coverage only; not a fact-checked AI grading certification."}
+            "decision_basis":"Provisional rule-based evidence and concept review; not a verified historical accuracy judgment."}
+
 
 def resolve_case(case, text, already, last_npc=None):
+    """Natural questions trigger contextual NPC dialogue; evidence comes only from validated topics."""
     value=text.lower().strip()
     base={"ok":True,"discovered":None,"npc":None,"facts":[case["scene"]]}
-    def clue(key, reply, npc=None):
-        return {**base,"reply":reply,"npc":npc,"discovered":key if key not in already else None,
+    question=bool(re.search(r"\b(why|how|what|who|when|where|tell|explain)\b",value)) or "?" in value
+    ask=bool(re.search(r"\b(ask|talk|speak|question|interview)\b",value))
+    observe=bool(re.search(r"\b(look around|describe|observe|surroundings|what do i see)\b",value))
+    inspect=bool(re.search(r"\b(inspect|examine|look at|check|search|read)\b",value))
+    def clue(key,reply,npc=None):
+        return {**base,"reply":reply,"npc":npc,
+                "discovered":key if key not in already else None,
                 "facts":[case["scene"],case["evidence"][key]]}
-    asking=bool(re.search(r"\b(ask|talk|speak|question|interview)\b",value))
-    follow=bool(re.search(r"\b(why|how|what|who|when|where|explain|tell|more|mean)\b",value)) or value.endswith("?")
+    def scene(reply):
+        return {**base,"reply":reply}
+    if observe:
+        return scene(case["intro"])
     if case["id"]==BOSTON["id"]:
-        if re.search(r"\b(inspect|examine|read|search|check)\b",value) and re.search(r"\b(ship|cargo|crate|manifest|record)\b",value):
-            return clue("shipping_manifest","The cargo manifests connect the tea to the East India Company.")
+        if inspect and re.search(r"\b(ship|cargo|crate|manifest|record)\b",value):
+            return clue("shipping_manifest","The cargo records connect the tea to the East India Company.")
         if re.search(r"\b(tea act|tax law|legislation)\b",value):
-            return clue("tea_act","You find references to Parliament's Tea Act and the East India Company.")
-        if (asking and re.search(r"\b(merchant|dockworker|people|anyone|someone|crowd|colonist)\b",value)) or (last_npc=="merchant" and follow):
-            return clue("taxation_dispute","The merchant explains that colonists oppose Parliament taxing them without representation.", "merchant")
+            return clue("tea_act","The Tea Act is central to the dispute over the East India Company.")
+        if ask or question:
+            return clue("taxation_dispute","The merchant explains that Parliament taxes the colonies without elected colonial representatives, and the tea cargo has become a focus of protest.","merchant")
     else:
-        if re.search(r"\b(inspect|examine|look at|check|search)\b",value) and re.search(r"\b(gate|fortress|prison|bastille|walls)\b",value):
-            return clue("royal_authority","Citizens describe the Bastille as a symbol of royal authority.")
-        if re.search(r"\b(gunpowder|powder|ammunition|weapons|arms|arsenal)\b",value):
-            return clue("gunpowder_search","People tell you they are seeking gunpowder and ammunition held at the fortress.")
-        if (asking and re.search(r"\b(citizen|people|crowd|anyone|someone|guard|worker)\b",value)) or (last_npc=="citizen" and follow):
-            return clue("political_crisis","A Parisian describes bread shortages, political upheaval and mounting distrust of royal power.","citizen")
-    if re.search(r"\b(look|observe|listen|wait|describe|surroundings|around|see|happening|going on|hello|hey)\b",value):
-        return {**base,"reply":case["intro"]}
-    return {**base,"ok":False,"reply":"You can ask someone nearby, investigate an object, or describe your surroundings."}
+        if inspect and re.search(r"\b(gate|fortress|prison|bastille|wall)\b",value):
+            return clue("royal_authority","The Bastille is a prison-fortress associated with royal authority.")
+        if re.search(r"\b(gunpowder|powder|ammunition|weapons|arms|arsenal|why.*running|what.*running|run|rush|crowd.*going)\b",value):
+            return clue("gunpowder_search","A nearby Parisian says the crowd is rushing toward the Bastille to seek gunpowder and ammunition.","citizen")
+        if ask or question or (last_npc=="citizen"):
+            return clue("political_crisis","A Parisian explains the uncertainty: bread shortages, fears of royal troops and distrust of the monarchy are fueling unrest.","citizen")
+    if re.search(r"\b(hey|hello|hi|running|crowd|happening)\b",value):
+        return scene(case["intro"])
+    return {**base,"ok":False,"reply":"Describe what you want to investigate, or ask someone nearby what is happening."}
