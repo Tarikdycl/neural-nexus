@@ -587,3 +587,9 @@
 .archive-crisis-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .archive-crisis-actions .archive-link:first-child{color:#b5d2ad}
 @media(max-width:650px){.archive-header-right{gap:5px}.archive-header .archive-saved-link{font-size:10px;padding:7px 9px}.archive-header-right .archive-tag{display:none}.archive-crisis-actions{justify-content:flex-start}}
+
+/* Give the conversation more breathing room without changing the scene artwork. */
+@media(min-width:831px){
+ .archive-app.archive-live.archive-crisis .archive-story{height:850px;max-height:none}
+ .archive-app.archive-live.archive-crisis .archive-messages{min-height:310px}
+}
