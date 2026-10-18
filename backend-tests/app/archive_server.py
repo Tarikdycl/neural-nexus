@@ -16,7 +16,8 @@ import oracledb
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from app.archive_logic import SCENE, CLUES, resolve, narrate
+from app.archive_logic import narrate
+from app.archive_scenarios import SCENARIOS, BOSTON, get_scenario, resolve_case, evaluate
 
 BASE = Path(__file__).resolve().parent.parent
 load_dotenv(BASE / ".env")
@@ -42,6 +43,7 @@ def connect():
 
 class StartRequest(BaseModel):
     nickname: str = Field(default="Chrono Agent", max_length=100)
+    scenario_id: str = "boston_tea_party_1773"
 
 class ActionRequest(BaseModel):
     session_id: str
@@ -71,13 +73,13 @@ def session_events(cursor, sid):
     )
     return [(r[0], decode_event_data(r[1])) for r in cursor]
 
-def archive_score(events):
-    return 25 * len(evidence(events))
+def archive_score(events, case=BOSTON):
+    return 25 * len(evidence(events, case))
 
-def evidence(events):
+def evidence(events, case=BOSTON):
     keys = {data.get("key") for kind, data in events
             if kind == "evidence_discovered" and isinstance(data, dict)}
-    return {key: CLUES[key] for key in CLUES if key in keys}
+    return {key: case["evidence"][key] for key in case["evidence"] if key in keys}
 
 def deadline(events):
     started = next((data.get("started_at") for kind, data in events
@@ -128,51 +130,77 @@ def health():
     except Exception as exc:
         return {"ok": False, "store": "oracle", "error_type": type(exc).__name__}
 
+def session_case(cur, sid):
+    cur.execute(f"SELECT SCENARIO_ID FROM {DB_OWNER}.NN_SESSIONS WHERE SESSION_ID=:sid", sid=sid)
+    row=cur.fetchone()
+    if not row:
+        raise HTTPException(404, "Session not found")
+    case=get_scenario(row[0])
+    if not case:
+        raise HTTPException(409, "This saved scenario is not yet supported")
+    return case
+
+
+@app.get("/archive/scenarios")
+def scenarios():
+    return [{"scenario_id":s["id"],"title":s["title"],"place":s["place"]} for s in SCENARIOS.values()]
+
+
 @app.post("/archive/start")
 def start(body: StartRequest):
-    sid = str(uuid.uuid4())
+    case=get_scenario(body.scenario_id)
+    if not case:
+        raise HTTPException(404,"Scenario not supported")
+    sid=str(uuid.uuid4())
     try:
         with connect() as db:
             with db.cursor() as cur:
                 cur.execute(
                     f"INSERT INTO {DB_OWNER}.NN_SESSIONS (SESSION_ID, SCENARIO_ID, PLAYER_NAME, CURRENT_PHASE) "
-                    "VALUES (:sid, :scenario, :nick, 'CRISIS')",
-                    sid=sid, scenario="boston_tea_party_1773", nick=body.nickname
-                )
-                record(cur, sid, "scenario_started", {"scenario_id": "boston_tea_party_1773", "started_at": datetime.now(timezone.utc).isoformat()})
+                    "VALUES (:sid,:scenario,:nick,'CRISIS')",
+                    sid=sid,scenario=case["id"],nick=body.nickname)
+                record(cur,sid,"scenario_started",{"scenario_id":case["id"],"started_at":datetime.now(timezone.utc).isoformat()})
                 db.commit()
-        return {"session_id": sid, "phase": "CRISIS", "scenario_id": "boston_tea_party_1773", "duration_seconds": 60}
+        return {"session_id":sid,"phase":"CRISIS","scenario_id":case["id"],
+                "title":case["title"],"intro":case["intro"],"duration_seconds":60}
     except oracledb.DatabaseError as exc:
-        raise HTTPException(503, "Oracle session insert failed; check scenario seed and grants") from exc
+        raise HTTPException(503,"Cannot start scenario. Check Oracle NN_SCENARIOS seed and app-user grants.") from exc
+
 
 @app.post("/archive/action")
 def action(body: ActionRequest):
-    # Event recording first; interpretation and narrative AI added separately.
     try:
         with connect() as db:
             with db.cursor() as cur:
-                phase = active_session(cur, body.session_id)
-                prior = session_events(cur, body.session_id)
-                phase = expire_if_needed(cur, body.session_id, phase, prior)
-                if phase != "CRISIS":
+                phase=active_session(cur,body.session_id)
+                case=session_case(cur,body.session_id)
+                prior=session_events(cur,body.session_id)
+                phase=expire_if_needed(cur,body.session_id,phase,prior)
+                if phase!="CRISIS":
                     db.commit()
-                    raise HTTPException(409, "Crisis ended: proceed to the Court of Time")
-                already = set(evidence(prior))
-                last_npc = next((data.get("npc") for kind, data in reversed(prior)
-                                 if kind == "npc_context" and isinstance(data, dict)), None)
-                outcome = resolve(body.text, already, last_npc)
-                record(cur, body.session_id, "player_action", {"text": body.text})
+                    raise HTTPException(409,"Crisis ended: proceed to the Court of Time")
+                already=set(evidence(prior,case))
+                npc=next((data.get("npc") for kind,data in reversed(prior)
+                          if kind=="npc_context" and isinstance(data,dict)),None)
+                outcome=resolve_case(case,body.text,already,npc)
+                record(cur,body.session_id,"player_action",{"text":body.text})
                 if outcome.get("npc"):
-                    record(cur, body.session_id, "npc_context", {"npc": outcome["npc"]})
+                    record(cur,body.session_id,"npc_context",{"npc":outcome["npc"]})
                 if outcome["discovered"]:
-                    record(cur, body.session_id, "evidence_discovered", {"key": outcome["discovered"], "fact": CLUES[outcome["discovered"]], "points": 25})
+                    key=outcome["discovered"]
+                    record(cur,body.session_id,"evidence_discovered",
+                           {"key":key,"fact":case["evidence"][key],"points":25})
                 db.commit()
-        # Never allow an AI failure to erase a committed player action.
-        reply = narrate(outcome["facts"], ("Continue speaking AS THE SAME MERCHANT, responding to: " if outcome.get("npc") == "merchant" else "") + body.text, outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
-        return {"saved": True, "session_id": body.session_id, "accepted":outcome["ok"],
-                "discovered":outcome["discovered"], "score_awarded":25 if outcome["discovered"] else 0, "total_score":25 * (len(already) + (1 if outcome["discovered"] else 0)), "reply":reply["text"], "source":reply["source"]}
+        prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "")+body.text
+        reply=narrate(outcome["facts"],prompt,outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
+        return {"saved":True,"accepted":outcome["ok"],"session_id":body.session_id,
+                "discovered":outcome["discovered"],
+                "score_awarded":25 if outcome["discovered"] else 0,
+                "total_score":25*(len(already)+(1 if outcome["discovered"] else 0)),
+                "reply":reply["text"],"source":reply["source"]}
     except oracledb.DatabaseError as exc:
-        raise HTTPException(503, "Oracle action save failed") from exc
+        raise HTTPException(503,"Oracle action save failed") from exc
+
 
 @app.post("/archive/extract")
 def extract(body: ExtractRequest):
@@ -195,6 +223,7 @@ def state(session_id: str):
     with connect() as db:
         with db.cursor() as cur:
             phase = active_session(cur, session_id)
+            case = session_case(cur, session_id)
             history = session_events(cur, session_id)
             phase = expire_if_needed(cur, session_id, phase, history)
             db.commit()
@@ -206,7 +235,7 @@ def state(session_id: str):
     limit = deadline(history) if phase == "CRISIS" else court_deadline(history)
     remaining = max(0, int((limit - datetime.now(timezone.utc)).total_seconds())) if limit else None
     return {"session_id": session_id, "phase": phase, "remaining_seconds": remaining,
-            "evidence": list(evidence(history)), "score": archive_score(history), "deadline": limit.isoformat() if limit else None,
+            "evidence": list(evidence(history,case)), "score": archive_score(history,case), "scenario_id":case["id"], "title":case["title"], "deadline": limit.isoformat() if limit else None,
             "duration_seconds": 60 if phase == "CRISIS" else 90}
 
 
@@ -229,14 +258,14 @@ def court(body: CourtRequest):
             if phase != "COURT":
                 db.commit()
                 raise HTTPException(409, "Court time expired")
-            found = evidence(history)
+            case=session_case(cur,body.session_id)
+            found = evidence(history,case)
             record(cur, body.session_id, "court_testimony",
                    {"text": body.testimony, "available_evidence": list(found)})
             db.commit()
 
-    facts = [SCENE] + list(found.values())
-    fallback = ("What evidence did you uncover, and how does it support your explanation?"
-                if found else "What evidence did you gather before arriving at your conclusion?")
+    facts = [case["scene"]] + list(found.values())
+    fallback = case["question"]
     probe = narrate(facts,
                     "The player testified: " + body.testimony
                     + "\nOnly these evidence IDs were discovered: " + ", ".join(found),
@@ -257,6 +286,7 @@ def verdict(body: VerdictRequest):
         with db.cursor() as cur:
             phase = active_session(cur, body.session_id)
             history = session_events(cur, body.session_id)
+            case=session_case(cur,body.session_id)
             existing = next((data for kind, data in reversed(history)
                              if kind == "archive_verdict"), None)
             if existing:
@@ -272,60 +302,21 @@ def verdict(body: VerdictRequest):
             found = evidence(history)
             if body.response.strip() and phase == "COURT":
                 record(cur, body.session_id, "court_answer", {"text": body.response.strip()})
-            # Deterministic, inspectable concept coverage. AI never decides the verdict.
             answer = body.response.strip() if phase == "COURT" else next(
-                (data.get("text", "") for kind, data in reversed(history)
-                 if kind == "court_answer" and isinstance(data, dict)), "")
-            combined = (testimony + " " + answer).lower()
-            representation = (
-                ("represent" in combined and ("tax" in combined or "parliament" in combined))
-                or "no say" in combined
-            )
-            trade = ("east india" in combined or "company" in combined
-                     or "monopoly" in combined or "tea act" in combined)
-            action_link = (("destroy" in combined or "dump" in combined or "throw" in combined
-                            or "threw" in combined or "overboard" in combined)
-                           and ("tea" in combined or "cargo" in combined))
-            concepts = {
-                "taxation_and_representation": representation,
-                "tea_trade_and_east_india_company": trade,
-                "protest_and_destroyed_tea": action_link,
-            }
-            # Two historical connections plus evidence and an answered question.
-            approved = bool(found) and bool(answer) and sum(concepts.values()) >= 2
-            decision = "APPROVED" if approved else "NEEDS_REVISION"
-            suggestions = []
-            if not representation:
-                suggestions.append("Explain why taxation without colonial representation was disputed.")
-            if not trade:
-                suggestions.append("Connect the Tea Act or East India Company's trade position to the protest.")
-            if not action_link:
-                suggestions.append("Explain why the protesters destroyed the tea cargo in Boston Harbor.")
-            if not found:
-                suggestions.append("Recover evidence by interviewing a merchant or inspecting cargo records.")
-            if not answer:
-                suggestions.append("Answer the Archivist's follow-up question.")
+                (data.get("text","") for kind,data in reversed(history)
+                 if kind=="court_answer" and isinstance(data,dict)),"")
+            found=evidence(history,case)
+            review=evaluate(case,testimony,answer,found)
             report = {
-                "decision": decision,
-                "decision_basis": "Provisional rule-based historical-concept review; not a certified factual-accuracy judgment.",
-                "checks": {"evidence_recovered": bool(found), "archivist_answered": bool(answer), **concepts},
-                "strengths": [key.replace("_", " ").capitalize() for key, matched in concepts.items() if matched],
-                "improvements": suggestions,
-                "evidence_ids": list(found),
-                "evidence_count": len(found),
-                "evidence_total": len(CLUES),
-                "score": archive_score(history),
-                "testimony": testimony,
-                "court_answer": answer,
-                "feedback": ("Your explanation connects multiple historical factors." if approved
-                             else "The archive needs more specific historical connections."),
-                "historical_review": [
-                    {"topic": "Taxation and representation", "fact": CLUES["taxation_dispute"],
-                     "discovered": "taxation_dispute" in found},
-                    {"topic": "Trade and the East India Company", "fact": CLUES["shipping_manifest"],
-                     "discovered": "shipping_manifest" in found},
-                    {"topic": "The Tea Act", "fact": CLUES["tea_act"],
-                     "discovered": "tea_act" in found}
+                **review,
+                "evidence_ids":list(found),"evidence_count":len(found),
+                "evidence_total":len(case["evidence"]),
+                "score":archive_score(history,case),
+                "scenario_id":case["id"],"title":case["title"],
+                "testimony":testimony,"court_answer":answer,
+                "historical_review":[
+                    {"topic":name,"fact":case["evidence"][key],"discovered":key in found}
+                    for name,key in case["topics"]
                 ]
             }
             record(cur, body.session_id, "archive_verdict", report)
