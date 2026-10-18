@@ -30,6 +30,8 @@ export default function LastArchive({ onExit }) {
   const [input, setInput] = useState('');
   const [testimony, setTestimony] = useState('');
   const [question, setQuestion] = useState('');
+  const [courtAnswer, setCourtAnswer] = useState('');
+  const [report, setReport] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [source, setSource] = useState('');
@@ -88,13 +90,30 @@ export default function LastArchive({ onExit }) {
         const state = await api('/state/' + encodeURIComponent(sessionId));
         if (disposed) return;
         setCourtRemaining(state.remaining_seconds ?? 90);
-        if (state.phase === 'REVIEW') { currentPhase.current = 'expired'; setPhase('expired'); }
+        if (state.phase === 'REVIEW') { await loadVerdict(); }
       } catch (err) { if (!disposed) setError(err.message); }
     };
     refresh();
     const tick = window.setInterval(refresh, 1000);
     return () => { disposed = true; window.clearInterval(tick); };
   }, [phase, sessionId]);
+
+  async function loadVerdict(answer = '') {
+    try {
+      const result = await api('/verdict', { session_id: sessionId, response: answer });
+      setReport(result);
+      currentPhase.current = 'verdict';
+      setPhase('verdict');
+    } catch (err) { setError(err.message); }
+  }
+
+  async function submitCourtAnswer(event) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    await loadVerdict(courtAnswer.trim());
+    setBusy(false);
+  }
 
   async function begin() {
     if (busy) return;
@@ -104,7 +123,7 @@ export default function LastArchive({ onExit }) {
       extractionLock.current = false;
       setSessionId(result.session_id);
       setRemaining(result.duration_seconds || 60); setCourtRemaining(90);
-      setEvidence([]); setMessages(initialMessages); setInput(''); setTestimony(''); setQuestion(''); setSource('');
+      setEvidence([]); setMessages(initialMessages); setInput(''); setTestimony(''); setCourtAnswer(''); setReport(null); setQuestion(''); setSource('');
       currentPhase.current = 'crisis'; setPhase('crisis');
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
@@ -187,7 +206,27 @@ export default function LastArchive({ onExit }) {
       </div>
     </section>}
     {phase === 'fracture' && <section className="archive-center archive-break"><div className="archive-ring">◈</div><div className="archive-kicker">TEMPORAL EXTRACTION</div><h1>TIME IS CALLED.</h1><p>Your discoveries have been preserved in the archive.</p></section>}
-    {(phase === 'court' || phase === 'question') && <section className="archive-container archive-fade"><div className="archive-court-timer"><span>COURT OF TIME</span><span className={'archive-count archive-digital-clock '+(courtRemaining <= 10 ? 'urgent' : '')} role="timer">{String(Math.floor(courtRemaining/60)).padStart(2,'0')}:{String(courtRemaining%60).padStart(2,'0')}</span></div><div className="archive-court-hero"><div className="archive-kicker">THE COURT OF TIME · CASE 001</div><h1>Reconstruct the truth.</h1><p>Explain what happened and why. Your field discoveries form the basis of your testimony.</p></div><div className="archive-court-layout"><div className="archive-panel archive-archivist"><div className="archive-avatar">◈</div><div className="archive-kicker">THE ARCHIVIST</div><h2>{phase === 'question' ? 'Your testimony has been heard.' : 'Chrono Agent, present your account.'}</h2><p>{phase === 'question' ? 'The Archivist has one further challenge for your interpretation.' : 'What led to the Boston Tea Party? Which evidence supports your explanation?'}</p><div className="archive-quote">“A recovered memory is not yet an understood history.”</div></div><div className="archive-panel"><div className="archive-kicker">YOUR RECOVERED EVIDENCE</div><div className="archive-court-evidence">{evidence.length ? evidence.map(id=><div key={id} className="archive-evidence-entry"><b>◈ {titleFor(id)}</b><p>{EVIDENCE[id]?.description || id}</p></div>):<p>No field evidence was recovered. You may still explain your understanding, but your account has no recorded observations.</p>}</div>{phase === 'court' ? <form onSubmit={submitTestimony}><label className="archive-label" htmlFor="archive-testimony">Your historical testimony</label><textarea id="archive-testimony" rows={5} value={testimony} onChange={e=>setTestimony(e.target.value)} maxLength={2500} placeholder="I believe the protest happened because… The evidence I recovered suggests…"/><button className="archive-primary" disabled={busy || testimony.trim().length < 5}>{busy ? 'Consulting the Archivist…' : 'Submit testimony →'}</button></form> : <div className="archive-question"><div className="archive-kicker">ARCHIVIST'S QUESTION · {source === 'ai' ? 'OCI AI' : 'BACKUP'}</div><p>{question}</p><small>Your testimony and the Archivist's question were saved in Oracle Database. Follow-up answers and scoring are coming in the next sprint.</small><button className="archive-primary" onClick={begin} disabled={busy}>Play again ↻</button></div>}</div></div></section>}
+    {(phase === 'court' || phase === 'question') && <section className="archive-container archive-fade archive-court-simple">
+      <div className="archive-court-timer"><span>THE COURT OF TIME</span><span className={'archive-count archive-digital-clock '+(courtRemaining <= 10 ? 'urgent' : '')} role="timer">{String(Math.floor(courtRemaining/60)).padStart(2,'0')}:{String(courtRemaining%60).padStart(2,'0')}</span></div>
+      <div className="archive-court-hero"><div className="archive-kicker">CASE 001 · BOSTON 1773</div><h1>{phase === 'question' ? 'One final question.' : 'Present your testimony.'}</h1></div>
+      <div className="archive-court-minimal">
+        <div className="archive-court-intro"><span className="archive-kicker">THE ARCHIVIST</span><p>{phase === 'question' ? question.replace(/^\\*\\*Question:\\*\\*\\s*/,'') : 'Why did the Boston Tea Party happen? What did you discover?'}</p></div>
+        <div className="archive-court-notes"><span className="archive-kicker">RECOVERED · {evidence.length}</span><div>{evidence.length ? evidence.map(id=><span className="archive-note-pill" key={id}>{titleFor(id)}</span>) : <span className="archive-no-evidence">No evidence found</span>}</div></div>
+        {phase === 'court' ? <form onSubmit={submitTestimony}><textarea aria-label="Your testimony" rows={4} value={testimony} onChange={e=>setTestimony(e.target.value)} maxLength={2500} placeholder="What happened, and why?"/><button className="archive-primary" disabled={busy || testimony.trim().length < 5}>{busy ? 'Consulting Archivist…' : 'Present testimony →'}</button></form> : <form onSubmit={submitCourtAnswer}><textarea aria-label="Answer the Archivist" rows={4} value={courtAnswer} onChange={e=>setCourtAnswer(e.target.value)} maxLength={2500} placeholder="Your answer to the Archivist…"/><button className="archive-primary" disabled={busy}>{busy ? 'Sealing the record…' : 'Receive verdict →'}</button></form>}
+      </div>
+    </section>}
+    {phase === 'verdict' && report && <section className="archive-container archive-verdict-page archive-fade">
+      <div className="archive-kicker">THE LAST ARCHIVE · CASE 001</div>
+      <h1>Record restored.</h1>
+      <p className="archive-verdict-subtitle">Your discovery review</p>
+      <div className="archive-verdict-score"><strong>{report.evidence_count} <span>/ {report.evidence_total}</span></strong><span>HISTORICAL THREADS RECOVERED</span></div>
+      <div className="archive-verdict-grid">
+        <section className="archive-verdict-panel"><div className="archive-kicker">YOUR TESTIMONY</div><p>{report.testimony}</p>{report.court_answer && <><div className="archive-kicker">FINAL ANSWER</div><p>{report.court_answer}</p></>}</section>
+        <section className="archive-verdict-panel"><div className="archive-kicker">HISTORICAL REVIEW</div>{report.historical_review.map(item=><div className="archive-verdict-topic" key={item.topic}><strong>{item.discovered ? '✓' : '○'} {item.topic}</strong><p>{item.fact}</p></div>)}</section>
+      </div>
+      <p className="archive-verdict-disclaimer">Evidence coverage only · Historical accuracy scoring is not yet implemented.</p>
+      <button className="archive-primary" onClick={begin}>Try another run ↻</button>
+    </section>}
     {phase === 'expired' && <section className="archive-center archive-fade"><div className="archive-kicker">COURT OF TIME</div><h1>Time is up.</h1><p>Your testimony window has closed.</p><button className="archive-primary" onClick={begin}>Try again ↻</button></section>}
     {error && <div className="archive-alert" role="alert">{error}</div>}
   </main>;
