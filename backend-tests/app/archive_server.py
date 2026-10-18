@@ -122,6 +122,18 @@ def court(body: CourtRequest):
     except oracledb.DatabaseError as exc:
         raise HTTPException(503, "Oracle testimony save failed") from exc
 
+def decode_event_data(value):
+    """Oracle JSON may return a Python dict/list directly, or a CLOB/string."""
+    if hasattr(value, "read"):
+        value = value.read()
+    if isinstance(value, (dict, list)):
+        return value
+    if isinstance(value, (str, bytes, bytearray)):
+        return json.loads(value)
+    if value is None:
+        return None
+    raise TypeError(f"Unsupported event data type: {type(value).__name__}")
+
 @app.get("/archive/events/{session_id}")
 def events(session_id: str):
     try:
@@ -133,7 +145,7 @@ def events(session_id: str):
                     "WHERE SESSION_ID=:sid ORDER BY EVENT_ID",
                     sid=session_id
                 )
-                rows = [{"event_id": row[0], "type": row[1], "data": json.loads(row[2].read() if hasattr(row[2], "read") else row[2])} for row in cur]
+                rows = [{"event_id": row[0], "type": row[1], "data": decode_event_data(row[2])} for row in cur]
         return {"session_id": session_id, "events": rows}
     except oracledb.DatabaseError as exc:
         raise HTTPException(503, "Oracle events read failed") from exc
