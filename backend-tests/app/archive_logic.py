@@ -98,7 +98,7 @@ def resolve(text: str, already: set[str], last_npc: str | None = None):
         return {**base, "ok": True, "npc": "merchant",
                 "reply": "The merchant continues, 'It is not just the cost of tea. The Tea Act favored the East India Company, and Parliament claims the right to tax us though we elect no representatives there.'",
                 "discovered": key if key not in already else None,
-                "facts": [SCENE, CLUES[key], CLUES["tea_act"]]}
+                "facts": [SCENE, CLUES[key]]}
 
     if re.search(r"\b(look|observe|listen|wait|describe|surroundings|around|where am i|what do i see)\b", value):
         return {**base, "ok": True,
