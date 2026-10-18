@@ -29,8 +29,8 @@ const api = async (path, body) => {
 const initialMessages = [{ by: 'archive', text: INTRO }];
 const titleFor = key => EVIDENCE[key]?.title || key.replaceAll('_', ' ');
 
-export default function LastArchive({ onExit }) {
-  const [phase, setPhase] = useState('brief');
+export default function LastArchive({ onExit, initialView = "brief" }) {
+  const [phase, setPhase] = useState(initialView === 'saved' ? 'saved' : 'brief');
   const [scenarioId, setScenarioId] = useState('boston_tea_party_1773');
   const [savedGames, setSavedGames] = useState([]);
   const [selectedSave, setSelectedSave] = useState(null);
@@ -136,6 +136,17 @@ export default function LastArchive({ onExit }) {
     try { const data=await api('/saves');setSavedGames(data.saves||[]);setPhase('saved'); }
     catch(err){setError(err.message);}finally{setBusy(false);}
   }
+  useEffect(() => {
+    if (initialView !== 'saved') return;
+    let active = true;
+    api('/saves').then(data => {
+      if (active) setSavedGames(data.saves || []);
+    }).catch(err => {
+      if (active) setError(err.message);
+    });
+    return () => { active = false; };
+  }, [initialView]);
+
   async function openSavedDetail(id) {
     setError('');setBusy(true);
     try {const data=await api('/saves/'+encodeURIComponent(id));setSelectedSave(data);setPhase('savedDetail');}
