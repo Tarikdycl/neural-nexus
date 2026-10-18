@@ -2,9 +2,6 @@ import React from 'react';
 import './LandingPage.css';
 
 export default function LandingPage({ onArchive, onSavedVisits }) {
-  return () => { active = false; };
-  }, []);
-
   return (
     <main className="history-landing">
       <div className="history-landing-art" aria-hidden="true" />
