@@ -1,68 +1,155 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './LastArchive.css';
 
-const CASE = {
-  title: 'The Tea in the Harbor', place: 'BOSTON HARBOR', date: 'DECEMBER 16, 1773',
-  intro: 'Three ships sit in Boston Harbor. Merchants argue, protesters gather, and the tea remains aboard. Your archive has lost the reason this night became famous.',
-  fragments: [
-    {id:'tax',title:'Taxation dispute',text:'Many colonists objected to taxation by a Parliament in which they had no elected representatives.'},
-    {id:'tea',title:'The Tea Act',text:'The 1773 Tea Act altered how the East India Company could sell tea in the colonies; tensions over taxation and trade continued.'},
-    {id:'ships',title:'The harbor',text:'On December 16, protesters boarded ships and destroyed large quantities of tea in Boston Harbor.'}
-  ],
-  actions: [
-    {id:'inspect',label:'Inspect the cargo documents',outcome:'You preserve shipping evidence for the Archive. The political dispute remains unresolved.'},
-    {id:'interview',label:'Interview people at the harbor',outcome:'You record conflicting perspectives from the harbor, preserving voices for future comparison.'},
-    {id:'record',label:'Record the unfolding protest',outcome:'You document the destruction of tea and return with an eyewitness account.'}
-  ]
+const INTRO = 'December 16, 1773. Boston Harbor. Three tea ships sit at anchor, and a restless crowd gathers along the docks. You have sixty seconds to recover what history forgot.';
+const EVIDENCE = {
+  taxation_dispute: { title: 'Taxation dispute', description: 'Protesters object to taxation without elected representation in Parliament.' },
+  shipping_manifest: { title: 'Shipping manifest', description: 'Cargo records tie the tea to the East India Company.' },
+  tea_act: { title: 'Tea Act of 1773', description: 'Parliament\'s tea policy intensified a dispute over trade and taxation.' },
 };
+const api = async (path, body) => {
+  const response = await fetch('/archive' + path, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.detail || 'The Archive is temporarily unavailable.');
+  return result;
+};
+const initialMessages = [{ by: 'archive', text: INTRO }];
+const titleFor = key => EVIDENCE[key]?.title || key.replaceAll('_', ' ');
 
-export default function LastArchive({onExit}) {
-  const [phase,setPhase]=useState('brief');
-  const [seconds,setSeconds]=useState(60);
-  const [found,setFound]=useState([]);
-  const [choice,setChoice]=useState(null);
-  const [testimony,setTestimony]=useState('');
-  const [answer,setAnswer]=useState('');
-  const [result,setResult]=useState(null);
-  const [run,setRun]=useState(0);
+export default function LastArchive({ onExit }) {
+  const [phase, setPhase] = useState('brief');
+  const [sessionId, setSessionId] = useState('');
+  const [remaining, setRemaining] = useState(60);
+  const [evidence, setEvidence] = useState([]);
+  const [messages, setMessages] = useState(initialMessages);
+  const [input, setInput] = useState('');
+  const [testimony, setTestimony] = useState('');
+  const [question, setQuestion] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [source, setSource] = useState('');
+  const logEnd = useRef(null);
+  const clockLock = useRef(false);
+  const extractionLock = useRef(false);
+  const currentPhase = useRef(phase);
+  useEffect(() => { currentPhase.current = phase; }, [phase]);
+  useEffect(() => { logEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages, phase]);
 
-  useEffect(()=>{
-    if(phase!=='crisis')return;
-    const id=setInterval(()=>setSeconds(s=>Math.max(0,s-1)),1000);
-    return ()=>clearInterval(id);
-  },[phase,run]);
-  useEffect(()=>{if(phase==='crisis' && seconds===0)setPhase('fracture');},[seconds,phase]);
-  useEffect(()=>{
-    if(phase!=='fracture')return;
-    const id=setTimeout(()=>setPhase('court'),1900);
-    return ()=>clearTimeout(id);
-  },[phase]);
+  const extract = useCallback(async (id, force = false) => {
+    if (!id || extractionLock.current || currentPhase.current !== 'crisis') return;
+    extractionLock.current = true;
+    setError('');
+    try {
+      if (force) await api('/extract', { session_id: id });
+      else {
+        const state = await api('/state/' + encodeURIComponent(id));
+        if (state.phase !== 'COURT') { extractionLock.current = false; return; }
+      }
+      currentPhase.current = 'fracture';
+      setPhase('fracture');
+      window.setTimeout(() => { currentPhase.current = 'court'; setPhase('court'); }, 1400);
+    } catch (err) {
+      setError(err.message);
+      extractionLock.current = false;
+    }
+  }, []);
 
-  const selected=CASE.actions.find(x=>x.id===choice);
-  function begin(){setSeconds(60);setFound([]);setChoice(null);setTestimony('');setAnswer('');setResult(null);setRun(n=>n+1);setPhase('crisis');}
-  function collect(id){setFound(prev=>prev.includes(id)?prev:[...prev,id]);}
-  function finalize(){setPhase('fracture');}
-  function judge(){
-    const combined=(testimony+' '+answer).toLowerCase();
-    const rules=[
-      {label:'Historical context',match:/tax|represent|parliament|tea act|east india|trade|colon|protest/,tip:'Explain the taxation, trade and representation dispute.'},
-      {label:'Evidence',match:/ship|cargo|document|merchant|witness|harbor|tea|source/,tip:'Connect at least one observed source to your claim.'},
-      {label:'Cause and effect',match:/because|therefore|led to|caused|so that|as a result|due to|since/,tip:'Explain why the evidence supports your interpretation.'}
-    ];
-    const hits=rules.map(r=>r.match.test(combined));
-    setResult({hits,notes:rules.filter((r,i)=>!hits[i]).map(r=>r.tip)});
-    setPhase('verdict');
+  useEffect(() => {
+    if (phase !== 'crisis' || !sessionId) return undefined;
+    let disposed = false;
+    const refresh = async () => {
+      if (clockLock.current || disposed) return;
+      clockLock.current = true;
+      try {
+        const state = await api('/state/' + encodeURIComponent(sessionId));
+        if (disposed) return;
+        setRemaining(state.remaining_seconds ?? 60);
+        setEvidence(state.evidence || []);
+        if (state.phase === 'COURT') await extract(sessionId);
+      } catch (err) { if (!disposed) setError(err.message); }
+      finally { clockLock.current = false; }
+    };
+    refresh();
+    const tick = window.setInterval(refresh, 1000);
+    return () => { disposed = true; window.clearInterval(tick); };
+  }, [phase, sessionId, extract]);
+
+  async function begin() {
+    if (busy) return;
+    setBusy(true); setError('');
+    try {
+      const result = await api('/start', { nickname: 'Chrono Agent' });
+      extractionLock.current = false;
+      setSessionId(result.session_id);
+      setRemaining(result.duration_seconds || 60);
+      setEvidence([]); setMessages(initialMessages); setInput(''); setTestimony(''); setQuestion(''); setSource('');
+      currentPhase.current = 'crisis'; setPhase('crisis');
+    } catch (err) { setError(err.message); }
+    finally { setBusy(false); }
   }
-  return <main className={'archive-app archive-'+phase}>
-    <header className="archive-header"><button onClick={onExit} className="archive-link">← Neural Nexus</button><span className="archive-mark">◈ THE LAST ARCHIVE</span><span className="archive-tag">PROTOTYPE · LOCAL DEMO</span></header>
-    {phase==='brief' && <section className="archive-center archive-fade"><div className="archive-kicker">YEAR 2847 · THE GREAT ERASURE</div><h1>History has vanished.<br/><em>Recover what remains.</em></h1><p>You are a Chrono Agent. Enter a lost moment, collect evidence before extraction, then defend your historical account before the Archivist.</p><div className="archive-briefbox"><span>ARCHIVE CASE 001</span><strong>{CASE.title}</strong><small>{CASE.place} · {CASE.date}</small></div><button className="archive-primary" onClick={begin}>Begin 60-second mission →</button></section>}
-    {phase==='crisis' && <section className="archive-container archive-fade">
-      <div className="archive-status"><span>MISSION 001 · {CASE.place} · {CASE.date}</span><div className={'archive-count '+(seconds<=10?'urgent':'')}>{String(Math.floor(seconds/60)).padStart(2,'0')}:{String(seconds%60).padStart(2,'0')}</div></div>
-      <div className="archive-grid"><div className="archive-story"><div className="archive-scenery"><span>THE HARBOR · NIGHTFALL</span><div className="archive-ship">⚓</div></div><div className="archive-panel"><div className="archive-kicker">RECOVER THE LOST MOMENT</div><h1>{CASE.title}</h1><p>{CASE.intro}</p><div className="archive-kicker">CHOOSE YOUR ACTION</div><div className="archive-actions">{CASE.actions.map(a=><button key={a.id} onClick={()=>setChoice(a.id)} className={choice===a.id?'active':''}>{a.label}{choice===a.id?' ✓':''}</button>)}</div><label className="archive-label" htmlFor="testimony">Why this action? (optional)</label><textarea id="testimony" maxLength={600} rows={2} placeholder="I chose this because..." value={testimony} onChange={e=>setTestimony(e.target.value)}/><button className="archive-primary" disabled={!choice} onClick={finalize}>Extract to the Court of Time →</button></div></div>
-      <aside className="archive-evidence"><div className="archive-kicker">HISTORICAL FRAGMENTS</div><h2>Evidence recovered <span>{found.length}/3</span></h2><p>Investigate fragments before time expires. The Court will ask you to explain what happened.</p>{CASE.fragments.map(f=><button key={f.id} className={'archive-fragment '+(found.includes(f.id)?'opened':'')} onClick={()=>collect(f.id)}><b>{found.includes(f.id)?'◈':'◇'} {f.title}</b><span>{found.includes(f.id)?f.text:'Click to examine this historical clue'}</span></button>)}</aside></div>
+
+  async function sendAction(event) {
+    event.preventDefault();
+    const text = input.trim();
+    if (!text || busy || phase !== 'crisis') return;
+    setInput(''); setBusy(true); setError('');
+    setMessages(prev => [...prev, { by: 'player', text }]);
+    try {
+      const response = await api('/action', { session_id: sessionId, text });
+      setMessages(prev => [...prev, { by: 'archive', text: response.reply, source: response.source }]);
+      if (response.discovered) setEvidence(prev => [...new Set([...prev, response.discovered])]);
+    } catch (err) {
+      setError(err.message);
+      if (String(err.message).includes('Crisis ended')) await extract(sessionId, true);
+    } finally { setBusy(false); }
+  }
+
+  async function submitTestimony(event) {
+    event.preventDefault();
+    if (busy || testimony.trim().length < 5) return;
+    setBusy(true); setError('');
+    try {
+      const result = await api('/court', { session_id: sessionId, testimony: testimony.trim() });
+      setQuestion(result.archivist_question);
+      setSource(result.source);
+      setEvidence(result.evidence_ids || evidence);
+      currentPhase.current = 'question'; setPhase('question');
+    } catch (err) { setError(err.message); }
+    finally { setBusy(false); }
+  }
+
+  return <main className={'archive-app archive-live archive-'+phase}>
+    <header className="archive-header">
+      <button className="archive-link" onClick={onExit}>← Neural Nexus</button>
+      <span className="archive-mark">◈ THE LAST ARCHIVE</span>
+      <span className="archive-tag">CHRONO BUREAU · CASE 001</span>
+    </header>
+    {phase === 'brief' && <section className="archive-center archive-fade">
+      <div className="archive-kicker">YEAR 2847 · THE GREAT ERASURE</div>
+      <h1>History has vanished.<br/><em>Recover what remains.</em></h1>
+      <p>Travel to Boston Harbor, 1773. Investigate through natural-language chat, preserve evidence, and defend your findings before the AI Archivist.</p>
+      <div className="archive-briefbox"><span>YOUR FIRST MISSION</span><strong>The Tea in the Harbor</strong><small>DECEMBER 16, 1773 · BOSTON</small></div>
+      <button className="archive-primary" disabled={busy} onClick={begin}>{busy ? 'Opening temporal gateway…' : 'Enter historical crisis →'}</button>
     </section>}
-    {phase==='fracture' && <section className="archive-center archive-break"><div className="archive-ring">◈</div><div className="archive-kicker">TEMPORAL EXTRACTION COMPLETE</div><h1>TIME IS CALLED.</h1><p>All testimony will now be examined.</p></section>}
-    {phase==='court' && <section className="archive-container archive-fade"><div className="archive-court-hero"><div className="archive-kicker">THE COURT OF TIME · CASE 001</div><h1>Reconstruct the truth.</h1><p>Your mission is over. Your explanation begins.</p></div><div className="archive-court-layout"><div className="archive-panel archive-archivist"><div className="archive-avatar">◈</div><div className="archive-kicker">THE ARCHIVIST</div><h2>Agent, what happened in Boston Harbor?</h2><p>Explain what led to the destruction of tea in 1773. Distinguish what you observed from what you infer, and tell me why your evidence supports the explanation.</p><div className="archive-quote">“History cannot be restored by confidence alone. Show me your reasoning.”</div></div><div className="archive-panel"><div className="archive-kicker">YOUR CASE FILE</div><strong>{selected?.label || 'No action selected before extraction'}</strong><p>{selected?.outcome || 'The archive recorded an incomplete field mission.'}</p><small>{found.length} historical fragments recovered</small><div className="archive-evidence-list">{CASE.fragments.filter(f=>found.includes(f.id)).map(f=><details key={f.id}><summary>{f.title}</summary><p>{f.text}</p></details>)}</div><label className="archive-label" htmlFor="answer">Your defense</label><textarea id="answer" rows={5} maxLength={1500} value={answer} onChange={e=>setAnswer(e.target.value)} placeholder="The event happened because... I base this explanation on..."/><button className="archive-primary" onClick={judge} disabled={answer.trim().length<25}>Submit testimony →</button></div></div></section>}
-    {phase==='verdict' && <section className="archive-center archive-fade"><div className="archive-kicker">ARCHIVE ASSESSMENT · CASE 001</div><h1>The record survives.</h1><p>This prototype checks for signs of historical context, evidence and causal explanation. It is <strong>not</strong> an AI-graded historical accuracy assessment yet.</p><div className="archive-report">{['Historical context','Evidence referenced','Cause-and-effect reasoning'].map((name,i)=><div key={name}><span>{name}</span><strong>{result?.hits[i]?'Recognized':'Needs elaboration'}</strong></div>)}</div>{result?.notes.length>0&&<p className="archive-guidance">{result.notes.join(' ')}</p>}<div className="archive-final"><b>Recovered fragments: {found.length}/3</b><span>Historical archive restoration will be connected to Oracle Database in the next integration.</span></div><button className="archive-primary" onClick={begin}>Replay mission ↻</button><button className="archive-link" onClick={onExit}>Return to Neural Nexus</button></section>}
+    {phase === 'crisis' && <section className="archive-container archive-fade">
+      <div className="archive-status"><span>BOSTON HARBOR · DEC 16, 1773</span><span className={'archive-count '+(remaining <= 10 ? 'urgent' : '')}>00:{String(remaining).padStart(2, '0')}</span></div>
+      <div className="archive-live-layout">
+        <section className="archive-story">
+          <div className="archive-scenery archive-live-scene"><span>THE HARBOR · NIGHTFALL</span><span className="archive-scene-mark">◈ 1773</span></div>
+          <div className="archive-chat-head"><div className="archive-kicker">LIVE HISTORICAL SIMULATION</div><h1>The Tea in the Harbor</h1><p>Describe what you do. Ask a merchant, investigate the ships, or observe the harbor.</p></div>
+          <div className="archive-messages" aria-live="polite">{messages.map((m,i)=><div key={i} className={'archive-message archive-msg-'+m.by}><span>{m.by === 'player' ? 'YOU' : 'THE ARCHIVE'}{m.source === 'fallback' ? ' · BACKUP' : ''}</span><p>{m.text}</p></div>)}<div ref={logEnd}/></div>
+          <form className="archive-chat-form" onSubmit={sendAction}><input aria-label="Describe your action" placeholder="I ask a merchant why the colonists are protesting…" value={input} onChange={e=>setInput(e.target.value)} disabled={busy} maxLength={1000}/><button type="submit" disabled={busy || !input.trim()}>Send ↗</button></form>
+          <div className="archive-chat-foot"><span>{busy ? 'Chrono Bureau processing…' : 'Natural-language actions · OCI AI'}</span><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></div>
+        </section>
+        <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2><p>Evidence can only be discovered through your actions. Your discoveries will follow you into the Court of Time.</p>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {titleFor(id)}</b><p>{EVIDENCE[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
+      </div>
+    </section>}
+    {phase === 'fracture' && <section className="archive-center archive-break"><div className="archive-ring">◈</div><div className="archive-kicker">TEMPORAL EXTRACTION</div><h1>TIME IS CALLED.</h1><p>Your discoveries have been preserved in the archive.</p></section>}
+    {(phase === 'court' || phase === 'question') && <section className="archive-container archive-fade"><div className="archive-court-hero"><div className="archive-kicker">THE COURT OF TIME · CASE 001</div><h1>Reconstruct the truth.</h1><p>Explain what happened and why. Your field discoveries form the basis of your testimony.</p></div><div className="archive-court-layout"><div className="archive-panel archive-archivist"><div className="archive-avatar">◈</div><div className="archive-kicker">THE ARCHIVIST</div><h2>{phase === 'question' ? 'Your testimony has been heard.' : 'Chrono Agent, present your account.'}</h2><p>{phase === 'question' ? 'The Archivist has one further challenge for your interpretation.' : 'What led to the Boston Tea Party? Which evidence supports your explanation?'}</p><div className="archive-quote">“A recovered memory is not yet an understood history.”</div></div><div className="archive-panel"><div className="archive-kicker">YOUR RECOVERED EVIDENCE</div><div className="archive-court-evidence">{evidence.length ? evidence.map(id=><div key={id} className="archive-evidence-entry"><b>◈ {titleFor(id)}</b><p>{EVIDENCE[id]?.description || id}</p></div>):<p>No field evidence was recovered. You may still explain your understanding, but your account has no recorded observations.</p>}</div>{phase === 'court' ? <form onSubmit={submitTestimony}><label className="archive-label" htmlFor="archive-testimony">Your historical testimony</label><textarea id="archive-testimony" rows={5} value={testimony} onChange={e=>setTestimony(e.target.value)} maxLength={2500} placeholder="I believe the protest happened because… The evidence I recovered suggests…"/><button className="archive-primary" disabled={busy || testimony.trim().length < 5}>{busy ? 'Consulting the Archivist…' : 'Submit testimony →'}</button></form> : <div className="archive-question"><div className="archive-kicker">ARCHIVIST'S QUESTION · {source === 'ai' ? 'OCI AI' : 'BACKUP'}</div><p>{question}</p><small>Your testimony and the Archivist's question were saved in Oracle Database. Follow-up answers and scoring are coming in the next sprint.</small><button className="archive-primary" onClick={begin} disabled={busy}>Play again ↻</button></div>}</div></div></section>}
+    {error && <div className="archive-alert" role="alert">{error}</div>}
   </main>;
 }
