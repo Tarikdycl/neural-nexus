@@ -1,9 +1,9 @@
 """No database or OCI credentials required for these Archive contract tests."""
-from app.archive_scenarios import BOSTON, PARIS, SCENARIOS, evaluate, resolve_case, score_case, detect_discoveries
+from app.archive_scenarios import BOSTON, PARIS, BERLIN, SCENARIOS, evaluate, resolve_case, score_case, detect_discoveries
 
 
 def test_cases_have_unique_ids_and_evidence():
-    assert len(SCENARIOS) == 2
+    assert len(SCENARIOS) == 3
     assert all(len(c["evidence"]) >= 3 for c in SCENARIOS.values())
 
 
@@ -83,3 +83,30 @@ def test_npc_casual_followup_is_accepted():
     follow=resolve_case(BOSTON,"hmm that's very interesting",{"taxation_dispute"},"merchant")
     assert first["npc"]=="merchant"
     assert follow["ok"] and follow["npc"]=="merchant"
+
+
+def test_berlin_evidence_and_dialogue():
+    announcement=resolve_case(BERLIN,"What did Schabowski announce?",set())
+    assert announcement["npc"]=="resident"
+    assert announcement["discovered"]=="travel_announcement"
+    crowd=resolve_case(BERLIN,"Why are the crowds at the checkpoint?",set(),"resident")
+    assert crowd["discovered"]=="checkpoint_pressure"
+    opening=resolve_case(BERLIN,"Did the border open?",set(),"border_guard")
+    assert opening["discovered"]=="border_opening"
+
+
+def test_berlin_narrated_evidence_validation():
+    opening="The border guard says the Bornholmer Strasse checkpoint opened and crowds are passing into West Berlin."
+    assert "border_opening" in detect_discoveries(BERLIN,opening)
+    announcement="Schabowski announced travel regulations, apparently effective immediately."
+    assert detect_discoveries(BERLIN,announcement)==["travel_announcement"]
+    assert detect_discoveries(BERLIN,"Hello, how are you?")==[]
+
+
+def test_berlin_score_and_verdict():
+    found={key:"fact" for key in BERLIN["evidence"]}
+    testimony="Schabowski's announcement was confusing about travel rules effective immediately. Peaceful protests demanded freedom of movement."
+    answer="Crowds pressured checkpoint guards and the border opened for East Germans."
+    report=score_case(BERLIN,found,testimony,answer)
+    assert report["score"]==100
+    assert evaluate(BERLIN,testimony,answer,found)["decision"]=="APPROVED"
