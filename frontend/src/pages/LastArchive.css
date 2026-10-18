@@ -195,3 +195,74 @@
 @media(prefers-reduced-motion:reduce) {
   .archive-app.archive-live.archive-brief .archive-selection .archive-mission-card {transition:none}
 }
+
+
+/* Multi-era gallery: five cards; only Boston currently has a playable backend. */
+.archive-app.archive-live.archive-brief .archive-selection {
+  box-sizing:border-box;
+  width:min(1320px,100%);
+  max-width:1320px;
+  min-height:calc(100svh - 70px);
+  margin:0 auto;
+  padding:64px clamp(18px,4vw,54px) 85px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+  text-align:center;
+  gap:15px;
+}
+.archive-app.archive-live.archive-brief .archive-selection h1 {margin:0 0 24px;font-size:clamp(36px,4.5vw,55px)}
+.archive-app.archive-live.archive-brief .archive-mission-gallery {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:22px;
+  width:100%;
+  align-items:stretch;
+}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-card {
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  min-width:0;
+  margin:0;
+  text-align:left;
+}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-art {
+  width:100%;
+  height:225px;
+  object-fit:cover;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-details {
+  flex:1;
+  justify-content:space-between;
+}
+.archive-app.archive-live.archive-brief .archive-mission-upcoming {
+  cursor:default;
+  background:#f7f5f0;
+  border:1px solid #aba79e;
+  border-radius:13px;
+  overflow:hidden;
+  box-shadow:0 12px 38px rgba(5,11,23,.31);
+}
+.archive-app.archive-live.archive-brief .archive-mission-upcoming:hover {transform:none;border-color:#aba79e}
+.archive-art-symbol {font:normal 74px/1 Georgia,serif;color:rgba(249,226,179,.57);text-shadow:0 0 40px rgba(242,178,83,.2)}
+.archive-art-year {font:600 15px/1.5 Georgia,serif;letter-spacing:.2em;color:#f3e6d1;margin-top:16px}
+.archive-art-london {background:radial-gradient(circle at 48% 72%,#ff9b3e 0%,#bc4b31 17%,#442e38 47%,#17263a 85%)}
+.archive-art-pompeii {background:radial-gradient(circle at 57% 16%,#c98762 0%,#82413c 16%,#36333c 50%,#1a2532 91%)}
+.archive-art-endurance {background:linear-gradient(150deg,#a4bcc8 0%,#5c8098 28%,#263e58 53%,#0c1c34 100%)}
+.archive-art-constantinople {background:radial-gradient(ellipse at 63% 30%,#ad9369 0%,#655568 38%,#283650 76%,#121e33 100%)}
+.archive-mission-soon {font-weight:700;font-size:10px;letter-spacing:.06em;color:#8893a0;white-space:nowrap}
+@media(max-width:950px){
+ .archive-app.archive-live.archive-brief .archive-mission-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:570px){
+ .archive-app.archive-live.archive-brief .archive-mission-gallery{grid-template-columns:1fr;max-width:420px}
+ .archive-app.archive-live.archive-brief .archive-selection{padding-top:42px}
+ .archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-art{height:225px}
+}
