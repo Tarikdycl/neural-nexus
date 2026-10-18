@@ -37,3 +37,19 @@
 .history-hero-saved{display:inline-flex;align-items:center;justify-content:space-between;gap:32px;min-width:222px;padding:13px 20px;border:1px solid rgba(177,207,176,.62);border-radius:7px;background:rgba(10,28,39,.65);color:#c0d8b9;font:600 13px 'DM Sans',sans-serif;cursor:pointer;transition:background .2s,border-color .2s}
 .history-hero-saved:hover{background:rgba(39,70,60,.8);border-color:#b8d2b3}
 .history-hero-saved:focus-visible{outline:2px solid #c0d8b9;outline-offset:4px}
+
+/* Hackathon demo readability: make the first-screen message legible at a glance. */
+.history-landing-hero{max-width:1120px;padding-left:clamp(30px,7vw,150px)}
+.history-landing-hero h1{font-size:clamp(66px,8vw,132px);line-height:1.045;max-width:1050px}
+.history-landing-hero p{font-size:clamp(18px,1.65vw,24px);line-height:1.5;max-width:670px;margin:27px 0 35px}
+.history-landing-actions{gap:14px}
+.history-hero-cta{min-width:238px;padding:18px 24px;font-size:17px}
+.history-hero-saved{min-width:238px;padding:16px 23px;font-size:16px}
+.history-brand{font-size:15px}
+.history-header-note,.history-landing-footer{font-size:12px}
+@media(max-width:650px){
+  .history-landing-hero{padding:65px 26px}
+  .history-landing-hero h1{font-size:clamp(51px,11vw,76px)}
+  .history-landing-hero p{font-size:17px;max-width:390px}
+  .history-hero-cta,.history-hero-saved{font-size:15px;min-width:214px}
+}
