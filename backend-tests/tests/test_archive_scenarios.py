@@ -1,5 +1,5 @@
 """No database or OCI credentials required for these Archive contract tests."""
-from app.archive_scenarios import BOSTON, PARIS, BERLIN, SCENARIOS, evaluate, resolve_case, score_case, detect_discoveries
+from app.archive_scenarios import BOSTON, PARIS, BERLIN, SCENARIOS, evaluate, resolve_case, score_case, detect_discoveries, court_question, COURT_QUESTION_TYPES
 
 
 def test_cases_have_unique_ids_and_evidence():
@@ -110,3 +110,18 @@ def test_berlin_score_and_verdict():
     report=score_case(BERLIN,found,testimony,answer)
     assert report["score"]==100
     assert evaluate(BERLIN,testimony,answer,found)["decision"]=="APPROVED"
+
+
+def test_court_questions_are_broad_and_repeatable():
+    for case in SCENARIOS.values():
+        first=court_question(case,"I observed the people and their concerns.",{"one":"fact"})
+        second=court_question(case,"I observed the people and their concerns.",{"one":"fact"})
+        assert first == second
+        assert first["type"] in {kind for kind, _ in COURT_QUESTION_TYPES}
+        assert first["text"].endswith("?")
+        assert not any(trivia in first["text"].lower() for trivia in ("schabowski","necker","1773","1789","1989","tea act"))
+
+
+def test_court_question_styles_include_causation_perspective_and_evidence():
+    kinds={kind for kind,_ in COURT_QUESTION_TYPES}
+    assert {"CAUSE_AND_EFFECT","PERSPECTIVES","EVIDENCE_AND_MEANING"} <= kinds
