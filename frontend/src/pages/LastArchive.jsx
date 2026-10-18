@@ -14,7 +14,7 @@ const api = async (path, body) => {
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
   const result = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(result.detail || 'The Archive is temporarily unavailable.');
+  if (!response.ok) throw new Error(response.status === 404 && path === '/verdict' ? 'Verdict endpoint not found. Restart the backend on port 8002 with the latest code.' : (typeof result.detail === 'string' ? result.detail : 'The Archive is temporarily unavailable.'));
   return result;
 };
 const initialMessages = [{ by: 'archive', text: INTRO }];
@@ -26,6 +26,7 @@ export default function LastArchive({ onExit }) {
   const [remaining, setRemaining] = useState(60);
   const [courtRemaining, setCourtRemaining] = useState(90);
   const [evidence, setEvidence] = useState([]);
+  const [score, setScore] = useState(0);
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [testimony, setTestimony] = useState('');
@@ -74,6 +75,7 @@ export default function LastArchive({ onExit }) {
         if (disposed) return;
         setRemaining(state.remaining_seconds ?? 60);
         setEvidence(state.evidence || []);
+        setScore(state.score ?? 0);
         if (state.phase === 'COURT') await extract(sessionId);
       } catch (err) { if (!disposed) setError(err.message); }
       finally { clockLock.current = false; }
@@ -124,7 +126,7 @@ export default function LastArchive({ onExit }) {
       extractionLock.current = false;
       setSessionId(result.session_id);
       setRemaining(result.duration_seconds || 60); setCourtRemaining(90);
-      setEvidence([]); setMessages(initialMessages); setInput(''); setTestimony(''); setCourtAnswer(''); setReport(null); setShowRecords(false); setQuestion(''); setSource('');
+      setEvidence([]); setScore(0); setMessages(initialMessages); setInput(''); setTestimony(''); setCourtAnswer(''); setReport(null); setShowRecords(false); setQuestion(''); setSource('');
       currentPhase.current = 'crisis'; setPhase('crisis');
     } catch (err) { setError(err.message); }
     finally { setBusy(false); }
@@ -140,6 +142,7 @@ export default function LastArchive({ onExit }) {
       const response = await api('/action', { session_id: sessionId, text });
       setMessages(prev => [...prev, { by: 'archive', text: response.reply, source: response.source }]);
       if (response.discovered) setEvidence(prev => [...new Set([...prev, response.discovered])]);
+      if (typeof response.total_score === 'number') setScore(response.total_score);
     } catch (err) {
       setError(err.message);
       if (String(err.message).includes('Crisis ended')) await extract(sessionId, true);
@@ -203,7 +206,7 @@ export default function LastArchive({ onExit }) {
           <form className="archive-chat-form" onSubmit={sendAction}><input aria-label="Describe your action" placeholder="I ask a merchant why the colonists are protesting…" value={input} onChange={e=>setInput(e.target.value)} disabled={busy} maxLength={1000}/><button type="submit" disabled={busy || !input.trim()}>Send ↗</button></form>
           <div className="archive-chat-foot"><span>{busy ? 'Chrono Bureau processing…' : 'Natural-language actions · OCI AI'}</span><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></div>
         </section>
-        <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {titleFor(id)}</b><p>{EVIDENCE[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
+        <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2><div className="archive-score-counter">✦ {score} POINTS</div>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {titleFor(id)}</b><p>{EVIDENCE[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
       </div>
     </section>}
     {phase === 'fracture' && <section className="archive-center archive-break"><div className="archive-ring">◈</div><div className="archive-kicker">TEMPORAL EXTRACTION</div><h1>TIME IS CALLED.</h1><p>Your discoveries have been preserved in the archive.</p></section>}
@@ -214,7 +217,7 @@ export default function LastArchive({ onExit }) {
         <div className="archive-court-intro"><span className="archive-kicker">THE ARCHIVIST</span><p>{phase === 'question' ? question.replace(/^\*\*Question:\*\*\s*/,'') : 'Why did the Boston Tea Party happen? What did you discover?'}</p></div>
         <div className="archive-court-notes">
           <button className="archive-evidence-toggle" type="button" onClick={()=>setShowRecords(v=>!v)} aria-expanded={showRecords}>
-            <span>◈ DIGITAL EVIDENCE ARCHIVE · {evidence.length}</span><span>{showRecords ? 'Hide records −' : 'View records +'}</span>
+            <span>📖 DIGITAL EVIDENCE ARCHIVE · {evidence.length}</span><span>{showRecords ? 'Hide records −' : 'View records +'}</span>
           </button>
           {showRecords && <div className="archive-digital-records">{evidence.length
             ? evidence.map(id=><div className="archive-digital-record" key={id}><strong>{titleFor(id)}</strong><p>{EVIDENCE[id]?.description || id}</p></div>)
@@ -229,7 +232,7 @@ export default function LastArchive({ onExit }) {
       <h1>{report.decision === 'APPROVED' ? 'Testimony approved.' : 'Testimony needs revision.'}</h1>
       <p className={'archive-decision archive-decision-'+report.decision}>{report.decision === 'APPROVED' ? '◈ ARCHIVIST APPROVED' : '◇ ARCHIVIST REQUESTS REVISION'}</p>
       <p className="archive-verdict-subtitle">Your discovery review</p>
-      <div className="archive-verdict-score"><strong>{report.evidence_count} <span>/ {report.evidence_total}</span></strong><span>HISTORICAL THREADS RECOVERED</span></div>
+      <div className="archive-verdict-score"><strong>{report.evidence_count} <span>/ {report.evidence_total}</span></strong><span>HISTORICAL THREADS RECOVERED · {report.score ?? report.evidence_count * 25} POINTS</span></div>
       <div className="archive-verdict-grid">
         <section className="archive-verdict-panel"><div className="archive-kicker">YOUR TESTIMONY</div><p>{report.testimony}</p>{report.court_answer && <><div className="archive-kicker">FINAL ANSWER</div><p>{report.court_answer}</p></>}</section>
         <section className="archive-verdict-panel"><div className="archive-kicker">HISTORICAL REVIEW</div>{report.historical_review.map(item=><div className="archive-verdict-topic" key={item.topic}><strong>{item.discovered ? '✓' : '○'} {item.topic}</strong><p>{item.fact}</p></div>)}</section>
