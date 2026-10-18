@@ -49,7 +49,30 @@ PARIS = {
  "question":"Why did the crowd target the Bastille, and what political tensions made the event significant?",
  "npcs":["citizen","guard"]
 }
-SCENARIOS={item["id"]:item for item in (BOSTON,PARIS)}
+BERLIN = {
+ "id":"berlin_wall_1989","title":"The Wall Opens",
+ "place":"Berlin · November 9, 1989",
+ "intro":"East Berlin, November 9, 1989. Crowds approach the Bornholmer Strasse border crossing. A confusing announcement about travel rules has spread across the city. Ask a resident or border guard what has changed.",
+ "scene":"East Berlin on November 9, 1989, near the Bornholmer Strasse checkpoint. A crowd gathers after a confusing announcement about new travel regulations.",
+ "evidence":{
+  "travel_announcement":"On November 9, East German official Gunter Schabowski gave a confusing press announcement suggesting new travel rules were effective immediately.",
+  "peaceful_protests":"Weeks of peaceful demonstrations and growing demands for freedom of movement had undermined East Germany's government.",
+  "checkpoint_pressure":"Large crowds gathered at Berlin border crossings and pressured guards to let people pass.",
+  "border_opening":"At Bornholmer Strasse, border officials let crowds cross late on November 9, 1989, without the intended formal controls."
+ },
+ "topics":[("Travel announcement","travel_announcement"),
+           ("Peaceful protests","peaceful_protests"),
+           ("Pressure at the checkpoint","checkpoint_pressure"),
+           ("The border opens","border_opening")],
+ "rubric":[
+  ("Travel announcement",["schabowski","announcement","travel rule","travel regulation"],["immediate","immediately","confus","border","effective"]),
+  ("Peaceful protests and reform",["protest","demonstration","freedom","reform","east german"],["peaceful","travel","government","movement","reunif"]),
+  ("Crowds and checkpoint pressure",["crowd","checkpoint","guard","crossing","border"],["pressur","opened","open","pass","cross"])
+ ],
+ "question":"Why did crowds gather at the checkpoints on November 9, 1989, and what made border crossings possible?",
+ "npcs":["resident","border_guard"]
+}
+SCENARIOS={item["id"]:item for item in (BOSTON,PARIS,BERLIN)}
 
 def get_scenario(sid):
     return SCENARIOS.get(sid)
@@ -104,7 +127,7 @@ def resolve_case(case, text, already, last_npc=None):
             return clue("tea_act","The Tea Act is central to the dispute over the East India Company.")
         if ask or question or last_npc=="merchant":
             return clue("taxation_dispute","The merchant explains that Parliament taxes the colonies without elected colonial representatives, and the tea cargo has become a focus of protest.","merchant")
-    else:
+    elif case["id"]==PARIS["id"]:
         if re.search(r"\b(necker|finance minister|minister dismiss|king.s dismissal|last straw|last drop|final straw|triggered the unrest)\b",value):
             return clue("necker_dismissal","King Louis XVI dismissed the popular finance minister Jacques Necker on July 11. News of this decision inflamed anger in Paris.","citizen")
         if inspect and re.search(r"\b(gate|fortress|prison|bastille|wall)\b",value):
@@ -113,6 +136,16 @@ def resolve_case(case, text, already, last_npc=None):
             return clue("gunpowder_search","A nearby Parisian says the crowd is rushing toward the Bastille to seek gunpowder and ammunition.","citizen")
         if ask or question or (last_npc=="citizen"):
             return clue("political_crisis","A Parisian explains the uncertainty: bread shortages, fears of royal troops and distrust of the monarchy are fueling unrest.","citizen")
+    else:
+        # Berlin 1989: allow natural questions and follow-up with the current character.
+        if re.search(r"\b(schabowski|announcement|press conference|travel rule|travel regulation|effective immediately)\b",value):
+            return clue("travel_announcement","A nearby resident says an official named Schabowski announced travel regulations at a press conference, apparently effective immediately.","resident")
+        if re.search(r"\b(demonstrat|protest|freedom|reform|why.*people.*angry|why.*change)\b",value):
+            return clue("peaceful_protests","A resident says weeks of peaceful demonstrations demanded freedom of movement and political reform in East Germany.","resident")
+        if re.search(r"\b(open|let.*through|let.*cross|allowed.*cross|cross.*now)\b",value):
+            return clue("border_opening","A border guard says the Bornholmer Strasse crossing has opened and crowds are now passing into West Berlin.","border_guard")
+        if ask or question or last_npc in ("resident","border_guard"):
+            return clue("checkpoint_pressure","A border guard says large crowds are pressing at the checkpoint, demanding to cross into West Berlin.","border_guard")
     if re.search(r"\b(hey|hello|hi|running|crowd|happening)\b",value):
         return scene(case["intro"])
     return {**base,"ok":False,"reply":"Describe what you want to investigate, or ask someone nearby what is happening."}
@@ -132,6 +165,12 @@ EVIDENCE_SIGNALS = {
   "political_crisis": (("bread","hunger","economic","political","estates-general","royal troops","food shortage"),
                        ("royal","monarch","king","crisis","shortage","distrust","fear","political")),
   "necker_dismissal": (("necker",),("dismiss","removed","fired","ousted")),
+ },
+ "berlin_wall_1989": {
+  "travel_announcement": (("schabowski","press conference","travel regulations"),("immediate","travel","announcement","effective")),
+  "peaceful_protests": (("peaceful","protest","demonstration"),("freedom","movement","reform","east germany")),
+  "checkpoint_pressure": (("crowd","people"),("checkpoint","border crossing","border guard","cross into west")),
+  "border_opening": (("bornholmer","border","checkpoint"),("opened","let","passing","cross")),
  }
 }
 
