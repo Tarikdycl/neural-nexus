@@ -564,3 +564,18 @@
 @media(max-width:760px) {
   .archive-app.archive-live.archive-verdict { background-attachment: scroll; }
 }
+
+
+/* Saved Games — readable historical records in the existing sage/navy theme. */
+.archive-saved-link {background:rgba(15,33,41,.7);border:1px solid #86a38a;color:#c6debe;border-radius:30px;padding:10px 20px;margin:0 auto 20px;cursor:pointer}
+.archive-saved-link:hover {background:rgba(50,81,62,.7)}
+.archive-saves {max-width:1090px;min-height:calc(100svh - 70px);padding-top:65px}
+.archive-saves h1 {font:500 clamp(38px,5vw,65px)/1.12 'Fraunces',Georgia,serif;margin:12px 0;color:#f0f4ec}
+.archive-saves-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;margin:32px 0}
+.archive-save-card {cursor:pointer;background:rgba(12,26,42,.93);border:1px solid #68856e88;border-radius:12px;color:#dcebdd;padding:22px;min-height:155px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;text-align:left}
+.archive-save-card:hover,.archive-save-card:focus-visible {border-color:#afd6aa;background:#182e35;outline-offset:3px}
+.archive-save-card strong {font:500 22px 'Fraunces',Georgia,serif}
+.archive-save-card span {font-size:11px;color:#a8b8b3}
+.archive-save-card em {font:700 10px 'DM Sans',sans-serif;letter-spacing:.12em;color:#b6d3ad}
+.archive-saves .archive-verdict-panel {max-height:65vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#88af90 #0e2031}
+.archive-saves .archive-verdict-panel strong {color:#bdd9b8}
