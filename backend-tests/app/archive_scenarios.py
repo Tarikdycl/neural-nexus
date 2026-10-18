@@ -102,7 +102,7 @@ def resolve_case(case, text, already, last_npc=None):
             return clue("shipping_manifest","The cargo records connect the tea to the East India Company.")
         if re.search(r"\b(tea act|tax law|legislation)\b",value):
             return clue("tea_act","The Tea Act is central to the dispute over the East India Company.")
-        if ask or question:
+        if ask or question or last_npc=="merchant":
             return clue("taxation_dispute","The merchant explains that Parliament taxes the colonies without elected colonial representatives, and the tea cargo has become a focus of protest.","merchant")
     else:
         if re.search(r"\b(necker|finance minister|minister dismiss|king.s dismissal|last straw|last drop|final straw|triggered the unrest)\b",value):
