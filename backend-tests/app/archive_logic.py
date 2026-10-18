@@ -64,12 +64,12 @@ def resolve(text: str, already: set[str]):
     if re.search(r"\b(inspect|examine|read|search|check|look at)\b",value) and re.search(r"\b(cargo|document|manifest|crate|shipping|paper|ship)\b",value):
         key="shipping_manifest"
         return {"ok":True,"reply":CLUES[key] if key not in already else "You have already examined these records.","discovered":key if key not in already else None,"facts":[SCENE, CLUES[key]]}
-    if re.search(r"\b(ask|talk|speak|question|interview)\b",value) and re.search(r"\b(merchant|dockworker|protest|tax|colonist)\b",value):
+    if re.search(r"\b(ask|talk|speak|question|interview)\b",value) and re.search(r"\b(merchant|dockworker|protest|tax|colonist|someone|person|people|anyone|man|woman|crowd)\b",value):
         key="taxation_dispute"
         return {"ok":True,"reply":"A dockworker describes a dispute over taxation and representation.","discovered":key if key not in already else None,"facts":[SCENE, CLUES[key]]}
     if re.search(r"\b(inspect|examine|ask|read|study|investigate)\b",value) and re.search(r"\b(tea act|tax law|legislation)\b",value):
         key="tea_act"
         return {"ok":True,"reply":CLUES[key],"discovered":key if key not in already else None,"facts":[SCENE, CLUES[key]]}
-    if re.search(r"\b(look|observe|listen|wait)\b",value):
+    if re.search(r"\b(look|observe|listen|wait|describe|surroundings|around|where am i)\b",value):
         return {"ok":True,"reply":"Lanterns flicker across the harbor. The ships remain anchored as the crowd grows.","discovered":None,"facts":[SCENE]}
     return {"ok":False,"reply":"You can look around, ask a dockworker, or inspect the ships' cargo records. Describe what you want to do.","discovered":None,"facts":[SCENE]}
