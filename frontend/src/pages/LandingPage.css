@@ -30,3 +30,10 @@
 .history-header-note,.history-landing-footer {color:#b7c7b6}
 @media(max-width:650px){.history-landing-hero h1{font-size:clamp(49px,11vw,70px)}}
 
+
+
+/* A secondary option becomes visible after the first recorded visit. */
+.history-landing-actions{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.history-hero-saved{display:inline-flex;align-items:center;justify-content:space-between;gap:32px;min-width:222px;padding:13px 20px;border:1px solid rgba(177,207,176,.62);border-radius:7px;background:rgba(10,28,39,.65);color:#c0d8b9;font:600 13px 'DM Sans',sans-serif;cursor:pointer;transition:background .2s,border-color .2s}
+.history-hero-saved:hover{background:rgba(39,70,60,.8);border-color:#b8d2b3}
+.history-hero-saved:focus-visible{outline:2px solid #c0d8b9;outline-offset:4px}
