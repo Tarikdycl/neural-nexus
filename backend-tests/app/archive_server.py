@@ -71,6 +71,9 @@ def session_events(cursor, sid):
     )
     return [(r[0], decode_event_data(r[1])) for r in cursor]
 
+def archive_score(events):
+    return 25 * len(evidence(events))
+
 def evidence(events):
     keys = {data.get("key") for kind, data in events
             if kind == "evidence_discovered" and isinstance(data, dict)}
@@ -155,15 +158,19 @@ def action(body: ActionRequest):
                     db.commit()
                     raise HTTPException(409, "Crisis ended: proceed to the Court of Time")
                 already = set(evidence(prior))
-                outcome = resolve(body.text, already)
+                last_npc = next((data.get("npc") for kind, data in reversed(prior)
+                                 if kind == "npc_context" and isinstance(data, dict)), None)
+                outcome = resolve(body.text, already, last_npc)
                 record(cur, body.session_id, "player_action", {"text": body.text})
+                if outcome.get("npc"):
+                    record(cur, body.session_id, "npc_context", {"npc": outcome["npc"]})
                 if outcome["discovered"]:
-                    record(cur, body.session_id, "evidence_discovered", {"key": outcome["discovered"], "fact": CLUES[outcome["discovered"]]})
+                    record(cur, body.session_id, "evidence_discovered", {"key": outcome["discovered"], "fact": CLUES[outcome["discovered"]], "points": 25})
                 db.commit()
         # Never allow an AI failure to erase a committed player action.
         reply = narrate(outcome["facts"], body.text, outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
         return {"saved": True, "session_id": body.session_id, "accepted":outcome["ok"],
-                "discovered":outcome["discovered"], "reply":reply["text"], "source":reply["source"]}
+                "discovered":outcome["discovered"], "score_awarded":25 if outcome["discovered"] else 0, "total_score":25 * (len(already) + (1 if outcome["discovered"] else 0)), "reply":reply["text"], "source":reply["source"]}
     except oracledb.DatabaseError as exc:
         raise HTTPException(503, "Oracle action save failed") from exc
 
@@ -199,7 +206,7 @@ def state(session_id: str):
     limit = deadline(history) if phase == "CRISIS" else court_deadline(history)
     remaining = max(0, int((limit - datetime.now(timezone.utc)).total_seconds())) if limit else None
     return {"session_id": session_id, "phase": phase, "remaining_seconds": remaining,
-            "evidence": list(evidence(history)), "deadline": limit.isoformat() if limit else None,
+            "evidence": list(evidence(history)), "score": archive_score(history), "deadline": limit.isoformat() if limit else None,
             "duration_seconds": 60 if phase == "CRISIS" else 90}
 
 
@@ -282,6 +289,7 @@ def verdict(body: VerdictRequest):
                 "evidence_ids": list(found),
                 "evidence_count": len(found),
                 "evidence_total": len(CLUES),
+                "score": archive_score(history),
                 "testimony": testimony,
                 "court_answer": body.response.strip() if phase == "COURT" else "",
                 "feedback": (
