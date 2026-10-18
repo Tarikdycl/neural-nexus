@@ -325,6 +325,55 @@ def verdict(body: VerdictRequest):
             return {"phase": "REVIEW", **report}
 
 
+@app.get("/archive/saves")
+def saves(limit: int = 30):
+    """Recent runs from Oracle, including verdict summaries when available."""
+    limit=max(1,min(limit,100))
+    with connect() as db:
+        with db.cursor() as cur:
+            cur.execute(
+                f"SELECT SESSION_ID, SCENARIO_ID, PLAYER_NAME, CURRENT_PHASE, STARTED_AT "
+                f"FROM {DB_OWNER}.NN_SESSIONS ORDER BY STARTED_AT DESC FETCH FIRST {limit} ROWS ONLY"
+            )
+            rows=cur.fetchall()
+            items=[]
+            for sid,scenario_id,name,phase,started_at in rows:
+                case=get_scenario(scenario_id)
+                if not case:
+                    continue
+                history=session_events(cur,sid)
+                result=next((data for kind,data in reversed(history) if kind=="archive_verdict"),None)
+                items.append({
+                    "session_id":sid,"scenario_id":scenario_id,"title":case["title"],
+                    "player_name":name,"phase":phase,
+                    "started_at":started_at.isoformat() if started_at else None,
+                    "evidence_count":len(evidence(history,case)),
+                    "score":archive_score(history,case),
+                    "decision":result.get("decision") if result else None,
+                    "improvements":result.get("improvements",[]) if result else [],
+                    "strengths":result.get("strengths",[]) if result else []
+                })
+    return {"saves":items}
+
+
+@app.get("/archive/saves/{session_id}")
+def saved_case(session_id: str):
+    with connect() as db:
+        with db.cursor() as cur:
+            phase=active_session(cur,session_id)
+            case=session_case(cur,session_id)
+            history=session_events(cur,session_id)
+    verdict=next((data for kind,data in reversed(history) if kind=="archive_verdict"),None)
+    return {
+        "session_id":session_id,"scenario_id":case["id"],"title":case["title"],
+        "phase":phase,"score":archive_score(history,case),
+        "evidence":[{"id":key,"fact":fact} for key,fact in evidence(history,case).items()],
+        "transcript":[{"type":kind,"data":data} for kind,data in history
+                      if kind in ("player_action","court_testimony","archivist_question","court_answer")],
+        "verdict":verdict,
+    }
+
+
 def decode_event_data(value):
     """Oracle JSON may return a Python dict/list directly, or a CLOB/string."""
     if hasattr(value, "read"):
