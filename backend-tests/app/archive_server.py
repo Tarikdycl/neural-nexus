@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from app.archive_logic import narrate
-from app.archive_scenarios import SCENARIOS, BOSTON, get_scenario, resolve_case, evaluate, score_case
+from app.archive_scenarios import SCENARIOS, BOSTON, get_scenario, resolve_case, evaluate, score_case, detect_discoveries
 
 BASE = Path(__file__).resolve().parent.parent
 load_dotenv(BASE / ".env")
@@ -169,41 +169,51 @@ def start(body: StartRequest):
 
 @app.post("/archive/action")
 def action(body: ActionRequest):
-    try:
-        with connect() as db:
-            with db.cursor() as cur:
-                phase=active_session(cur,body.session_id)
-                case=session_case(cur,body.session_id)
-                prior=session_events(cur,body.session_id)
-                phase=expire_if_needed(cur,body.session_id,phase,prior)
-                if phase!="CRISIS":
-                    db.commit()
-                    raise HTTPException(409,"Crisis ended: proceed to the Court of Time")
-                already=set(evidence(prior,case))
-                npc=next((data.get("npc") for kind,data in reversed(prior)
-                          if kind=="npc_context" and isinstance(data,dict)),None)
-                outcome=resolve_case(case,body.text,already,npc)
-                record(cur,body.session_id,"player_action",{"text":body.text})
-                if outcome.get("npc"):
-                    record(cur,body.session_id,"npc_context",{"npc":outcome["npc"]})
-                if outcome["discovered"]:
-                    key=outcome["discovered"]
-                    record(cur,body.session_id,"evidence_discovered",
-                           {"key":key,"fact":case["evidence"][key],"points":round(60/len(case["evidence"]))})
+    # Determine allowed narrative from the session; do not award based on player keywords.
+    with connect() as db:
+        with db.cursor() as cur:
+            phase=active_session(cur,body.session_id)
+            case=session_case(cur,body.session_id)
+            prior=session_events(cur,body.session_id)
+            phase=expire_if_needed(cur,body.session_id,phase,prior)
+            if phase!="CRISIS":
                 db.commit()
-        prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "")+body.text
-        reply=narrate(outcome["facts"],prompt,outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
-        with connect() as db:
-            with db.cursor() as cur:
-                record(cur,body.session_id,"npc_reply",{"text":reply["text"],"source":reply["source"],"npc":outcome.get("npc")})
-                db.commit()
-        return {"saved":True,"accepted":outcome["ok"],"session_id":body.session_id,
-                "discovered":outcome["discovered"],
-                "score_awarded":round(60/len(case["evidence"])) if outcome["discovered"] else 0,
-                "total_score":round(60*(len(already)+(1 if outcome["discovered"] else 0))/len(case["evidence"])),
-                "reply":reply["text"],"source":reply["source"]}
-    except oracledb.DatabaseError as exc:
-        raise HTTPException(503,"Oracle action save failed") from exc
+                raise HTTPException(409,"Crisis ended: proceed to the Court of Time")
+            already=set(evidence(prior,case))
+            npc=next((data.get("npc") for kind,data in reversed(prior)
+                      if kind=="npc_context" and isinstance(data,dict)),None)
+            outcome=resolve_case(case,body.text,already,npc)
+            record(cur,body.session_id,"player_action",{"text":body.text})
+            db.commit()
+
+    prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "")+body.text
+    reply=narrate(outcome["facts"],prompt,outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
+    # The LLM may paraphrase, but only verified scene facts can be attributed to it.
+    # Restrict awards to the facts the engine explicitly authorized for this turn.
+    permitted={key for key,fact in case["evidence"].items() if fact in outcome["facts"]}
+    if outcome.get("discovered"):
+        permitted.add(outcome["discovered"])
+    candidates=[k for k in detect_discoveries(case,reply["text"]) if k in permitted]
+    with connect() as db:
+        with db.cursor() as cur:
+            # Re-read events to prevent duplicate points on parallel player requests.
+            current=session_events(cur,body.session_id)
+            known=set(evidence(current,case))
+            new=[key for key in candidates if key not in known]
+            if outcome.get("npc"):
+                record(cur,body.session_id,"npc_context",{"npc":outcome["npc"]})
+            for key in new:
+                record(cur,body.session_id,"evidence_discovered",
+                       {"key":key,"fact":case["evidence"][key],
+                        "points":round(60/len(case["evidence"])),"source":"npc_reply"})
+            record(cur,body.session_id,"npc_reply",
+                   {"text":reply["text"],"source":reply["source"],"npc":outcome.get("npc"),"evidence_ids":new})
+            db.commit()
+    return {"saved":True,"accepted":outcome["ok"],"session_id":body.session_id,
+            "discovered":new[0] if new else None,"discoveries":new,
+            "score_awarded":round(60*(len(known)+len(new))/len(case["evidence"]))-round(60*len(known)/len(case["evidence"])),
+            "total_score":round(60*(len(known)+len(new))/len(case["evidence"])),
+            "reply":reply["text"],"source":reply["source"]}
 
 
 @app.post("/archive/extract")
