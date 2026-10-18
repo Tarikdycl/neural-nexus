@@ -100,3 +100,15 @@
   backdrop-filter: blur(12px);
   border-color: rgba(222, 190, 128, .4);
 }
+
+
+/* Minimal time selection: let the artwork and mission card carry the screen. */
+.archive-live.archive-brief .archive-selection {justify-content:center;gap:14px;padding-top:34px;padding-bottom:60px}
+.archive-live.archive-brief .archive-selection h1 {font-size:clamp(35px,4.5vw,56px);margin:0 0 20px}
+.archive-live.archive-brief .archive-selection .archive-mission-card {width:min(100%,440px);margin:0}
+.archive-live.archive-brief .archive-selection .archive-mission-art {height:225px}
+.archive-live.archive-brief .archive-selection .archive-mission-details {padding:15px 20px 18px;gap:8px}
+.archive-live.archive-brief .archive-selection .archive-mission-details strong {font-size:25px}
+.archive-live.archive-brief .archive-selection .archive-mission-meta {display:flex;justify-content:space-between;align-items:center;gap:12px}
+.archive-live.archive-brief .archive-selection .archive-mission-action {display:inline;font-size:12px;margin:0;padding:0;border:0;text-transform:none;white-space:nowrap}
+@media(max-width:550px){.archive-live.archive-brief .archive-selection .archive-mission-art{height:180px}.archive-live.archive-brief .archive-selection .archive-mission-details strong{font-size:22px}}
