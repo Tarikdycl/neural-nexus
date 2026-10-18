@@ -129,8 +129,8 @@ export default function LastArchive({ onExit }) {
       <span className="archive-tag">CHRONO BUREAU · CASE 001</span>
     </header>
     {phase === 'brief' && <section className="archive-selection archive-fade">
-      <div className="archive-kicker">CHOOSE YOUR MOMENT</div>
-      <h1>Jump into history.</h1>
+      <div className="archive-kicker">CHOOSE YOUR ASSIGNMENT</div>
+      <h1>Select your destination.</h1>
       <div className="archive-mission-gallery">
         <button type="button" className="archive-mission-card" disabled={busy} onClick={begin} aria-label="Jump into The Tea in the Harbor">
           <img className="archive-mission-art" src="/images/missions/boston-tea-party.png" alt="Moonlit Boston Harbor" />
@@ -144,7 +144,7 @@ export default function LastArchive({ onExit }) {
           { id:'berlin', title:'The Wall Opens', place:'BERLIN · 1989', image:'/images/missions/berlin-wall.png' },
           { id:'independence', title:'The Independence Debate', place:'PHILADELPHIA · 1776', image:'/images/missions/independence-debate.png' },
           { id:'missile', title:'Thirteen Days', place:'CUBA / WASHINGTON · 1962', image:'/images/missions/cuban-missile-crisis.png' }
-        ].map(mission => (
+        ].slice(0, 2).map(mission => (
           <article className="archive-mission-card archive-mission-upcoming" key={mission.id} aria-label={mission.title + ' coming soon'}>
             <img className="archive-mission-art" src={mission.image} alt="" loading="lazy" />
             <div className="archive-mission-details">
@@ -156,16 +156,16 @@ export default function LastArchive({ onExit }) {
       </div>
     </section>}
     {phase === 'crisis' && <section className="archive-container archive-fade">
-      <div className="archive-status"><span>BOSTON HARBOR · DEC 16, 1773</span><span className={'archive-count '+(remaining <= 10 ? 'urgent' : '')}>00:{String(remaining).padStart(2, '0')}</span></div>
+      <div className="archive-status"><span>BOSTON HARBOR · DEC 16, 1773</span><span className={'archive-count archive-digital-clock '+(remaining <= 10 ? 'urgent' : '')} role="timer" aria-label={remaining + ' seconds remaining'}><span className="archive-clock-dot">●</span>00:{String(remaining).padStart(2, '0')}</span></div>
       <div className="archive-live-layout">
         <section className="archive-story">
-          <div className="archive-scenery archive-live-scene"><span>THE HARBOR · NIGHTFALL</span><span className="archive-scene-mark">◈ 1773</span></div>
-          <div className="archive-chat-head"><div className="archive-kicker">LIVE HISTORICAL SIMULATION</div><h1>The Tea in the Harbor</h1><p>Describe what you do. Ask a merchant, investigate the ships, or observe the harbor.</p></div>
+          <div className="archive-scenery archive-live-scene"><span>THE HARBOR · 1773</span></div>
+          <div className="archive-chat-head"><div className="archive-kicker">LIVE HISTORICAL SIMULATION</div><h1>The Tea in the Harbor</h1><p>Ask. Investigate. Remember.</p></div>
           <div className="archive-messages" aria-live="polite">{messages.map((m,i)=><div key={i} className={'archive-message archive-msg-'+m.by}><span>{m.by === 'player' ? 'YOU' : 'THE ARCHIVE'}{m.source === 'fallback' ? ' · BACKUP' : ''}</span><p>{m.text}</p></div>)}<div ref={logEnd}/></div>
           <form className="archive-chat-form" onSubmit={sendAction}><input aria-label="Describe your action" placeholder="I ask a merchant why the colonists are protesting…" value={input} onChange={e=>setInput(e.target.value)} disabled={busy} maxLength={1000}/><button type="submit" disabled={busy || !input.trim()}>Send ↗</button></form>
           <div className="archive-chat-foot"><span>{busy ? 'Chrono Bureau processing…' : 'Natural-language actions · OCI AI'}</span><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></div>
         </section>
-        <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2><p>Evidence can only be discovered through your actions. Your discoveries will follow you into the Court of Time.</p>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {titleFor(id)}</b><p>{EVIDENCE[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
+        <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {titleFor(id)}</b><p>{EVIDENCE[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
       </div>
     </section>}
     {phase === 'fracture' && <section className="archive-center archive-break"><div className="archive-ring">◈</div><div className="archive-kicker">TEMPORAL EXTRACTION</div><h1>TIME IS CALLED.</h1><p>Your discoveries have been preserved in the archive.</p></section>}
