@@ -129,7 +129,7 @@ EVIDENCE_SIGNALS = {
  "storming_bastille_1789": {
   "royal_authority": (("bastille","fortress","prison"),("royal","king","monarch","symbol","imprison")),
   "gunpowder_search": (("bastille","fortress","crowd","people"),("gunpowder","ammunition","powder","weapons")),
-  "political_crisis": (("bread","hunger","economic","political","estates-general","unrest","troops"),
+  "political_crisis": (("bread","hunger","economic","political","estates-general","royal troops","food shortage"),
                        ("royal","monarch","king","crisis","shortage","distrust","fear","political")),
   "necker_dismissal": (("necker",),("dismiss","removed","fired","ousted")),
  }
