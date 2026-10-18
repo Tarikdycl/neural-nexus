@@ -55,3 +55,7 @@ AI narration may vary; actions, evidence and points are validated by Python. Ver
 `cd backend-tests` and run `python -m pytest tests/test_archive_scenarios.py -q`.
 
 Existing Monkey King and Odyssey subsystems remain available for the team's separate work.
+
+## NPC evidence rule (October 2026)
+
+Natural greetings and follow-up questions can lead to discoveries **when the NPC's actual reply states a recognizable curated historical fact**. The action engine selects which scenario facts are allowed; `detect_discoveries` validates the narrated text and awards only unique, permitted evidence IDs after the reply. The API may return multiple `discoveries` in one response. Oracle records both the NPC reply and the granted evidence. Narration remains AI-generated and must still be checked for unsupported claims; matching patterns are conservative, not semantic fact-checking.
