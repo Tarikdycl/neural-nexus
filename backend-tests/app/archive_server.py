@@ -50,6 +50,10 @@ class ActionRequest(BaseModel):
 class ExtractRequest(BaseModel):
     session_id: str
 
+class VerdictRequest(BaseModel):
+    session_id: str
+    response: str = Field(default="", max_length=2500)
+
 class CourtRequest(BaseModel):
     session_id: str
     testimony: str = Field(min_length=5, max_length=2500)
@@ -237,6 +241,54 @@ def court(body: CourtRequest):
             db.commit()
     return {"saved": True, "phase": "COURT", "archivist_question": probe["text"],
             "source": probe["source"], "evidence_ids": list(found), "evaluated": False}
+
+
+@app.post("/archive/verdict")
+def verdict(body: VerdictRequest):
+    """Transparent evidence review, not an AI-issued historical accuracy grade."""
+    with connect() as db:
+        with db.cursor() as cur:
+            phase = active_session(cur, body.session_id)
+            history = session_events(cur, body.session_id)
+            existing = next((data for kind, data in reversed(history)
+                             if kind == "archive_verdict"), None)
+            if existing:
+                return {"phase": "REVIEW", **existing}
+            if not any(kind == "court_testimony" for kind, _ in history):
+                raise HTTPException(409, "Submit a testimony before requesting a verdict")
+            if phase not in ("COURT", "REVIEW"):
+                raise HTTPException(409, "Court is not active")
+            if phase == "COURT":
+                phase = court_expire(cur, body.session_id, phase, history)
+            testimony = next((data.get("text", "") for kind, data in reversed(history)
+                              if kind == "court_testimony" and isinstance(data, dict)), "")
+            found = evidence(history)
+            if body.response.strip() and phase == "COURT":
+                record(cur, body.session_id, "court_answer", {"text": body.response.strip()})
+            # Mechanical evidence coverage, intentionally NOT an arbitrary historical grade.
+            report = {
+                "evidence_ids": list(found),
+                "evidence_count": len(found),
+                "evidence_total": len(CLUES),
+                "testimony": testimony,
+                "court_answer": body.response.strip() if phase == "COURT" else "",
+                "feedback": (
+                    "You recovered " + str(len(found)) + " of " + str(len(CLUES)) +
+                    " available evidence threads. This is a discovery report, not a historical accuracy score."
+                ),
+                "historical_review": [
+                    {"topic": "Taxation and representation", "fact": CLUES["taxation_dispute"],
+                     "discovered": "taxation_dispute" in found},
+                    {"topic": "Trade and the East India Company", "fact": CLUES["shipping_manifest"],
+                     "discovered": "shipping_manifest" in found},
+                    {"topic": "The Tea Act", "fact": CLUES["tea_act"],
+                     "discovered": "tea_act" in found}
+                ]
+            }
+            record(cur, body.session_id, "archive_verdict", report)
+            cur.execute(f"UPDATE {DB_OWNER}.NN_SESSIONS SET CURRENT_PHASE='REVIEW' WHERE SESSION_ID=:sid", sid=body.session_id)
+            db.commit()
+            return {"phase": "REVIEW", **report}
 
 
 def decode_event_data(value):
