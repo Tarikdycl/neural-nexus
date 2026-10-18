@@ -698,3 +698,15 @@
 .archive-visit-filters{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin:22px 0 4px;color:#b8cbbd;font-size:12px}
 .archive-visit-filter-button{cursor:pointer;color:#c9e4bf;border:1px solid rgba(168,210,171,.38);background:rgba(18,42,42,.65);border-radius:30px;padding:9px 16px;font-size:12px}
 .archive-visit-filter-button:hover,.archive-visit-filter-button:focus-visible{background:rgba(53,87,66,.7);border-color:#b5d7ae}
+
+/* More readable game UI for live demos and projected screens. */
+.archive-app.archive-live.archive-crisis .archive-chat-head p{font-size:14px}
+.archive-app.archive-live.archive-crisis .archive-message p{font-size:16px;line-height:1.65}
+.archive-app.archive-live.archive-crisis .archive-message span{font-size:11px}
+.archive-app.archive-live.archive-crisis .archive-chat-form input{font-size:15px}
+.archive-app.archive-live.archive-crisis .archive-chat-form button{font-size:14px}
+.archive-app.archive-live.archive-crisis .archive-empty-evidence{font-size:14px}
+.archive-app.archive-live.archive-crisis .archive-evidence-entry p{font-size:14px}
+.archive-app.archive-live.archive-crisis .archive-evidence-entry b{font-size:15px}
+.archive-app.archive-live.archive-crisis .archive-chat-foot span{font-size:12px}
+.archive-app.archive-live.archive-crisis .archive-kicker{font-size:11px}
