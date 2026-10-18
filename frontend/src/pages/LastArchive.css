@@ -579,3 +579,11 @@
 .archive-save-card em {font:700 10px 'DM Sans',sans-serif;letter-spacing:.12em;color:#b6d3ad}
 .archive-saves .archive-verdict-panel {max-height:65vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#88af90 #0e2031}
 .archive-saves .archive-verdict-panel strong {color:#bdd9b8}
+
+
+/* Saved Visits belongs in the navigation, not between title and missions. */
+.archive-header-right{display:flex;align-items:center;justify-content:flex-end;gap:18px}
+.archive-header .archive-saved-link{margin:0;padding:8px 13px;font-size:12px;white-space:nowrap}
+.archive-crisis-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.archive-crisis-actions .archive-link:first-child{color:#b5d2ad}
+@media(max-width:650px){.archive-header-right{gap:5px}.archive-header .archive-saved-link{font-size:10px;padding:7px 9px}.archive-header-right .archive-tag{display:none}.archive-crisis-actions{justify-content:flex-start}}
