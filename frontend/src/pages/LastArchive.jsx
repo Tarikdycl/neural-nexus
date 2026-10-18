@@ -238,7 +238,7 @@ export default function LastArchive({ onExit }) {
         <section className="archive-verdict-panel"><div className="archive-kicker">HISTORICAL REVIEW</div>{report.historical_review.map(item=><div className="archive-verdict-topic" key={item.topic}><strong>{item.discovered ? '✓' : '○'} {item.topic}</strong><p>{item.fact}</p></div>)}</section>
       </div>
       <p className="archive-verdict-disclaimer">{report.decision_basis || "Provisional evidence review; historical accuracy scoring is not yet implemented."}</p>
-      <button className="archive-primary" onClick={begin}>Try another run ↻</button>
+      <button className="archive-primary" onClick={() => { setError(''); setReport(null); setSessionId(''); currentPhase.current = 'brief'; setPhase('brief'); }}>Return to the Portal →</button>
     </section>}
     {phase === 'expired' && <section className="archive-center archive-fade"><div className="archive-kicker">COURT OF TIME</div><h1>Time is up.</h1><p>Your testimony window has closed.</p><button className="archive-primary" onClick={begin}>Try again ↻</button></section>}
     {error && <div className="archive-alert" role="alert">{error}</div>}
