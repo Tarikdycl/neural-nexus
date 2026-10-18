@@ -189,7 +189,7 @@ def action(body: ActionRequest):
                 if outcome["discovered"]:
                     key=outcome["discovered"]
                     record(cur,body.session_id,"evidence_discovered",
-                           {"key":key,"fact":case["evidence"][key],"points":20})
+                           {"key":key,"fact":case["evidence"][key],"points":round(60/len(case["evidence"]))})
                 db.commit()
         prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "")+body.text
         reply=narrate(outcome["facts"],prompt,outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
@@ -199,8 +199,8 @@ def action(body: ActionRequest):
                 db.commit()
         return {"saved":True,"accepted":outcome["ok"],"session_id":body.session_id,
                 "discovered":outcome["discovered"],
-                "score_awarded":20 if outcome["discovered"] else 0,
-                "total_score":20*(len(already)+(1 if outcome["discovered"] else 0)),
+                "score_awarded":round(60/len(case["evidence"])) if outcome["discovered"] else 0,
+                "total_score":round(60*(len(already)+(1 if outcome["discovered"] else 0))/len(case["evidence"])),
                 "reply":reply["text"],"source":reply["source"]}
     except oracledb.DatabaseError as exc:
         raise HTTPException(503,"Oracle action save failed") from exc
