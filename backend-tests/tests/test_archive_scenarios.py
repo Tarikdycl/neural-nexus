@@ -54,4 +54,12 @@ def test_100_point_score_and_no_duplicate_discovery():
     assert full["evidence_score"]==60
     assert full["court_score"]==40
     assert score_case(PARIS,{}, "", "")["score"]==0
-    assert score_case(PARIS,{"gunpowder_search":"found"}, "", "")["score"]==20
+    assert score_case(PARIS,{"gunpowder_search":"found"}, "", "")["score"]==15
+
+
+def test_paris_necker_discovery_only_once():
+    first=resolve_case(PARIS,"why what was the last drop?",{"political_crisis"},"citizen")
+    assert first["discovered"]=="necker_dismissal"
+    assert "Necker" in first["reply"]
+    repeat=resolve_case(PARIS,"What was the last drop?",{"political_crisis","necker_dismissal"},"citizen")
+    assert repeat["discovered"] is None
