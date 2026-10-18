@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function LandingPage({ onBegin }) {
+export default function LandingPage({ onBegin, onArchive }) {
   return (
     <main className="landing landing-cinematic">
       <div className="landing-atmosphere" aria-hidden="true">
@@ -9,7 +9,8 @@ export default function LandingPage({ onBegin }) {
       </div>
       <div className="landing-content">
         <h1>Dwell Into<br /><em>the Realms.</em></h1>
-        <button className="primary-button" onClick={onBegin}>Begin Your Journey <span aria-hidden="true">→</span></button>
+        <button className="primary-button" onClick={onArchive}>Play The Last Archive · 60 Seconds <span aria-hidden="true">→</span></button>
+        <div style={{marginTop:16}}><button className="text-button" onClick={onBegin}>Explore original realms →</button></div>
       </div>
     </main>
   );
