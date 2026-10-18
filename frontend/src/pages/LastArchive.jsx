@@ -229,12 +229,12 @@ export default function LastArchive({ onExit }) {
     </section>}
     {phase === 'verdict' && report && <section className="archive-container archive-verdict-page archive-fade">
       <div className="archive-kicker">THE LAST ARCHIVE · CASE 001</div>
-      <h1>{report.decision === 'APPROVED' ? 'Testimony approved.' : 'Testimony needs revision.'}</h1>
+      <h1>{report.decision === 'APPROVED' ? 'Testimony approved.' : 'The archive remains incomplete.'}</h1>
       <p className={'archive-decision archive-decision-'+report.decision}>{report.decision === 'APPROVED' ? '◈ ARCHIVIST APPROVED' : '◇ ARCHIVIST REQUESTS REVISION'}</p>
       <p className="archive-verdict-subtitle">Your discovery review</p>
       <div className="archive-verdict-score"><strong>{report.evidence_count} <span>/ {report.evidence_total}</span></strong><span>HISTORICAL THREADS RECOVERED · {report.score ?? report.evidence_count * 25} POINTS</span></div>
       <div className="archive-verdict-grid">
-        <section className="archive-verdict-panel"><div className="archive-kicker">YOUR TESTIMONY</div><p>{report.testimony}</p>{report.court_answer && <><div className="archive-kicker">FINAL ANSWER</div><p>{report.court_answer}</p></>}</section>
+        <section className="archive-verdict-panel"><div className="archive-kicker">ARCHIVIST\'S ASSESSMENT</div><p>{report.feedback}</p>{report.strengths?.length > 0 && <><div className="archive-kicker">WHAT YOU CONNECTED</div>{report.strengths.map(item=><p key={item}>✓ {item}</p>)}</>}{report.improvements?.length > 0 && <><div className="archive-kicker">WHAT TO INVESTIGATE NEXT</div>{report.improvements.map(item=><p key={item}>→ {item}</p>)}</>}<div className="archive-kicker">YOUR TESTIMONY</div><p>{report.testimony}</p>{report.court_answer && <><div className="archive-kicker">FINAL ANSWER</div><p>{report.court_answer}</p></>}</section>
         <section className="archive-verdict-panel"><div className="archive-kicker">HISTORICAL REVIEW</div>{report.historical_review.map(item=><div className="archive-verdict-topic" key={item.topic}><strong>{item.discovered ? '✓' : '○'} {item.topic}</strong><p>{item.fact}</p></div>)}</section>
       </div>
       <p className="archive-verdict-disclaimer">{report.decision_basis || "Provisional evidence review; historical accuracy scoring is not yet implemented."}</p>
