@@ -193,6 +193,10 @@ def action(body: ActionRequest):
                 db.commit()
         prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "")+body.text
         reply=narrate(outcome["facts"],prompt,outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
+        with connect() as db:
+            with db.cursor() as cur:
+                record(cur,body.session_id,"npc_reply",{"text":reply["text"],"source":reply["source"],"npc":outcome.get("npc")})
+                db.commit()
         return {"saved":True,"accepted":outcome["ok"],"session_id":body.session_id,
                 "discovered":outcome["discovered"],
                 "score_awarded":25 if outcome["discovered"] else 0,
@@ -299,7 +303,6 @@ def verdict(body: VerdictRequest):
                 phase = court_expire(cur, body.session_id, phase, history)
             testimony = next((data.get("text", "") for kind, data in reversed(history)
                               if kind == "court_testimony" and isinstance(data, dict)), "")
-            found = evidence(history)
             if body.response.strip() and phase == "COURT":
                 record(cur, body.session_id, "court_answer", {"text": body.response.strip()})
             answer = body.response.strip() if phase == "COURT" else next(
@@ -369,7 +372,7 @@ def saved_case(session_id: str):
         "phase":phase,"score":archive_score(history,case),
         "evidence":[{"id":key,"fact":fact} for key,fact in evidence(history,case).items()],
         "transcript":[{"type":kind,"data":data} for kind,data in history
-                      if kind in ("player_action","court_testimony","archivist_question","court_answer")],
+                      if kind in ("player_action","npc_reply","court_testimony","archivist_question","court_answer")],
         "verdict":verdict,
     }
 
