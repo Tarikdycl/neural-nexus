@@ -396,3 +396,25 @@
   .archive-app.archive-live.archive-crisis .archive-story {height:600px}
   .archive-app.archive-live.archive-crisis .archive-live-scene {height:180px}
 }
+
+
+/* Countdown urgency: only the final ten seconds flash vivid red. */
+.archive-app.archive-live.archive-crisis .archive-digital-clock.urgent,
+.archive-app.archive-live.archive-court .archive-digital-clock.urgent,
+.archive-app.archive-live.archive-question .archive-digital-clock.urgent {
+  color:#ff5252;
+  text-shadow:0 0 12px rgba(255,60,60,.8),0 0 32px rgba(255,60,60,.4);
+  animation:archive-red-alert .65s ease-in-out infinite alternate;
+}
+.archive-app.archive-live.archive-crisis .archive-digital-clock.urgent .archive-clock-dot {color:#ff5252}
+.archive-court-timer {display:flex;justify-content:space-between;align-items:center;gap:15px;color:#b7d2ae;font-size:11px;letter-spacing:.17em;margin:0 auto;padding:2px 0 4px}
+.archive-app.archive-live.archive-court .archive-court-timer .archive-digital-clock,
+.archive-app.archive-live.archive-question .archive-court-timer .archive-digital-clock {
+  font:700 clamp(31px,4vw,50px)/1.1 Consolas,'Cascadia Mono','Courier New',monospace;
+  color:#b9daa9;letter-spacing:.03em;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 18px rgba(154,210,155,.22);
+}
+.archive-app.archive-live.archive-court .archive-court-timer .archive-digital-clock.urgent,
+.archive-app.archive-live.archive-question .archive-court-timer .archive-digital-clock.urgent {color:#ff5252;text-shadow:0 0 20px rgba(255,60,60,.65)}
+@keyframes archive-red-alert {from{opacity:1;transform:scale(1)}to{opacity:.38;transform:scale(1.045)}}
+@media(prefers-reduced-motion:reduce){.archive-app .archive-digital-clock.urgent{animation:none!important}}
