@@ -8,19 +8,18 @@ export default function LandingPage({ onArchive }) {
       <div className="history-landing-shade" aria-hidden="true" />
       <header className="history-landing-header">
         <span className="history-brand"><span className="history-brand-symbol">◈</span> NEURAL NEXUS</span>
-        <span className="history-header-note">THE LAST ARCHIVE · 2847</span>
+        <span className="history-header-note">CHRONO BUREAU · 2978</span>
       </header>
       <section className="history-landing-hero">
-        <div className="history-hero-kicker">THE PAST IS WAITING</div>
-        <h1>History isn't written.<br /><em>It's witnessed.</em></h1>
-        <p>Enter the moments that changed the world.</p>
+        <h1>The Last <em>Archive.</em></h1>
+        <p>Help restore the missing pieces of history from the year 2978.</p>
         <button type="button" className="history-hero-cta" onClick={onArchive}>
-          Explore history <span aria-hidden="true">↗</span>
+          Enter the archive <span aria-hidden="true">↗</span>
         </button>
       </section>
       <footer className="history-landing-footer">
-        <span>TRAVEL THROUGH TIME</span>
-        <span>DISCOVER · QUESTION · REMEMBER</span>
+        <span>RECOVER THE PAST</span>
+        <span>EXPLORE · DISCOVER · RESTORE</span>
       </footer>
     </main>
   );
