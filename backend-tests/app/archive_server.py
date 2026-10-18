@@ -272,30 +272,53 @@ def verdict(body: VerdictRequest):
             found = evidence(history)
             if body.response.strip() and phase == "COURT":
                 record(cur, body.session_id, "court_answer", {"text": body.response.strip()})
-            # Provisional archive acceptance: evidence, a causal testimony, and an answer.
-            # This is NOT a verified historical accuracy judgment.
-            has_cause = any(word in testimony.lower() for word in
-                            ("because", "due to", "caused", "led to", "resulted", "because of"))
-            answered = bool(body.response.strip()) if phase == "COURT" else any(
-                kind == "court_answer" for kind, _ in history)
-            approved = bool(found) and has_cause and answered
+            # Deterministic, inspectable concept coverage. AI never decides the verdict.
+            answer = body.response.strip() if phase == "COURT" else next(
+                (data.get("text", "") for kind, data in reversed(history)
+                 if kind == "court_answer" and isinstance(data, dict)), "")
+            combined = (testimony + " " + answer).lower()
+            representation = (
+                ("represent" in combined and ("tax" in combined or "parliament" in combined))
+                or "no say" in combined
+            )
+            trade = ("east india" in combined or "company" in combined
+                     or "monopoly" in combined or "tea act" in combined)
+            action_link = (("destroy" in combined or "dump" in combined or "throw" in combined
+                            or "threw" in combined or "overboard" in combined)
+                           and ("tea" in combined or "cargo" in combined))
+            concepts = {
+                "taxation_and_representation": representation,
+                "tea_trade_and_east_india_company": trade,
+                "protest_and_destroyed_tea": action_link,
+            }
+            # Two historical connections plus evidence and an answered question.
+            approved = bool(found) and bool(answer) and sum(concepts.values()) >= 2
             decision = "APPROVED" if approved else "NEEDS_REVISION"
-            # Mechanical evidence coverage, intentionally NOT an arbitrary historical grade.
+            suggestions = []
+            if not representation:
+                suggestions.append("Explain why taxation without colonial representation was disputed.")
+            if not trade:
+                suggestions.append("Connect the Tea Act or East India Company's trade position to the protest.")
+            if not action_link:
+                suggestions.append("Explain why the protesters destroyed the tea cargo in Boston Harbor.")
+            if not found:
+                suggestions.append("Recover evidence by interviewing a merchant or inspecting cargo records.")
+            if not answer:
+                suggestions.append("Answer the Archivist's follow-up question.")
             report = {
                 "decision": decision,
-                "decision_basis": "Provisional archive review: evidence found, causal explanation, and Archivist answer. Not a factual accuracy certification.",
-                "checks": {"evidence_recovered": bool(found), "causal_explanation": has_cause,
-                           "archivist_answered": answered},
+                "decision_basis": "Provisional rule-based historical-concept review; not a certified factual-accuracy judgment.",
+                "checks": {"evidence_recovered": bool(found), "archivist_answered": bool(answer), **concepts},
+                "strengths": [key.replace("_", " ").capitalize() for key, matched in concepts.items() if matched],
+                "improvements": suggestions,
                 "evidence_ids": list(found),
                 "evidence_count": len(found),
                 "evidence_total": len(CLUES),
                 "score": archive_score(history),
                 "testimony": testimony,
-                "court_answer": body.response.strip() if phase == "COURT" else "",
-                "feedback": (
-                    "You recovered " + str(len(found)) + " of " + str(len(CLUES)) +
-                    " available evidence threads. This is a discovery report, not a historical accuracy score."
-                ),
+                "court_answer": answer,
+                "feedback": ("Your explanation connects multiple historical factors." if approved
+                             else "The archive needs more specific historical connections."),
                 "historical_review": [
                     {"topic": "Taxation and representation", "fact": CLUES["taxation_dispute"],
                      "discovered": "taxation_dispute" in found},
