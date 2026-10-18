@@ -328,6 +328,21 @@ def verdict(body: VerdictRequest):
             return {"phase": "REVIEW", **report}
 
 
+@app.post("/archive/save")
+def save_visit(body: ExtractRequest):
+    """Bookmark a run as an archival visit, not a pause of the server clock."""
+    with connect() as db:
+        with db.cursor() as cur:
+            phase=active_session(cur,body.session_id)
+            history=session_events(cur,body.session_id)
+            if not any(kind=="visit_saved" for kind,_ in history):
+                record(cur,body.session_id,"visit_saved",
+                       {"at":datetime.now(timezone.utc).isoformat(),"phase":phase})
+                db.commit()
+    return {"saved":True,"session_id":body.session_id,"phase":phase,
+            "note":"Visit archived; active server countdown is not paused."}
+
+
 @app.get("/archive/saves")
 def saves(limit: int = 30):
     """Recent runs from Oracle, including verdict summaries when available."""
