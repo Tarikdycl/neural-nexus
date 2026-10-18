@@ -13,7 +13,8 @@ const MISSIONS = {
   [PARIS]: { title:'Storming the Bastille', place:'PARIS · 1789', image:'/images/missions/storming-bastille.png', intro:'Paris, July 14, 1789. A crowd gathers outside the Bastille. People seek ammunition as unrest grows. Ask a citizen, inspect the fortress or look around.', scene:'/images/missions/storming-bastille.png', evidence:{
     royal_authority:{title:'Royal authority',description:'The Bastille was a symbol of royal power and arbitrary imprisonment.'},
     gunpowder_search:{title:'Gunpowder stores',description:'The crowd sought arms and ammunition at the fortress.'},
-    political_crisis:{title:'Political crisis',description:'Economic pressures, political conflict and distrust of royal authority fueled unrest.'}
+    political_crisis:{title:'Political crisis',description:'Economic pressures, political conflict and distrust of royal authority fueled unrest.'},
+    necker_dismissal:{title:'Dismissal of Jacques Necker',description:'The king dismissed the popular finance minister in July 1789, inflaming unrest in Paris.'}
   }}
 };
 const api = async (path, body) => {
@@ -251,7 +252,7 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
           <div className="archive-chat-head"><div className="archive-kicker">LIVE HISTORICAL SIMULATION</div><h1>{mission.title}</h1><p>Ask. Investigate. Remember.</p></div>
           <div className="archive-messages" aria-live="polite">{messages.map((m,i)=><div key={i} className={'archive-message archive-msg-'+m.by}><span>{m.by === 'player' ? 'YOU' : 'THE ARCHIVE'}{m.source === 'fallback' ? ' · BACKUP' : ''}</span><p>{m.text}</p></div>)}<div ref={logEnd}/></div>
           <form className="archive-chat-form" onSubmit={sendAction}><input aria-label="Describe your action" placeholder={scenarioId === PARIS ? "I ask a citizen why the crowd is here…" : "I ask a merchant why the colonists are protesting…"} value={input} onChange={e=>setInput(e.target.value)} disabled={busy} maxLength={1000}/><button type="submit" disabled={busy || !input.trim()}>Send ↗</button></form>
-          <div className="archive-chat-foot"><span>{busy ? 'Reconstructing the moment…' : 'Natural-language actions · OCI AI'}</span><span className="archive-crisis-actions"><button className="archive-link" onClick={saveAndReturn} disabled={busy}>Save and Return to the Portal ↗</button><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></span></div>
+          <div className="archive-chat-foot"><span>{busy ? 'Reconstructing the moment…' : 'Natural-language actions · OCI AI'}</span><span className="archive-crisis-actions"><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></span></div>
         </section>
         <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2><div className="archive-score-counter">✦ {score} / 100</div>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {mission.evidence[id]?.title || titleFor(id)}</b><p>{mission.evidence[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
       </div>
