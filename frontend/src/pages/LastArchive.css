@@ -36,3 +36,44 @@
 .archive-live .archive-evidence h2 {line-height:1.25}
 @media(max-width:830px){.archive-live-layout{grid-template-columns:1fr}.archive-live .archive-story{min-height:570px}.archive-live-scene{height:110px}.archive-messages{height:240px}.archive-casefile{margin-bottom:35px}}
 @media(max-width:470px){.archive-chat-head,.archive-messages{padding-left:16px;padding-right:16px}.archive-chat-form{margin-left:15px;margin-right:15px}.archive-chat-foot{padding-left:15px;padding-right:15px}.archive-chat-form button{padding:10px}.archive-live .archive-count{font-size:30px}}
+
+
+/* Court of Time — Celestial Arbiter environment art.
+   Asset: frontend/public/images/backgrounds/celestial-arbiter.png */
+.archive-live.archive-court,
+.archive-live.archive-question {
+  background-image:
+    linear-gradient(90deg, rgba(8, 15, 27, .83) 0%, rgba(10, 18, 32, .57) 45%, rgba(9, 16, 28, .72) 100%),
+    url('/images/backgrounds/celestial-arbiter.png');
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+.archive-live.archive-court .archive-header,
+.archive-live.archive-question .archive-header {
+  background: rgba(9, 17, 31, .72);
+  backdrop-filter: blur(12px);
+}
+.archive-live.archive-court .archive-court-hero,
+.archive-live.archive-question .archive-court-hero {
+  text-shadow: 0 3px 20px rgba(0, 0, 0, .85);
+}
+.archive-live.archive-court .archive-court-layout .archive-panel,
+.archive-live.archive-question .archive-court-layout .archive-panel {
+  background: rgba(13, 23, 40, .81);
+  border: 1px solid rgba(222, 190, 128, .27);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 12px 45px rgba(0, 0, 0, .28);
+}
+@media(max-width:830px) {
+  .archive-live.archive-court,
+  .archive-live.archive-question {
+    background-attachment: scroll;
+    background-position: center top;
+  }
+  .archive-live.archive-court .archive-court-layout .archive-panel,
+  .archive-live.archive-question .archive-court-layout .archive-panel {
+    background: rgba(13, 23, 40, .91);
+  }
+}
