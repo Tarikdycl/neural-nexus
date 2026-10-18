@@ -6,7 +6,7 @@ A chat-driven historical investigation game: investigate a historical crisis for
 
 - **The Tea in the Harbor — Boston, 1773** (playable)
 - **Storming the Bastille — Paris, 1789** (playable after one-time Oracle seed)
-- **The Wall Opens — Berlin, 1989** (artwork / coming soon)
+- **The Wall Opens — Berlin, 1989** (playable after one-time Oracle seed)
 
 Original mythology prototypes remain in the repository, but are not linked from the current landing page.
 
@@ -70,3 +70,11 @@ Each run produces:
 - a failing workflow status if any test fails.
 
 This check covers deterministic Archive unit tests **only**. It does not require Oracle credentials or spend OCI AI credits. It does not yet test the live Oracle DB, real AI output, or browser UI; those need separate protected integration tests.
+
+## Berlin 1989
+
+Play **The Wall Opens** at the Bornholmer Strasse checkpoint. Berlin includes four authored discoveries: the Schabowski travel-rule announcement, peaceful demonstrations, checkpoint crowds, and border opening. Evidence is scored out of 60, with 40 available in the Court of Time. Previous runs show in Saved Visits.
+
+Run `backend-tests/sql/archive_berlin_seed.sql` **once as ADMIN in Oracle SQL Worksheet** to register Berlin using the existing NN_SCENARIOS table. No new tables are required. Restart the Archive backend after pulling.
+
+The additional test cases run with `python -m pytest tests/test_archive_scenarios.py -v`; front-end commits are now checked by the `Archive frontend build` GitHub Actions workflow. CI results still require confirmation in GitHub Actions.
