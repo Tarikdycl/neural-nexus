@@ -1,45 +1,57 @@
-# Neural Nexus — MYTHOS
+# Neural Nexus — The Last Archive
 
-HackTN26 prototype: an interactive, child-friendly mythology story game.
+A chat-driven historical investigation game: investigate a historical crisis for 60 seconds, defend your testimony before the AI Archivist for 90 seconds, and review the verdict.
 
-**Architecture:** The AI proposes narration; the Python engine enforces visibility, movement and inventory rules. Hidden objects are not sent to the AI context before discovery.
+## Current historical cases
 
-## Run the backend
+- **The Tea in the Harbor — Boston, 1773** (playable)
+- **Storming the Bastille — Paris, 1789** (playable after one-time Oracle seed)
+- **The Wall Opens — Berlin, 1989** (artwork / coming soon)
 
-```powershell
-cd backend
-copy .env.example .env
-uv sync
-uv run uvicorn app.main:app --reload
-```
+Original mythology prototypes remain in the repository, but are not linked from the current landing page.
 
-API: http://127.0.0.1:8000/docs
+## Run locally
 
-Without an `OPENAI_API_KEY`, a deterministic demo narrator is used.
+**Backend** (Windows / Oracle Autonomous Database):
 
-## Run the frontend
+1. Configure backend-tests/.env and the ignored backend-tests/.secrets Oracle Wallet / OCI config.
+2. Install backend-tests/requirements.txt in your environment.
+3. Set the Oracle Instant Client location in ORACLE_CLIENT_DIR.
+4. Run `cd backend-tests` then `python -m uvicorn app.archive_server:app --port 8002`.
 
-```powershell
-cd frontend
-npm install
-npm run dev
-```
+**Frontend**: `cd frontend`, `npm install`, `npm run dev`.
 
-Visit http://localhost:5173
+The Vite proxy forwards `/archive` to port 8002. Confirm `/archive/health` reports `{"ok":true,"store":"oracle"}`.
 
-## Test
+### Paris scenario setup (run once)
 
-```powershell
-cd backend
-uv run pytest -q
-```
+The Oracle schema already has NN_WORLDS, NN_SCENARIOS, NN_SESSIONS and NN_EVENTS. Run **backend-tests/sql/archive_paris_seed.sql** in the ADMIN SQL Worksheet once so the Paris scenario can satisfy the NN_SESSIONS scenario foreign key. It copies the world_id of the existing Boston scenario, without changing other tables. The file is idempotent and safe to run again.
 
-## Collaboration
+## Saved Games / previous cases
 
-Create branches such as `feature/story-engine`, `feature/ui`, `feature/story-content`; open pull requests into `main`. Never commit secrets.
+**Saved Games** opens from the historical mission selection screen. The existing Oracle NN_SESSIONS + NN_EVENTS tables provide case history and retained decisions; no new history table is needed.
 
-## Hackathon scope
+API:
 
-One story: The Odyssey-inspired island adventure. Explore a clearing, search for a hidden compass, collect it, and travel to a beach. Child-friendly original prose, not a verbatim adaptation.
+- `POST /archive/start` with `{"nickname":"Chrono Agent","scenario_id":"storming_bastille_1789"}`
+- `POST /archive/action`, `POST /archive/extract`, `POST /archive/court`, `POST /archive/verdict`
+- `GET /archive/state/{session_id}`, `GET /archive/saves`, `GET /archive/saves/{session_id}`
 
-See [architecture](docs/ARCHITECTURE.md), [task breakdown](docs/TASKS.md).
+Each session saves discovered evidence, player actions, NPC replies, testimony, Court questions, answers and provisional verdicts. Older sessions may lack NPC reply events. **Saved Games is a history viewer, not a pause/resume feature.** The 60/90-second server timers continue to run independently.
+
+**Privacy / publishing warning:** these local prototype history APIs do not yet authenticate users or isolate one player's saved cases from another. Add login/authorization and ownership checks before publicly exposing saved sessions.
+
+## Architecture notes
+
+- `backend-tests/app/archive_scenarios.py`: authored facts, actions and deterministic historical concept rubrics for each scenario.
+- `backend-tests/app/archive_server.py`: Oracle-persisted event API, sessions and Saved Games.
+- `backend-tests/app/archive_logic.py`: OCI narration (no game-state authority).
+- `frontend/src/pages/LastArchive.jsx`: mission selection, chat, Court, review and history screens.
+
+AI narration may vary; actions, evidence and points are validated by Python. Verdicts are **provisional concept-coverage checks, not authenticated historical-accuracy certification**. Historical facts should be independently source-checked before an educational production release.
+
+## Tests
+
+`cd backend-tests` and run `python -m pytest tests/test_archive_scenarios.py -q`.
+
+Existing Monkey King and Odyssey subsystems remain available for the team's separate work.
