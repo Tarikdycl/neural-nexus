@@ -142,6 +142,16 @@ export default function LastArchive({ onExit }) {
     catch(err){setError(err.message);}finally{setBusy(false);}
   }
 
+  async function saveAndReturn() {
+    if (busy) return;
+    setError('');
+    try {
+      if (sessionId) await api('/save', { session_id: sessionId });
+      setSessionId('');
+      currentPhase.current = 'brief'; setPhase('brief');
+    } catch (err) { setError(err.message); }
+  }
+
   async function begin(selected='boston_tea_party_1773') {
     if (busy) return;
     setBusy(true); setError('');
@@ -192,11 +202,11 @@ export default function LastArchive({ onExit }) {
     <header className="archive-header">
       <button className="archive-link" onClick={onExit}>← Neural Nexus</button>
       <span className="archive-mark">◈ THE LAST ARCHIVE</span>
-      <span className="archive-tag">CHRONO BUREAU · CASE 001</span>
+      <span className="archive-header-right"><button className="archive-saved-link" type="button" onClick={openSaved} disabled={busy}>▤ Saved Visits →</button><span className="archive-tag">CHRONO BUREAU · CASE 001</span></span>
     </header>
     {phase === 'brief' && <section className="archive-selection archive-fade">
       <div className="archive-kicker">CHOOSE YOUR ASSIGNMENT</div>
-      <h1>Select your destination.</h1><button type="button" className="archive-saved-link" onClick={openSaved}>◫ Saved Games →</button>
+      <h1>Select your destination.</h1>
       <div className="archive-mission-gallery">
         <button type="button" className="archive-mission-card" disabled={busy} onClick={()=>begin('boston_tea_party_1773')} aria-label="Jump into The Tea in the Harbor">
           <img className="archive-mission-art" src="/images/missions/boston-tea-party.png" alt="Moonlit Boston Harbor" />
@@ -230,9 +240,9 @@ export default function LastArchive({ onExit }) {
           <div className="archive-chat-head"><div className="archive-kicker">LIVE HISTORICAL SIMULATION</div><h1>{mission.title}</h1><p>Ask. Investigate. Remember.</p></div>
           <div className="archive-messages" aria-live="polite">{messages.map((m,i)=><div key={i} className={'archive-message archive-msg-'+m.by}><span>{m.by === 'player' ? 'YOU' : 'THE ARCHIVE'}{m.source === 'fallback' ? ' · BACKUP' : ''}</span><p>{m.text}</p></div>)}<div ref={logEnd}/></div>
           <form className="archive-chat-form" onSubmit={sendAction}><input aria-label="Describe your action" placeholder={scenarioId === PARIS ? "I ask a citizen why the crowd is here…" : "I ask a merchant why the colonists are protesting…"} value={input} onChange={e=>setInput(e.target.value)} disabled={busy} maxLength={1000}/><button type="submit" disabled={busy || !input.trim()}>Send ↗</button></form>
-          <div className="archive-chat-foot"><span>{busy ? 'Chrono Bureau processing…' : 'Natural-language actions · OCI AI'}</span><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></div>
+          <div className="archive-chat-foot"><span>{busy ? 'Reconstructing the moment…' : 'Natural-language actions · OCI AI'}</span><span className="archive-crisis-actions"><button className="archive-link" onClick={saveAndReturn} disabled={busy}>Save and Return to the Portal ↗</button><button className="archive-link" onClick={()=>extract(sessionId,true)} disabled={busy}>Extract now →</button></span></div>
         </section>
-        <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2><div className="archive-score-counter">✦ {score} POINTS</div>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {mission.evidence[id]?.title || titleFor(id)}</b><p>{mission.evidence[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
+        <aside className="archive-evidence archive-casefile"><div className="archive-kicker">FIELD NOTES · AUTOMATICALLY RECORDED</div><h2>Recovered evidence <span>{evidence.length}</span></h2><div className="archive-score-counter">✦ {score} / 100</div>{evidence.length ? evidence.map(id => <div className="archive-evidence-entry" key={id}><b>◈ {mission.evidence[id]?.title || titleFor(id)}</b><p>{mission.evidence[id]?.description || 'Historical evidence recovered.'}</p></div>) : <div className="archive-empty-evidence">No evidence recovered yet. Start investigating through chat.</div>}</aside>
       </div>
     </section>}
     {phase === 'fracture' && <section className="archive-center archive-break"><div className="archive-ring">◈</div><div className="archive-kicker">TEMPORAL EXTRACTION</div><h1>TIME IS CALLED.</h1><p>Your discoveries have been preserved in the archive.</p></section>}
@@ -250,7 +260,7 @@ export default function LastArchive({ onExit }) {
             : <p className="archive-no-evidence">No evidence recovered. Your testimony will be evaluated without field observations.</p>}
           </div>}
         </div>
-        {phase === 'court' ? <form onSubmit={submitTestimony}><textarea aria-label="Your testimony" rows={4} value={testimony} onChange={e=>setTestimony(e.target.value)} maxLength={2500} placeholder="What happened, and why?"/><button className="archive-primary" disabled={busy || testimony.trim().length < 5}>{busy ? 'Consulting Archivist…' : 'Present testimony →'}</button></form> : <form onSubmit={submitCourtAnswer}><textarea aria-label="Answer the Archivist" rows={4} value={courtAnswer} onChange={e=>setCourtAnswer(e.target.value)} maxLength={2500} placeholder="Your answer to the Archivist…"/><button className="archive-primary" disabled={busy}>{busy ? 'Sealing the record…' : 'Receive verdict →'}</button></form>}
+        {phase === 'court' ? <form onSubmit={submitTestimony}><textarea aria-label="Your testimony" rows={4} value={testimony} onChange={e=>setTestimony(e.target.value)} maxLength={2500} placeholder="What happened, and why?"/><button className="archive-primary" disabled={busy || testimony.trim().length < 5}>{busy ? 'The Archivist is reviewing…' : 'Present testimony →'}</button></form> : <form onSubmit={submitCourtAnswer}><textarea aria-label="Answer the Archivist" rows={4} value={courtAnswer} onChange={e=>setCourtAnswer(e.target.value)} maxLength={2500} placeholder="Your answer to the Archivist…"/><button className="archive-primary" disabled={busy}>{busy ? 'Rendering judgment…' : 'Receive verdict →'}</button></form>}
       </div>
     </section>}
     {phase === 'verdict' && report && <section className="archive-container archive-verdict-page archive-fade">
@@ -258,32 +268,32 @@ export default function LastArchive({ onExit }) {
       <h1>{report.decision === 'APPROVED' ? 'Testimony approved.' : 'The archive remains incomplete.'}</h1>
       <p className={'archive-decision archive-decision-'+report.decision}>{report.decision === 'APPROVED' ? '◈ ARCHIVIST APPROVED' : '◇ ARCHIVIST REQUESTS REVISION'}</p>
       <p className="archive-verdict-subtitle">Your discovery review</p>
-      <div className="archive-verdict-score"><strong>{report.evidence_count} <span>/ {report.evidence_total}</span></strong><span>HISTORICAL THREADS RECOVERED · {report.score ?? report.evidence_count * 25} POINTS</span></div>
+      <div className="archive-verdict-score"><strong>{report.evidence_count} <span>/ {report.evidence_total}</span></strong><span>HISTORICAL THREADS RECOVERED · {report.score ?? 0} / 100 POINTS</span></div>
       <div className="archive-verdict-grid">
         <section className="archive-verdict-panel"><div className="archive-kicker">ARCHIVIST'S ASSESSMENT</div><p>{report.feedback}</p>{report.strengths?.length > 0 && <><div className="archive-kicker">WHAT YOU CONNECTED</div>{report.strengths.map(item=><p key={item}>✓ {item}</p>)}</>}{report.improvements?.length > 0 && <><div className="archive-kicker">WHAT TO INVESTIGATE NEXT</div>{report.improvements.map(item=><p key={item}>→ {item}</p>)}</>}<div className="archive-kicker">YOUR TESTIMONY</div><p>{report.testimony}</p>{report.court_answer && <><div className="archive-kicker">FINAL ANSWER</div><p>{report.court_answer}</p></>}</section>
         <section className="archive-verdict-panel"><div className="archive-kicker">HISTORICAL REVIEW</div>{report.historical_review.map(item=><div className="archive-verdict-topic" key={item.topic}><strong>{item.discovered ? '✓' : '○'} {item.topic}</strong><p>{item.fact}</p></div>)}</section>
       </div>
       <p className="archive-verdict-disclaimer">{report.decision_basis || "Provisional evidence review; historical accuracy scoring is not yet implemented."}</p>
-      <button className="archive-primary" onClick={() => { setError(''); setReport(null); setSessionId(''); currentPhase.current = 'brief'; setPhase('brief'); }}>Return to the Portal →</button>
+      <button className="archive-primary" onClick={() => { setError(''); setReport(null); setSessionId(''); currentPhase.current = 'brief'; setPhase('brief'); }}>Save and Return to the Portal →</button>
     </section>}
     {phase === 'saved' && <section className="archive-container archive-saves archive-fade">
-      <div className="archive-kicker">CHRONO BUREAU · PLAYER ARCHIVE</div><h1>Saved Games</h1>
+      <div className="archive-kicker">CHRONO BUREAU · PLAYER ARCHIVE</div><h1>Saved Visits</h1>
       <p>Review your investigations and the Archivist's decisions.</p>
       <div className="archive-saves-grid">{savedGames.length ? savedGames.map(game=><button type="button" className="archive-save-card" key={game.session_id} onClick={()=>openSavedDetail(game.session_id)}>
         <strong>{game.title}</strong><span>{game.started_at?.slice(0,16).replace('T',' ') || 'Previous run'}</span>
-        <span>{game.score} POINTS · {game.evidence_count} EVIDENCE</span>
+        <span>{game.score} POINTS / 100 · {game.evidence_count} EVIDENCE</span>
         <em>{game.decision==='APPROVED'?'APPROVED':game.decision==='NEEDS_REVISION'?'NEEDS REVISION':game.phase}</em>
       </button>):<p>No saved investigations yet.</p>}</div>
       <button className="archive-primary" onClick={()=>setPhase('brief')}>← Return to Portal</button>
     </section>}
     {phase === 'savedDetail' && selectedSave && <section className="archive-container archive-saves archive-fade">
       <div className="archive-kicker">SAVED CASE · ARCHIVIST RECORDS</div><h1>{selectedSave.title}</h1>
-      <p>{selectedSave.score} points · {selectedSave.evidence.length} recovered evidence · {selectedSave.verdict?.decision || selectedSave.phase}</p>
+      <p>{selectedSave.score} / 100 points · {selectedSave.evidence.length} recovered evidence · {selectedSave.verdict?.decision || selectedSave.phase}</p>
       <div className="archive-verdict-grid">
         <section className="archive-verdict-panel"><div className="archive-kicker">RECOVERED EVIDENCE</div>{selectedSave.evidence.map(e=><p key={e.id}>◈ {e.fact}</p>)}<div className="archive-kicker">TRANSCRIPT</div>{selectedSave.transcript.map((entry,i)=><p key={i}><strong>{entry.type.replaceAll('_',' ').toUpperCase()}</strong>: {entry.data?.text || ''}</p>)}</section>
         <section className="archive-verdict-panel"><div className="archive-kicker">ARCHIVIST'S DECISION</div><h2>{selectedSave.verdict?.decision || 'Awaiting judgment'}</h2><p>{selectedSave.verdict?.feedback || 'This run has not reached a verdict.'}</p><div className="archive-kicker">WHAT TO IMPROVE</div>{selectedSave.verdict?.improvements?.map((item,i)=><p key={i}>→ {item}</p>)}<div className="archive-kicker">WHAT YOU CONNECTED</div>{selectedSave.verdict?.strengths?.map((item,i)=><p key={i}>✓ {item}</p>)}</section>
       </div>
-      <button className="archive-primary" onClick={openSaved}>← All Saved Games</button>
+      <button className="archive-primary" onClick={openSaved}>← All Saved Visits</button>
     </section>}
     {phase === 'expired' && <section className="archive-center archive-fade"><div className="archive-kicker">COURT OF TIME</div><h1>Time is up.</h1><p>Your testimony window has closed.</p><button className="archive-primary" onClick={()=>begin(scenarioId)}>Try again ↻</button></section>}
     {error && <div className="archive-alert" role="alert">{error}</div>}
