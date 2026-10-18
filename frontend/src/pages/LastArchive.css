@@ -266,3 +266,29 @@
  .archive-app.archive-live.archive-brief .archive-selection{padding-top:42px}
  .archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-art{height:225px}
 }
+
+
+/* Unified midnight palette for the historical gallery: no cream slabs. */
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-card,
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-upcoming {
+  background:#111c2e;
+  border:1px solid rgba(199,169,116,.43);
+  box-shadow:0 16px 42px rgba(1,7,16,.39);
+  color:#f4ead9;
+}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-details {
+  background:#101c2e;
+  color:#f4ead9;
+  padding:20px 22px;
+}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-details strong {
+  color:#f3e6cf;
+  font-size:clamp(20px,2vw,26px);
+}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-meta {color:#abb8cb}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-action {color:#e1bc80}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-soon {color:#b8a585}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-card:hover:not(:disabled) {
+  border-color:#dfbe81;
+}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-art {object-position:center 43%}
