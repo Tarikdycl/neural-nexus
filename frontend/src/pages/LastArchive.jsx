@@ -41,6 +41,7 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
   const [phase, setPhase] = useState(initialView === 'saved' ? 'saved' : 'brief');
   const [scenarioId, setScenarioId] = useState('boston_tea_party_1773');
   const [savedGames, setSavedGames] = useState([]);
+  const [showUnfinishedVisits, setShowUnfinishedVisits] = useState(false);
   const [selectedSave, setSelectedSave] = useState(null);
   const [sessionId, setSessionId] = useState('');
   const [remaining, setRemaining] = useState(60);
@@ -59,6 +60,9 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
   const [source, setSource] = useState('');
   const [evidencePulse, setEvidencePulse] = useState(0);
   const mission = MISSIONS[scenarioId] || MISSIONS.boston_tea_party_1773;
+  const completedVisits = savedGames.filter(game => game.decision || game.phase === 'REVIEW');
+  const visibleVisits = showUnfinishedVisits ? savedGames : completedVisits;
+  const unfinishedCount = savedGames.length - completedVisits.length;
   const logEnd = useRef(null);
   const clockLock = useRef(false);
   const extractionLock = useRef(false);
@@ -142,7 +146,7 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
 
   async function openSaved() {
     setError('');setBusy(true);
-    try { const data=await api('/saves');setSavedGames(data.saves||[]);setPhase('saved'); }
+    try { const data=await api('/saves?limit=100');setSavedGames(data.saves||[]);setPhase('saved'); }
     catch(err){setError(err.message);}finally{setBusy(false);}
   }
   useEffect(() => {
@@ -304,12 +308,18 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
     </section>}
     {phase === 'saved' && <section className="archive-container archive-saves archive-fade">
       <div className="archive-kicker">CHRONO BUREAU · PLAYER ARCHIVE</div><h1>Saved Visits</h1>
-      <p>Review your investigations and the Archivist's decisions.</p>
-      <div className="archive-saves-grid">{savedGames.length ? savedGames.map(game=><button type="button" className="archive-save-card" key={game.session_id} onClick={()=>openSavedDetail(game.session_id)}>
+      <p>Review completed investigations and the Archivist's decisions.</p>
+      <div className="archive-visit-filters">
+        <span>{completedVisits.length} completed · {unfinishedCount} unfinished</span>
+        <button type="button" className="archive-visit-filter-button" aria-pressed={showUnfinishedVisits} onClick={()=>setShowUnfinishedVisits(value=>!value)}>
+          {showUnfinishedVisits ? 'Hide unfinished visits' : 'Show unfinished visits'}
+        </button>
+      </div>
+      <div className="archive-saves-grid">{visibleVisits.length ? visibleVisits.map(game=><button type="button" className="archive-save-card" key={game.session_id} onClick={()=>openSavedDetail(game.session_id)}>
         <strong>{game.title}</strong><span>{game.started_at?.slice(0,16).replace('T',' ') || 'Previous run'}</span>
         <span>{game.score} POINTS / 100 · {game.evidence_count} EVIDENCE</span>
         <em>{game.decision==='APPROVED'?'APPROVED':game.decision==='NEEDS_REVISION'?'NEEDS REVISION':game.phase}</em>
-      </button>):<p>No saved investigations yet.</p>}</div>
+      </button>):<p>{savedGames.length ? 'No completed investigations yet. Show unfinished visits to view earlier attempts.' : 'No saved investigations yet.'}</p>}</div>
       <button className="archive-primary" onClick={()=>setPhase('brief')}>← Return to Portal</button>
     </section>}
     {phase === 'savedDetail' && selectedSave && <section className="archive-container archive-saves archive-fade">
