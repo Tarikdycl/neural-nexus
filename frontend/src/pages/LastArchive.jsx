@@ -128,17 +128,14 @@ export default function LastArchive({ onExit }) {
       <span className="archive-mark">◈ THE LAST ARCHIVE</span>
       <span className="archive-tag">CHRONO BUREAU · CASE 001</span>
     </header>
-    {phase === 'brief' && <section className="archive-center archive-fade">
-      <div className="archive-kicker">YEAR 2847 · THE GREAT ERASURE</div>
-      <h1>History has vanished.<br/><em>Recover what remains.</em></h1>
-      <p>Travel to Boston Harbor, 1773. Investigate through natural-language chat, preserve evidence, and defend your findings before the AI Archivist.</p>
-      <button type="button" className="archive-mission-card" disabled={busy} onClick={begin} aria-label="Enter The Tea in the Harbor mission">
-        <img className="archive-mission-art" src="/images/missions/boston-tea-party.png" alt="Boston Harbor under moonlight during the Tea Party" />
+    {phase === 'brief' && <section className="archive-center archive-selection archive-fade">
+      <div className="archive-kicker">CHOOSE YOUR MOMENT</div>
+      <h1>Jump into history.</h1>
+      <button type="button" className="archive-mission-card" disabled={busy} onClick={begin} aria-label="Jump into The Tea in the Harbor">
+        <img className="archive-mission-art" src="/images/missions/boston-tea-party.png" alt="Boston Harbor under moonlight" />
         <span className="archive-mission-details">
-          <span className="archive-mission-eyebrow">MISSION 001 <span className="archive-mission-status">● AVAILABLE</span></span>
           <strong>The Tea in the Harbor</strong>
-          <span className="archive-mission-meta">DECEMBER 16, 1773 · BOSTON HARBOR</span>
-          <span className="archive-mission-action">{busy ? 'Opening temporal gateway…' : 'Enter historical crisis'} <span aria-hidden="true">→</span></span>
+          <span className="archive-mission-meta">BOSTON · 1773 <span className="archive-mission-action">{busy ? 'Opening…' : 'Jump in →'}</span></span>
         </span>
       </button>
     </section>}
