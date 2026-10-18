@@ -59,3 +59,14 @@ Existing Monkey King and Odyssey subsystems remain available for the team's sepa
 ## NPC evidence rule (October 2026)
 
 Natural greetings and follow-up questions can lead to discoveries **when the NPC's actual reply states a recognizable curated historical fact**. The action engine selects which scenario facts are allowed; `detect_discoveries` validates the narrated text and awards only unique, permitted evidence IDs after the reply. The API may return multiple `discoveries` in one response. Oracle records both the NPC reply and the granted evidence. Narration remains AI-generated and must still be checked for unsupported claims; matching patterns are conservative, not semantic fact-checking.
+
+## Automated QA (no copying test logs)
+
+GitHub Actions runs `.github/workflows/archive-tests.yml` automatically on changes to Archive backend logic, tests, requirements or the workflow, and on pull requests touching those files. It can also be run manually with **Actions → Last Archive QA → Run workflow**.
+
+Each run produces:
+- an at-a-glance PASS/FAIL table in the GitHub Actions run **Summary**;
+- downloadable **archive-test-report** containing `QA_REPORT.md`, JUnit XML and full pytest output;
+- a failing workflow status if any test fails.
+
+This check covers deterministic Archive unit tests **only**. It does not require Oracle credentials or spend OCI AI credits. It does not yet test the live Oracle DB, real AI output, or browser UI; those need separate protected integration tests.
