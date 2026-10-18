@@ -293,3 +293,53 @@
 }
 .archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-art {object-position:center 43%}
 
+
+
+/* Focused gallery: three larger historical assignments, sage-accented. */
+.archive-app.archive-live.archive-brief .archive-mission-gallery {max-width:1160px;grid-template-columns:repeat(3,minmax(0,1fr));gap:23px}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-art {height:260px}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-card,
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-upcoming {border-color:rgba(159,191,157,.38)}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-card:hover:not(:disabled) {border-color:#b6d1af}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-action {color:#b9d6af}
+.archive-app.archive-live.archive-brief .archive-mission-gallery .archive-mission-soon {color:#9db59c}
+.archive-app.archive-live.archive-brief .archive-selection .archive-kicker {color:#b9d2af}
+.archive-app.archive-live.archive-brief .archive-selection {padding-top:75px}
+.archive-live .archive-header {border-bottom-color:rgba(171,204,166,.2)}
+/* Cinematic Boston Harbor art uses the dedicated gameplay image, NOT the small mission thumbnail. */
+.archive-app.archive-live.archive-crisis .archive-live-scene {
+  min-height:235px;
+  height:clamp(235px,25vw,355px);
+  background-image:linear-gradient(180deg,rgba(10,20,34,.06) 28%,rgba(10,20,34,.68) 100%),url('/images/scenes/boston-harbor.png');
+  background-size:cover;
+  background-position:center 53%;
+  border-radius:12px 12px 0 0;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
+  padding:21px 25px;
+}
+.archive-app.archive-live.archive-crisis .archive-live-scene>span {color:#d5e8d1;font-size:10px;letter-spacing:.2em;font-weight:700;text-shadow:0 2px 12px #020b18}
+.archive-app.archive-live.archive-crisis .archive-story {overflow:hidden}
+.archive-app.archive-live.archive-crisis .archive-chat-head h1 {font-size:clamp(26px,3vw,39px);color:#edf3e9}
+.archive-app.archive-live.archive-crisis .archive-chat-head .archive-kicker,
+.archive-app.archive-live.archive-crisis .archive-casefile .archive-kicker {color:#acc8a6}
+.archive-app.archive-live.archive-crisis .archive-casefile {border-color:rgba(166,196,160,.28)}
+.archive-app.archive-live.archive-crisis .archive-count.archive-digital-clock {
+  font-family:Consolas,'Cascadia Mono','Courier New',monospace;
+  font-size:clamp(31px,4vw,52px);
+  font-weight:700;letter-spacing:.035em;font-variant-numeric:tabular-nums;
+  color:#b9daa9;text-shadow:0 0 22px rgba(154,210,155,.3);
+  display:inline-flex;align-items:center;gap:12px;
+}
+.archive-app.archive-live.archive-crisis .archive-clock-dot {font-size:12px;color:#a9c9a5;animation:archive-pulse 1.2s ease-in-out infinite}
+.archive-app.archive-live.archive-crisis .archive-digital-clock.urgent {color:#efd39f}
+.archive-app.archive-live.archive-crisis .archive-chat-form {border-color:rgba(164,199,161,.5)}
+.archive-app.archive-live.archive-crisis .archive-chat-form:focus-within {border-color:#b8d6ad}
+.archive-app.archive-live.archive-crisis .archive-chat-form button {background:#b5cdaa;color:#102337}
+.archive-app.archive-live.archive-crisis .archive-evidence-entry b {color:#bed5b5}
+.archive-app.archive-live.archive-crisis .archive-chat-foot .archive-link {color:#b8d6ad}
+@keyframes archive-pulse {50%{opacity:.3}}
+@media(max-width:950px){.archive-app.archive-live.archive-brief .archive-mission-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:570px){.archive-app.archive-live.archive-brief .archive-mission-gallery{grid-template-columns:1fr}.archive-app.archive-live.archive-crisis .archive-live-scene{min-height:175px;height:190px}}
+@media(prefers-reduced-motion:reduce){.archive-app.archive-live.archive-crisis .archive-clock-dot{animation:none}}
