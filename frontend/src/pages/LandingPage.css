@@ -1,6 +1,6 @@
-/* Standalone historical landing — isolates visuals from the legacy fantasy stylesheet. */
+﻿/* Standalone historical landing â€” isolates visuals from the legacy fantasy stylesheet. */
 .history-landing {position:relative;isolation:isolate;min-height:100svh;display:flex;flex-direction:column;overflow:hidden;background:#0b1423;color:#f5eee1;font-family:'DM Sans',sans-serif}
-.history-landing-art {position:absolute;inset:0;z-index:-2;background-image:url('/images/backgrounds/celestial-arbiter.png');background-position:center 45%;background-size:cover}
+.history-landing-art {position:absolute;inset:0;z-index:-2;background-image:url('/images/backgrounds/archive-throne-hall.png');background-position:center 45%;background-size:cover}
 .history-landing-shade {position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(7,14,27,.9),rgba(8,16,30,.55) 62%,rgba(6,13,25,.33)),linear-gradient(0deg,rgba(7,14,27,.88),transparent 40%,rgba(7,14,27,.4))}
 .history-landing-header,.history-landing-footer {display:flex;align-items:center;justify-content:space-between;gap:18px;padding:28px clamp(24px,6vw,90px)}
 .history-landing-header {border-bottom:1px solid rgba(224,197,147,.2)}
@@ -29,3 +29,4 @@
 .history-brand-symbol {color:#b6cbaa}
 .history-header-note,.history-landing-footer {color:#b7c7b6}
 @media(max-width:650px){.history-landing-hero h1{font-size:clamp(49px,11vw,70px)}}
+
