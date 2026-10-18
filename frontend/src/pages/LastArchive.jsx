@@ -140,15 +140,13 @@ export default function LastArchive({ onExit }) {
           </span>
         </button>
         {[
-          { id:'london', title:'The Great Fire', place:'LONDON · 1666', year:'1666', symbol:'✦' },
-          { id:'pompeii', title:'The Last Day of Pompeii', place:'POMPEII · 79 CE', year:'79 CE', symbol:'◈' },
-          { id:'endurance', title:'The Endurance', place:'ANTARCTICA · 1915', year:'1915', symbol:'❄' },
-          { id:'constantinople', title:'The Fall of Constantinople', place:'CONSTANTINOPLE · 1453', year:'1453', symbol:'◇' }
+          { id:'bastille', title:'Storming the Bastille', place:'PARIS · 1789', image:'/images/missions/storming-bastille.png' },
+          { id:'berlin', title:'The Wall Opens', place:'BERLIN · 1989', image:'/images/missions/berlin-wall.png' },
+          { id:'independence', title:'The Independence Debate', place:'PHILADELPHIA · 1776', image:'/images/missions/independence-debate.png' },
+          { id:'missile', title:'Thirteen Days', place:'CUBA / WASHINGTON · 1962', image:'/images/missions/cuban-missile-crisis.png' }
         ].map(mission => (
           <article className="archive-mission-card archive-mission-upcoming" key={mission.id} aria-label={mission.title + ' coming soon'}>
-            <div className={'archive-mission-art archive-art-'+mission.id} aria-hidden="true">
-              <span className="archive-art-symbol">{mission.symbol}</span><span className="archive-art-year">{mission.year}</span>
-            </div>
+            <img className="archive-mission-art" src={mission.image} alt="" loading="lazy" />
             <div className="archive-mission-details">
               <strong>{mission.title}</strong>
               <span className="archive-mission-meta">{mission.place}<span className="archive-mission-soon">COMING SOON</span></span>
