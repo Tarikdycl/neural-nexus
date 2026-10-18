@@ -343,3 +343,56 @@
 @media(max-width:950px){.archive-app.archive-live.archive-brief .archive-mission-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:570px){.archive-app.archive-live.archive-brief .archive-mission-gallery{grid-template-columns:1fr}.archive-app.archive-live.archive-crisis .archive-live-scene{min-height:175px;height:190px}}
 @media(prefers-reduced-motion:reduce){.archive-app.archive-live.archive-crisis .archive-clock-dot{animation:none}}
+
+
+/* Layout refinement: lower the assignment gallery into the optical center. */
+.archive-app.archive-live.archive-brief .archive-selection {
+  min-height:calc(100svh - 70px);
+  justify-content:center;
+  padding-top:clamp(90px,13vh,165px);
+  padding-bottom:clamp(110px,18vh,200px);
+}
+.archive-app.archive-live.archive-brief .archive-selection h1 {margin-bottom:16px}
+
+/* Historical gameplay: no competing full-screen image; let the harbor be the scene. */
+.archive-app.archive-live.archive-crisis {
+  background:radial-gradient(ellipse at 50% 15%,#223447 0%,#101b2c 52%,#0b1423 100%);
+  min-height:100svh;
+}
+.archive-app.archive-live.archive-crisis .archive-container {
+  width:min(1320px,100%);
+  padding-top:clamp(20px,4vh,44px);
+}
+.archive-app.archive-live.archive-crisis .archive-live-layout {grid-template-columns:minmax(0,2.1fr) minmax(250px,.8fr);gap:18px}
+.archive-app.archive-live.archive-crisis .archive-story {
+  min-height:0;
+  height:min(740px,calc(100svh - 180px));
+  max-height:none;
+  border-color:rgba(158,192,158,.34);
+  background:#16243a;
+}
+.archive-app.archive-live.archive-crisis .archive-live-scene {height:clamp(185px,27vh,285px);min-height:0}
+.archive-app.archive-live.archive-crisis .archive-chat-head {padding:16px 23px 3px}
+.archive-app.archive-live.archive-crisis .archive-chat-head h1 {margin:5px 0;font-size:clamp(25px,2.8vw,35px)}
+.archive-app.archive-live.archive-crisis .archive-chat-head p {margin:5px 0;font-size:12px}
+.archive-app.archive-live.archive-crisis .archive-messages {
+  flex:1;
+  height:auto;
+  min-height:115px;
+  padding:13px 23px;
+}
+.archive-app.archive-live.archive-crisis .archive-chat-form {margin:0 20px}
+.archive-app.archive-live.archive-crisis .archive-chat-foot {padding:9px 20px 13px}
+.archive-app.archive-live.archive-crisis .archive-casefile {background:rgba(24,39,57,.88)}
+.archive-app.archive-live.archive-crisis .archive-casefile h2 {font-size:23px}
+.archive-app.archive-live.archive-crisis .archive-status {margin-bottom:14px}
+@media(max-width:830px) {
+  .archive-app.archive-live.archive-brief .archive-selection {padding-top:85px;padding-bottom:90px}
+  .archive-app.archive-live.archive-crisis .archive-live-layout {grid-template-columns:1fr}
+  .archive-app.archive-live.archive-crisis .archive-story {height:640px;max-height:none}
+  .archive-app.archive-live.archive-crisis .archive-casefile {margin-bottom:20px}
+}
+@media(max-width:470px) {
+  .archive-app.archive-live.archive-crisis .archive-story {height:600px}
+  .archive-app.archive-live.archive-crisis .archive-live-scene {height:180px}
+}
