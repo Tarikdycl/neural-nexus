@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from app.archive_logic import narrate
-from app.archive_scenarios import SCENARIOS, BOSTON, get_scenario, resolve_case, evaluate
+from app.archive_scenarios import SCENARIOS, BOSTON, get_scenario, resolve_case, evaluate, score_case
 
 BASE = Path(__file__).resolve().parent.parent
 load_dotenv(BASE / ".env")
@@ -74,7 +74,7 @@ def session_events(cursor, sid):
     return [(r[0], decode_event_data(r[1])) for r in cursor]
 
 def archive_score(events, case=BOSTON):
-    return 25 * len(evidence(events, case))
+    return score_case(case, evidence(events, case))["evidence_score"]
 
 def evidence(events, case=BOSTON):
     keys = {data.get("key") for kind, data in events
@@ -189,7 +189,7 @@ def action(body: ActionRequest):
                 if outcome["discovered"]:
                     key=outcome["discovered"]
                     record(cur,body.session_id,"evidence_discovered",
-                           {"key":key,"fact":case["evidence"][key],"points":25})
+                           {"key":key,"fact":case["evidence"][key],"points":20})
                 db.commit()
         prompt=("Continue as the same "+outcome["npc"]+". " if outcome.get("npc") else "")+body.text
         reply=narrate(outcome["facts"],prompt,outcome["reply"]) if outcome["ok"] else {"text":outcome["reply"],"source":"engine"}
@@ -199,8 +199,8 @@ def action(body: ActionRequest):
                 db.commit()
         return {"saved":True,"accepted":outcome["ok"],"session_id":body.session_id,
                 "discovered":outcome["discovered"],
-                "score_awarded":25 if outcome["discovered"] else 0,
-                "total_score":25*(len(already)+(1 if outcome["discovered"] else 0)),
+                "score_awarded":20 if outcome["discovered"] else 0,
+                "total_score":20*(len(already)+(1 if outcome["discovered"] else 0)),
                 "reply":reply["text"],"source":reply["source"]}
     except oracledb.DatabaseError as exc:
         raise HTTPException(503,"Oracle action save failed") from exc
@@ -239,7 +239,7 @@ def state(session_id: str):
     limit = deadline(history) if phase == "CRISIS" else court_deadline(history)
     remaining = max(0, int((limit - datetime.now(timezone.utc)).total_seconds())) if limit else None
     return {"session_id": session_id, "phase": phase, "remaining_seconds": remaining,
-            "evidence": list(evidence(history,case)), "score": archive_score(history,case), "scenario_id":case["id"], "title":case["title"], "deadline": limit.isoformat() if limit else None,
+            "evidence": list(evidence(history,case)), "score": archive_score(history,case), "score_max":100, "scenario_id":case["id"], "title":case["title"], "deadline": limit.isoformat() if limit else None,
             "duration_seconds": 60 if phase == "CRISIS" else 90}
 
 
@@ -310,11 +310,11 @@ def verdict(body: VerdictRequest):
                  if kind=="court_answer" and isinstance(data,dict)),"")
             found=evidence(history,case)
             review=evaluate(case,testimony,answer,found)
+            breakdown=score_case(case,found,testimony,answer)
             report = {
-                **review,
+                **review, **breakdown,
                 "evidence_ids":list(found),"evidence_count":len(found),
                 "evidence_total":len(case["evidence"]),
-                "score":archive_score(history,case),
                 "scenario_id":case["id"],"title":case["title"],
                 "testimony":testimony,"court_answer":answer,
                 "historical_review":[
@@ -351,7 +351,7 @@ def saves(limit: int = 30):
                     "player_name":name,"phase":phase,
                     "started_at":started_at.isoformat() if started_at else None,
                     "evidence_count":len(evidence(history,case)),
-                    "score":archive_score(history,case),
+                    "score":result.get("score") if result else archive_score(history,case),
                     "decision":result.get("decision") if result else None,
                     "improvements":result.get("improvements",[]) if result else [],
                     "strengths":result.get("strengths",[]) if result else []
@@ -369,7 +369,7 @@ def saved_case(session_id: str):
     verdict=next((data for kind,data in reversed(history) if kind=="archive_verdict"),None)
     return {
         "session_id":session_id,"scenario_id":case["id"],"title":case["title"],
-        "phase":phase,"score":archive_score(history,case),
+        "phase":phase,"score":verdict.get("score") if verdict else archive_score(history,case),
         "evidence":[{"id":key,"fact":fact} for key,fact in evidence(history,case).items()],
         "transcript":[{"type":kind,"data":data} for kind,data in history
                       if kind in ("player_action","npc_reply","court_testimony","archivist_question","court_answer")],
