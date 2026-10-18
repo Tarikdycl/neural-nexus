@@ -132,8 +132,15 @@ export default function LastArchive({ onExit }) {
       <div className="archive-kicker">YEAR 2847 · THE GREAT ERASURE</div>
       <h1>History has vanished.<br/><em>Recover what remains.</em></h1>
       <p>Travel to Boston Harbor, 1773. Investigate through natural-language chat, preserve evidence, and defend your findings before the AI Archivist.</p>
-      <div className="archive-briefbox"><span>YOUR FIRST MISSION</span><strong>The Tea in the Harbor</strong><small>DECEMBER 16, 1773 · BOSTON</small></div>
-      <button className="archive-primary" disabled={busy} onClick={begin}>{busy ? 'Opening temporal gateway…' : 'Enter historical crisis →'}</button>
+      <button type="button" className="archive-mission-card" disabled={busy} onClick={begin} aria-label="Enter The Tea in the Harbor mission">
+        <img className="archive-mission-art" src="/images/missions/boston-tea-party.png" alt="Boston Harbor under moonlight during the Tea Party" />
+        <span className="archive-mission-details">
+          <span className="archive-mission-eyebrow">MISSION 001 <span className="archive-mission-status">● AVAILABLE</span></span>
+          <strong>The Tea in the Harbor</strong>
+          <span className="archive-mission-meta">DECEMBER 16, 1773 · BOSTON HARBOR</span>
+          <span className="archive-mission-action">{busy ? 'Opening temporal gateway…' : 'Enter historical crisis'} <span aria-hidden="true">→</span></span>
+        </span>
+      </button>
     </section>}
     {phase === 'crisis' && <section className="archive-container archive-fade">
       <div className="archive-status"><span>BOSTON HARBOR · DEC 16, 1773</span><span className={'archive-count '+(remaining <= 10 ? 'urgent' : '')}>00:{String(remaining).padStart(2, '0')}</span></div>
