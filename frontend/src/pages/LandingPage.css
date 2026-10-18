@@ -18,3 +18,14 @@
 .history-landing-footer {border-top:1px solid rgba(224,197,147,.17);padding-top:20px;padding-bottom:20px}
 @media(max-width:650px){.history-landing-art{background-position:57% center}.history-landing-shade{background:linear-gradient(90deg,rgba(7,14,27,.86),rgba(7,14,27,.5)),linear-gradient(0deg,#091525,transparent 70%)}.history-landing-header,.history-landing-footer{padding:18px 20px}.history-header-note,.history-landing-footer span:last-child{display:none}.history-landing-hero{padding:70px 25px}.history-landing-hero h1{font-size:clamp(44px,10vw,65px)}}
 @media(prefers-reduced-motion:reduce){.history-hero-cta{transition:none}}
+
+
+/* Minimal historical landing: restrained sage accent against midnight navy. */
+.history-landing-hero h1 {font-size:clamp(58px,7.5vw,108px);max-width:900px;line-height:1.08}
+.history-landing-hero h1 em {color:#b3caa9}
+.history-landing-hero p {max-width:530px;margin:22px 0 30px;color:#d5ded5;font-size:clamp(15px,1.45vw,18px)}
+.history-hero-cta {background:#afc8a4;border-color:#c6d8bd;color:#0e2330}
+.history-hero-cta:hover {background:#c6dabd}
+.history-brand-symbol {color:#b6cbaa}
+.history-header-note,.history-landing-footer {color:#b7c7b6}
+@media(max-width:650px){.history-landing-hero h1{font-size:clamp(49px,11vw,70px)}}
