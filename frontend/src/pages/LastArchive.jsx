@@ -188,7 +188,7 @@ export default function LastArchive({ onExit, initialView = "brief" }) {
     try {
       const response = await api('/action', { session_id: sessionId, text });
       setMessages(prev => [...prev, { by: 'archive', text: response.reply, source: response.source }]);
-      if (response.discovered) setEvidence(prev => [...new Set([...prev, response.discovered])]);
+      if (response.discoveries?.length || response.discovered) setEvidence(prev => [...new Set([...prev, ...(response.discoveries || [response.discovered])])]);
       if (typeof response.total_score === 'number') setScore(response.total_score);
     } catch (err) {
       setError(err.message);
