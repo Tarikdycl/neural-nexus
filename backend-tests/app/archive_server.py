@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from app.archive_logic import narrate
-from app.archive_scenarios import SCENARIOS, BOSTON, get_scenario, resolve_case, evaluate, score_case, detect_discoveries
+from app.archive_scenarios import SCENARIOS, BOSTON, get_scenario, resolve_case, evaluate, score_case, detect_discoveries, court_question
 
 BASE = Path(__file__).resolve().parent.parent
 load_dotenv(BASE / ".env")
@@ -283,19 +283,16 @@ def court(body: CourtRequest):
                    {"text": body.testimony, "available_evidence": list(found)})
             db.commit()
 
-    facts = [case["scene"]] + list(found.values())
-    fallback = case["question"]
-    probe = narrate(facts,
-                    "The player testified: " + body.testimony
-                    + "\nOnly these evidence IDs were discovered: " + ", ".join(found),
-                    fallback, court=True)
+    # Deterministic, open-ended follow-up: no AI-generated trivia or name/date recall.
+    probe = court_question(case, body.testimony, found)
+    probe["source"] = "curated"
     with connect() as db:
         with db.cursor() as cur:
             record(cur, body.session_id, "archivist_question",
-                   {"text": probe["text"], "source": probe["source"], "evidence_ids": list(found)})
+                   {"text": probe["text"], "source": probe["source"], "question_type": probe["type"], "evidence_ids": list(found)})
             db.commit()
     return {"saved": True, "phase": "COURT", "archivist_question": probe["text"],
-            "source": probe["source"], "evidence_ids": list(found), "evaluated": False}
+            "source": probe["source"], "question_type": probe["type"], "evidence_ids": list(found), "evaluated": False}
 
 
 @app.post("/archive/verdict")
